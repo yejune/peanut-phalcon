@@ -1,0 +1,14 @@
+{
+    "name" : "yejune/peanut",
+    "description" : "",
+    "autoload": {
+        "psr-4": {
+            "Peanut\\": "src/Peanut/"
+        }
+    },
+    "require": {
+        "ext-phalcon": "*",
+        "ext-yaml": "*",
+        "ext-uuid": "*"
+    }
+}
