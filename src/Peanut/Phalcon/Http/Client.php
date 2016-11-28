@@ -41,21 +41,22 @@ class Client
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->datas);
         }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        if ($this->cafile) {
-            curl_setopt($ch, CURLOPT_CAINFO, $this->cafile);
-        }
+
         if ($this->headers) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
         }
         $output = curl_exec($ch);
-        if (! $output) {
-            print curl_errno($ch).': '.curl_error($ch);
-        }
+
         $statuscode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $statustext = curl_getinfo($ch);
 
-        if ($statuscode != 200) {
-            throw new \Exception($output);
+        if ($statuscode == 204) {
+        } elseif ($statuscode != 200) {
+            if (! $output) {
+                throw new \Exception(curl_error($ch).' '.curl_errno($ch));
+            } else {
+                throw new \Exception($output);
+            }
         }
 
         return $output;
