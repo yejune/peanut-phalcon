@@ -82,7 +82,7 @@ class Basic
                     && true === isset($globalConfig['domains'])
                     && true === is_array($globalConfig['domains'])) {
                     foreach ($globalConfig['domains'] as $environment => $domain) {
-                        if (true === in_array($this->getHttpHost(), $domain)) {
+                        if (true === in_array($this->getHttpHost(), $domain, true)) {
                             $globalConfig['environment'] = $environment;
                             break;
                         }

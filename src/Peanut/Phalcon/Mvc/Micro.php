@@ -225,7 +225,7 @@ class ChainingException extends \Exception
     {
         $last = (debug_backtrace()[1]);
 
-        if ('Peanut\Phalcon\Mvc\Micro' === $last['class'] && true === in_array(strtoupper($last['function']), \Peanut\Phalcon\Mvc\Router::methods)) {
+        if ('Peanut\Phalcon\Mvc\Micro' === $last['class'] && true === in_array(strtoupper($last['function']), \Peanut\Phalcon\Mvc\Router::methods, true)) {
             $message .= $last['function'].'()은 methods()와 chaining될수 없습니다.'.PHP_EOL.'in '.$last['file'].', line '.$last['line'];
         }
 

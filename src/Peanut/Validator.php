@@ -396,7 +396,7 @@ class Validator extends Valid
                 } else {
                     foreach ($spec['properties'] as $field => $conf) {
                         $this->propertyKeys[] = $field;
-                        $required             = (true === isset($spec['required']) && true === in_array($field, $spec['required'])) ? true : false;
+                        $required             = (true === isset($spec['required']) && true === in_array($field, $spec['required'], true)) ? true : false;
                         if ($required && false === isset($data[$field])) {
                             $this->errors[$this->getPropertyKeyName()]['required'] = 'required';
                         } elseif (true === isset($data[$field])) {
@@ -463,7 +463,7 @@ class Validator extends Valid
 
     public function checkRequiredByProperty($data, $property)
     {
-        $required = (true === isset($spec['required']) && true === in_array($field, $spec['required'])) ? true : false;
+        $required = (true === isset($spec['required']) && true === in_array($field, $spec['required'], true)) ? true : false;
         if ($required && false === isset($data[$field])) {
             $this->errors[$parentKey.'/'.$field]['required'] = 'required';
         } elseif (null === $data && true === $property['required']) {
@@ -475,7 +475,7 @@ class Validator extends Valid
 
     private function checkEnum($data, $parameter)
     {
-        if (true === isset($parameter['enum']) && false === in_array($data, $parameter['enum'])) {
+        if (true === isset($parameter['enum']) && false === in_array($data, $parameter['enum'], true)) {
             $this->errors[$parameter['name']]['enum'] = 'enum error';
         }
     }
