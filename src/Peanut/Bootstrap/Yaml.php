@@ -134,7 +134,6 @@ class Yaml
 
     /**
      * @param  \Phalcon\Mvc\Micro   $app
-     * @param  array                $config
      * @return \Phalcon\Mvc\Micro
      */
     private function run(\Phalcon\Mvc\Micro $app)
