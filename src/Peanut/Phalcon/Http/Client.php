@@ -33,18 +33,20 @@ class Client
     public function send()
     {
         $ch = curl_init($this->url);
+
+        curl_setopt($ch, CURLOPT_HEADER, false);
+
         if ($this->requestMethod == 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-        }
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        if ($this->requestMethod == 'POST') {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $this->datas);
         }
+
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         if ($this->headers) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
         }
+
         $output = curl_exec($ch);
 
         $statuscode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

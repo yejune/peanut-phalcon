@@ -155,9 +155,8 @@ class Pagination
 $totalCount     = 1232;
 $recordsPerPage = 50;
 $pagesPerBlock  = 9;
-$currentPage    = sanitize\segment::int(2,1);;
-$urlPattern     = '/service/list/(:page)';
-
+$currentPage    = $request->getQuery('page');
+$urlPattern     = '/attraction/?page={=page}';
 
 // html
 $pagingHtml  = pagination::getHtml($totalCount, $currentPage, $recordsPerPage, $pagesPerBlock, $urlPattern);

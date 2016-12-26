@@ -33,6 +33,13 @@ class Response extends \Phalcon\Http\Response
         return $this->getDI()->get('application')->handle($url);
     }
 
+    public function redirect($location = null, $externalRedirect = false, $statusCode = 302)
+    {
+        parent::setContent('<meta http-equiv="refresh" content="0; url='.$location.'" />');
+
+        return $this;
+    }
+
     public function content($response)
     {
         if (true === isset($response['status'])) {
@@ -47,18 +54,18 @@ class Response extends \Phalcon\Http\Response
                 case 'application/xhtml':
                     parent::setContentType('text/html', 'UTF-8');
                     parent::setContent(html_encode($response));
-                    break(2);
+                    break 2;
 
                 case 'application/xml':
                 case 'application/xml;charset=UTF-8':
-                    break(2);
+                    break 2;
 
                 case 'application/json':
                 case 'application/json;charset=UTF-8':
                 default:
                     parent::setContentType('application/json', 'UTF-8');
                     parent::setJsonContent($response);
-                    break(2);
+                    break 2;
             }
         }
 

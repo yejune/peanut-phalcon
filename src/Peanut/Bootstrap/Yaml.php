@@ -26,6 +26,15 @@ class Yaml
     }
 
     /**
+     * @param  \Phalcon\Mvc\Micro   $app
+     * @return \Phalcon\Mvc\Micro
+     */
+    public function __invoke(\Phalcon\Mvc\Micro $app)
+    {
+        return $this->run($app);
+    }
+
+    /**
      * @param \Phalcon\DI\FactoryDefault $di
      */
     public function setDi(\Phalcon\DI\FactoryDefault $di)
@@ -35,6 +44,7 @@ class Yaml
 
     /**
      * @param  null|string
+     * @param null|mixed $name
      * @return \Phalcon\DI\FactoryDefault
      */
     public function getDI($name = null)
@@ -56,25 +66,15 @@ class Yaml
 
     public function initRequest()
     {
-        $this->di->setShared('request', function () {
+        $this->getDi()->setShared('request', function () {
             return new \Peanut\Phalcon\Http\Request();
         });
     }
 
     public function initResponse()
     {
-        $this->di->setShared('response', function () {
+        $this->getDi()->setShared('response', function () {
             return new \Peanut\Phalcon\Http\Response();
-        });
-    }
-
-    /**
-     * @param array $config
-     */
-    public function initConfig(array $config)
-    {
-        $this->di->setShared('config', function () use ($config) {
-            return $config; //(new \Phalcon\Config($config))->toArray();
         });
     }
 
@@ -97,15 +97,21 @@ class Yaml
         return $config;
     }
 
-    /**
-     * @param  \Phalcon\Mvc\Micro   $app
-     * @return \Phalcon\Mvc\Micro
-     */
-    public function __invoke(\Phalcon\Mvc\Micro $app)
+    public function initEnvironment()
     {
-        $config = $this->getConfigFile(__BASE__.'/Bootfile.yml');
+        if ($stage = getenv('STAGE_NAME')) {
+            throw new \Exception('stage를 확인할수 없습니다.');
+        }
 
-        return $this->run($app, $config);
+        $this->stageName = $stage;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStageName()
+    {
+        return $this->stageName;
     }
 
     /**
@@ -113,7 +119,17 @@ class Yaml
      */
     protected function initialize(\Phalcon\Mvc\Micro $app)
     {
-        //
+    }
+
+    protected function initRouter()
+    {
+        $routes = $this->getConfigFile(__BASE__.'/routes.yml');
+        $this->getDi()->setShared('router', function () use ($routes) {
+            $router = new \Peanut\Phalcon\Mvc\Router\Rules\Hash();
+            $router->group($routes);
+
+            return $router;
+        });
     }
 
     /**
@@ -121,9 +137,8 @@ class Yaml
      * @param  array                $config
      * @return \Phalcon\Mvc\Micro
      */
-    private function run(\Phalcon\Mvc\Micro $app, array $config)
+    private function run(\Phalcon\Mvc\Micro $app)
     {
-        $this->initConfig($config);
         $this->initRequest();
         $this->initResponse();
         $this->initEnvironment();
@@ -143,34 +158,5 @@ class Yaml
         $this->initialize($app);
 
         return $app;
-    }
-
-    public function initEnvironment()
-    {
-        if ($stage = getenv('STAGE_NAME')) {
-            throw new \Exception('stage를 확인할수 없습니다.');
-        }
-
-        $this->stageName = $stage;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStageName()
-    {
-        return $this->stageName;
-    }
-
-    protected function initRouter()
-    {
-        $routes = $this->getConfigFile(__BASE__.'/routes.yml');
-
-        $this->di->setShared('router', function () use ($routes) {
-            $router = new \Peanut\Phalcon\Mvc\Router\Rules\Hash();
-            $router->group($routes);
-
-            return $router;
-        });
     }
 }
