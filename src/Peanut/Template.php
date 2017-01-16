@@ -96,15 +96,6 @@ class Template
     }
 
     /**
-     * @param $fid
-     * @param $path
-     */
-    private function _define($fid, $path)
-    {
-        $this->tpl_[$fid] = $path;
-    }
-
-    /**
      * @param  $fid
      * @param  $print
      * @return mixed
@@ -154,53 +145,13 @@ class Template
             $this->requireFile($this->getCompilePath($fid));
         }
         error_reporting($this->noticeReporting);
-
-        return;
     }
 
-    /**
-     * @param  $fid
-     * @return mixed
-     */
-    private function getCompilePath($fid)
+    public function compilePath($filename)
     {
-        $tplPath = $this->tplPath($fid);
-        $cplPath = $this->cplPath($fid);
+        $this->_define('*', $filename);
 
-        if (false === $this->compileCheck) {
-            return $cplPath;
-        }
-
-        if (@!is_file($tplPath)) {
-            trigger_error('cannot find defined template "'.$tplPath.'"', E_USER_ERROR);
-        }
-
-        $cplHead = '<?php /* Peanut\Template '.date('Y/m/d H:i:s', filemtime($tplPath)).' '.$tplPath.' ';
-
-        if ('dev' !== $this->compileCheck && @is_file($cplPath)) {
-            $fp   = fopen($cplPath, 'rb');
-            $head = fread($fp, strlen($cplHead) + 9);
-            fclose($fp);
-
-            if (strlen($head) > 9
-                && substr($head, 0, -9) == $cplHead && filesize($cplPath) == (int) substr($head, -9)) {
-                return $cplPath;
-            }
-        }
-
-        $compiler = new \Peanut\Template\Compiler();
-        $compiler->execute($this, $fid, $tplPath, $cplPath, $cplHead);
-
-        return $cplPath;
-    }
-
-    /**
-     * @param $tplPath
-     */
-    private function requireFile($tplPath)
-    {
-        extract($this->var_);
-        require $tplPath;
+        return $this->getCompilePath('*');
     }
 
     /**
@@ -209,7 +160,7 @@ class Template
      */
     public function cplPath($fid)
     {
-        return $this->compileRoot.DIRECTORY_SEPARATOR.ltrim($this->relativePath[$fid], '/').$this->ext;
+        return $this->compileRoot.DIRECTORY_SEPARATOR.$this->templateRoot.DIRECTORY_SEPARATOR.ltrim($this->tpl_[$fid], './').$this->ext;
     }
 
     /**
@@ -226,38 +177,92 @@ class Template
         } else {
             trigger_error('template id "'.$fid.'" is not defined', E_USER_ERROR);
         }
+        if (1 === preg_match('#^/#', $path)) {
+            trigger_error('Only relative paths are allowed. '.$path, E_USER_ERROR);
+        }
+        $path = str_replace(__BASE__.'/'.$addFolder, '', $path);
 
-        if (false === isset($this->relativePath[$fid])) {
-            $skinFolder = trim($this->skin, '/');
+        $skinFolder = trim($this->skin, '/');
 
-            if ($skinFolder) {
-                $addFolder .= '/'.$skinFolder.'/';
-            }
-
-            $this->relativePath[$fid] = $addFolder.ltrim($path, './');
-            $tplPath                  = $this->relativePath[$fid];
-        } else {
-            $tplPath = $path;
+        if ($skinFolder) {
+            $addFolder .= '/'.$skinFolder.'/';
         }
 
-        if (false === is_file($tplPath)) {
-            trigger_error('cannot find defined template "'.$path.'"', E_USER_ERROR);
+        $tplPath = $addFolder.ltrim($path, './');
+        //trigger_error(print_r([$path, $tplPath], true), E_USER_ERROR);
+
+        if (false === stream_resolve_include_path($tplPath)) {
+            trigger_error('cannot find defined template "'.$tplPath.'"', E_USER_ERROR);
         }
 
-        return $this->tpl_[$fid] = $tplPath;
+        return  stream_resolve_include_path($tplPath);
     }
 
     public function templateNoticeHandler($type, $msg, $file, $line)
     {
         $msg .= " in <b>$file</b> on line <b>$line</b>";
         switch ($type) {
-            case E_NOTICE      :$msg = "'".'"><span style="font:12px tahoma,arial;color:green;background:white">template Notice #1: '.$msg.'</span>';break;
-            case E_WARNING     :
+            case E_NOTICE:$msg = "'".'"><span style="font:12px tahoma,arial;color:green;background:white">template Notice #1: '.$msg.'</span>';break;
+            case E_WARNING:
             case E_USER_WARNING:$msg = '<b>Warning</b>: '.$msg; break;
-            case E_USER_NOTICE :$msg = '<b>Notice</b>: '.$msg; break;
-            case E_USER_ERROR  :$msg = '<b>Fatal</b>: '.$msg; break;
-            default            :$msg = '<b>Unknown</b>: '.$msg; break;
+            case E_USER_NOTICE:$msg  = '<b>Notice</b>: '.$msg; break;
+            case E_USER_ERROR:$msg   = '<b>Fatal</b>: '.$msg; break;
+            default:$msg             = '<b>Unknown</b>: '.$msg; break;
         }
         echo "<br />\n".$msg."<br />\n";
+    }
+
+    /**
+     * @param $fid
+     * @param $path
+     */
+    private function _define($fid, $path)
+    {
+        $this->tpl_[$fid] = $path;
+    }
+    /**
+     * @param  $fid
+     * @return mixed
+     */
+    private function getCompilePath($fid)
+    {
+        $tplPath      = ($this->tplPath($fid));
+        $cplPath      = $this->cplPath($fid);
+        if (false === $this->compileCheck) {
+            return $cplPath;
+        }
+
+        if (false === $tplPath) {
+            trigger_error('cannot find defined template "'.$tplPath.'"', E_USER_ERROR);
+        }
+
+        $cplHead = '<?php /* Peanut\Template '.date('Y/m/d H:i:s', filemtime($tplPath)).' '.$tplPath.' ';
+
+        if ('dev' !== $this->compileCheck && false !== $cplPath) {
+            $fp   = fopen($cplPath, 'rb');
+            $head = fread($fp, strlen($cplHead) + 9);
+            fclose($fp);
+
+            if (strlen($head) > 9
+                && substr($head, 0, -9) == $cplHead && filesize($cplPath) == (int) substr($head, -9)) {
+                return $cplPath;
+            }
+        }
+
+        $compiler = new \Peanut\Template\Compiler();
+        $compiler->execute($this, $fid, $tplPath, __BASE__.'/'.$cplPath, $cplHead);
+
+        $cplPath      = stream_resolve_include_path($cplPath);
+
+        return $cplPath;
+    }
+
+    /**
+     * @param $tplPath
+     */
+    private function requireFile($tplPath)
+    {
+        extract($this->var_);
+        require $tplPath;
     }
 }
