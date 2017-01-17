@@ -141,7 +141,7 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
      * @param  array        $bindParameters
      * @return int|false
      */
-    public function setId($statement, $bindParameters = [])
+    public function setAndGetSequnce($statement, $bindParameters = [])
     {
         if (true === self::set($statement, $bindParameters)) {
             return parent::lastInsertId();
