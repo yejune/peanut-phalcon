@@ -1,13 +1,8 @@
 <?php
-namespace Peanut\Phalcon\Pdo;
+namespace Peanut\Phalcon\Db;
 
 class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
 {
-    /**
-     * @var mixed
-     */
-    public static $instance;
-
     /**
      * @param $descriptor
      */
@@ -68,30 +63,6 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
         $options[\Pdo::ATTR_DEFAULT_FETCH_MODE] = \Pdo::FETCH_ASSOC;
 
         $this->_pdo = new \Pdo($dsnAttributes, $username, $password, $options);
-    }
-
-    /**
-     * @param  $name
-     * @throws \PDOException|\Exception
-     * @return \Pdo
-     */
-    public static function name($name)
-    {
-        $di = \Phalcon\Di::getDefault();
-
-        if (true === isset($di['databases'][$name])) {
-            if (false === isset(self::$instance[$name])) {
-                try {
-                    self::$instance[$name] = new Self($di['databases'][$name]);
-                } catch (\Throwable $e) {
-                    throw new \Exception($e->getMessage());
-                }
-            }
-
-            return self::$instance[$name];
-        } else {
-            throw new \Exception($name.' config not found');
-        }
     }
 
     /**
