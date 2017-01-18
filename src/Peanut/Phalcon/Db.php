@@ -17,11 +17,12 @@ class Db
     {
         $di = \Phalcon\Di::getDefault();
 
-        $dsn = explode(':', $di['databases'][$name]['dsn']);
         if (true === isset($di['databases'][$name])) {
             if (false === isset(self::$instance[$name])) {
                 try {
-                    $class                 = '\\Peanut\\Phalcon\Db\\'.ucfirst($dsn[0]);
+                    $dsn   = explode(':', $di['databases'][$name]['dsn']);
+                    $class = '\\Peanut\\Phalcon\Db\\'.ucfirst($dsn[0]);
+
                     self::$instance[$name] = new $class($di['databases'][$name]);
                 } catch (\Throwable $e) {
                     throw new \Exception($e->getMessage());
