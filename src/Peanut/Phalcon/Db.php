@@ -20,10 +20,10 @@ class Db
         if (true === isset($di['databases'][$name])) {
             if (false === isset(self::$instance[$name])) {
                 try {
-                    $dsn   = explode(':', $di['databases'][$name]['dsn']);
-                    $class = '\\Peanut\\Phalcon\Db\\'.ucfirst($dsn[0]);
+                    $dbConfig = $di['databases'][$name];
+                    $class    = '\\Peanut\\Phalcon\Db\\'.ucfirst($dbConfig['scheme']);
 
-                    self::$instance[$name] = new $class($di['databases'][$name]);
+                    self::$instance[$name] = new $class($dbConfig);
                 } catch (\Throwable $e) {
                     throw new \Exception($e->getMessage());
                 }
