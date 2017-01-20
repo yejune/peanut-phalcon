@@ -86,6 +86,7 @@ class Router extends \Phalcon\Mvc\Router
 
     /**
      * @return array
+     * @param mixed $name
      */
     public function getMethods($name)
     {

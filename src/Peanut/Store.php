@@ -3,8 +3,16 @@ namespace Peanut;
 
 class Store
 {
-    private $_variables = [];
     protected static $_instance;
+    private $_variables = [];
+
+    /**
+     * reset variables
+     */
+    public function __destruct()
+    {
+        static::instance()->_variables = null;
+    }
 
     /**
      * Singleton instance
@@ -20,6 +28,7 @@ class Store
 
     /**
      * get variables
+     * @param null|mixed $key
      */
     public static function get($key = null)
     {
@@ -32,6 +41,7 @@ class Store
 
     /**
      * set variables
+     * @param mixed $arg
      */
     public static function set($arg)
     {
@@ -50,13 +60,5 @@ class Store
                 }
             }
         }
-    }
-
-    /**
-     * reset variables
-     */
-    public function __destruct()
-    {
-        static::instance()->_variables = null;
     }
 }

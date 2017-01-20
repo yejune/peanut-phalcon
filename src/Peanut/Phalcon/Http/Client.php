@@ -56,9 +56,8 @@ class Client
         } elseif ($statuscode != 200) {
             if (! $output) {
                 throw new \Exception(curl_error($ch).' '.curl_errno($ch));
-            } else {
-                throw new \Exception($output);
             }
+            throw new \Exception($output);
         }
 
         return $output;

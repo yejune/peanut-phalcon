@@ -89,6 +89,7 @@ class Nano extends Injectable implements \ArrayAccess
      *
      * @param string routePattern
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Router\RouteInterface
      */
     public function map(string $routePattern, $handler) : RouteInterface
@@ -121,6 +122,7 @@ class Nano extends Injectable implements \ArrayAccess
      *
      * @param string routePattern
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Router\RouteInterface
      */
     public function get(string $routePattern, $handler) : RouteInterface
@@ -153,6 +155,7 @@ class Nano extends Injectable implements \ArrayAccess
      *
      * @param string routePattern
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Router\RouteInterface
      */
     public function post(string $routePattern, $handler) : RouteInterface
@@ -249,6 +252,7 @@ class Nano extends Injectable implements \ArrayAccess
      *
      * @param string routePattern
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Router\RouteInterface
      */
     public function head(string $routePattern, $handler) : RouteInterface
@@ -281,6 +285,7 @@ class Nano extends Injectable implements \ArrayAccess
      *
      * @param string routePattern
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Router\RouteInterface
      */
     public function delete(string $routePattern, $handler) : RouteInterface
@@ -313,6 +318,7 @@ class Nano extends Injectable implements \ArrayAccess
      *
      * @param string routePattern
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Router\RouteInterface
      */
     public function options(string $routePattern, $handler) : RouteInterface
@@ -423,6 +429,7 @@ class Nano extends Injectable implements \ArrayAccess
      * Sets a handler that will be called when the router doesn't match any of the defined routes
      *
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Nano
      */
     public function notFound($handler) : Nano
@@ -436,6 +443,7 @@ class Nano extends Injectable implements \ArrayAccess
      * Sets a handler that will be called when an exception is thrown handling the route
      *
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Nano
      */
     public function error($handler) : Nano
@@ -481,6 +489,7 @@ class Nano extends Injectable implements \ArrayAccess
      * @param string  serviceName
      * @param mixed   definition
      * @param boolean shared
+     * @param mixed $definition
      * @return \Phalcon\Di\ServiceInterface
      */
     public function setService(string $serviceName, $definition, boolean $shared) : ServiceInterface
@@ -535,6 +544,7 @@ class Nano extends Injectable implements \ArrayAccess
      * Obtains a shared service from the DI
      *
      * @param string serviceName
+     * @param mixed $serviceName
      * @return mixed
      */
     public function getSharedService($serviceName)
@@ -554,6 +564,7 @@ class Nano extends Injectable implements \ArrayAccess
      * Handle the whole request
      *
      * @param string uri
+     * @param null|mixed $uri
      * @return mixed
      */
     public function handle($uri = null)
@@ -608,9 +619,8 @@ class Nano extends Injectable implements \ArrayAccess
                 if (true === is_object($eventsManager)) {
                     if (false === $eventsManager->fire('micro:beforeExecuteRoute', $this)) {
                         return false;
-                    } else {
-                        $handler = $this->_activeHandler;
                     }
+                    $handler = $this->_activeHandler;
                 }
 
                 $beforeHandlers = $this->_beforeHandlers;
@@ -882,6 +892,7 @@ class Nano extends Injectable implements \ArrayAccess
      * Sets externally the handler that must be called by the matched route
      *
      * @param callable activeHandler
+     * @param mixed $activeHandler
      */
     public function setActiveHandler($activeHandler)
     {
@@ -912,6 +923,7 @@ class Nano extends Injectable implements \ArrayAccess
      * Check if a service is registered in the internal services container using the array syntax
      *
      * @param string alias
+     * @param mixed $alias
      * @return boolean
      */
     public function offsetExists($alias) : boolean
@@ -928,6 +940,8 @@ class Nano extends Injectable implements \ArrayAccess
      *
      * @param string alias
      * @param mixed definition
+     * @param mixed $alias
+     * @param mixed $definition
      */
     public function offsetSet($alias, $definition)
     {
@@ -942,6 +956,7 @@ class Nano extends Injectable implements \ArrayAccess
      *</code>
      *
      * @param string alias
+     * @param mixed $alias
      * @return mixed
      */
     public function offsetGet($alias)
@@ -953,6 +968,7 @@ class Nano extends Injectable implements \ArrayAccess
      * Removes a service from the internal services container using the array syntax
      *
      * @param string alias
+     * @param mixed $alias
      */
     public function offsetUnset($alias)
     {
@@ -963,6 +979,7 @@ class Nano extends Injectable implements \ArrayAccess
      * Appends a before middleware to be called before execute the route
      *
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Nano
      */
     public function before($handler) : Nano
@@ -976,6 +993,7 @@ class Nano extends Injectable implements \ArrayAccess
      * Appends an 'after' middleware to be called after execute the route
      *
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Nano
      */
     public function after($handler) : Nano
@@ -989,6 +1007,7 @@ class Nano extends Injectable implements \ArrayAccess
      * Appends a 'finish' middleware to be called when the request is finished
      *
      * @param callable handler
+     * @param mixed $handler
      * @return \Phalcon\Mvc\Nano
      */
     public function finish($handler) : Nano

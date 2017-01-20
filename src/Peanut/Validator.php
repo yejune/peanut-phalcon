@@ -58,48 +58,45 @@ class Valid
     {
         if (false === isset($this->queryParameters[$name])) {
             return null;
-        } else {
-            if (true === is_array($this->queryParameters[$name])) {
-                return 0 === count($this->queryParameters[$name]) ? null : $this->queryParameters[$name];
-            } else {
-                return 0 === strlen($this->queryParameters[$name]) ? null : $this->queryParameters[$name];
-            }
         }
+        if (true === is_array($this->queryParameters[$name])) {
+            return 0 === count($this->queryParameters[$name]) ? null : $this->queryParameters[$name];
+        }
+
+        return 0 === strlen($this->queryParameters[$name]) ? null : $this->queryParameters[$name];
     }
 
     public function getPathParameter($name)
     {
         if (false === isset($this->pathParameters[$name])) {
             return null;
-        } else {
-            if (true === is_array($this->pathParameters[$name])) {
-                return 0 === count($this->pathParameters[$name]) ? null : $this->pathParameters[$name];
-            } else {
-                return 0 === strlen($this->pathParameters[$name]) ? null : $this->pathParameters[$name];
-            }
         }
+        if (true === is_array($this->pathParameters[$name])) {
+            return 0 === count($this->pathParameters[$name]) ? null : $this->pathParameters[$name];
+        }
+
+        return 0 === strlen($this->pathParameters[$name]) ? null : $this->pathParameters[$name];
     }
 
     public function getFormParameter($name)
     {
         if (false === isset($this->bodyParameters[$name])) {
             return null;
-        } else {
-            if (true === is_array($this->bodyParameters[$name])) {
-                return 0 === count($this->bodyParameters[$name]) ? null : $this->bodyParameters[$name];
-            } else {
-                return 0 === strlen($this->bodyParameters[$name]) ? null : $this->bodyParameters[$name];
-            }
         }
+        if (true === is_array($this->bodyParameters[$name])) {
+            return 0 === count($this->bodyParameters[$name]) ? null : $this->bodyParameters[$name];
+        }
+
+        return 0 === strlen($this->bodyParameters[$name]) ? null : $this->bodyParameters[$name];
     }
 
     public function getBodyParameters()
     {
         if (true === is_array($this->bodyParameters)) {
             return 0 === count($this->bodyParameters) ? null : $this->bodyParameters;
-        } else {
-            return 0 === strlen($this->bodyParameters) ? null : $this->bodyParameters;
         }
+
+        return 0 === strlen($this->bodyParameters) ? null : $this->bodyParameters;
     }
 
     /**
@@ -146,9 +143,9 @@ class Valid
         } else {
             if ($this->mode == 'strict') {
                 throw new \Exception('spec file not exists');
-            } else {
-                return [];
             }
+
+            return [];
         }
     }
 
@@ -165,14 +162,12 @@ class Valid
             case 'yml':
                 $result = yaml_parse($contents, true);
                 break;
-
             case 'json':
                 $result = json_decode($contents, true);
                 if (json_last_error()) {
                     throw new \Exception($filename.' Invalid JSON syntax');
                 }
                 break;
-
             default:
                 throw new \Exception($ext.' not support');
                 break;
@@ -230,6 +225,7 @@ class Valid
 
 class Validator extends Valid
 {
+    public $propertyKeys = [];
     public function validate()
     {
         $this->security();
@@ -308,18 +304,16 @@ class Validator extends Valid
 
                             if (true === is_array($arrayValue)) {
                                 $this->checkObjectSpec($arrayValue, $subspec);
-                            } else {
-                                //pr($variableName, $arrayKey, $arrayValue, $subspec);
                             }
+                                //pr($variableName, $arrayKey, $arrayValue, $subspec);
+
                             array_pop($this->propertyKeys);
                         }
-                    } else {
                     }
                 }
             } else {
                 if (false === isset($spec['properties']) || false === isset($spec['properties'][$variableName])) {
                     $this->errors[$this->getPropertyKeyName()]['body'] = $value.' body should not be specified';
-                } else {
                 }
             }
             array_pop($this->propertyKeys);
@@ -365,12 +359,9 @@ class Validator extends Valid
 
                 return $swagger;
             }
-        } else {
-            // not support
         }
+            // not support
     }
-
-    public $propertyKeys = [];
 
     public function getPropertyKeyName()
     {
@@ -401,9 +392,9 @@ class Validator extends Valid
                             $this->errors[$this->getPropertyKeyName()]['required'] = 'required';
                         } elseif (true === isset($data[$field])) {
                             $this->checkProperty($data[$field], $spec['properties'][$field]);
-                        } else {
-                            //pr($parentKey, $field, $data[$field]);
                         }
+                            //pr($parentKey, $field, $data[$field]);
+
                         array_pop($this->propertyKeys);
                     }
                 }

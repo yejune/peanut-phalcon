@@ -45,30 +45,6 @@ class Basic
     }
 
     /**
-     * @param \Phalcon\DI\FactoryDefault $di
-     */
-    private function setDi(\Phalcon\DI\FactoryDefault $di)
-    {
-        $this->di = $di;
-    }
-
-    /**
-     * @return \Phalcon\DI\FactoryDefault
-     */
-    private function getDI()
-    {
-        return $this->di;
-    }
-
-    /**
-     * @return string
-     */
-    private function getHttpHost()
-    {
-        return $this->getDi()->get('request')->getHttpHost();
-    }
-
-    /**
      * @param  $configFile
      * @return mixed
      */
@@ -120,6 +96,30 @@ class Basic
         }
 
         return $config;
+    }
+
+    /**
+     * @param \Phalcon\DI\FactoryDefault $di
+     */
+    private function setDi(\Phalcon\DI\FactoryDefault $di)
+    {
+        $this->di = $di;
+    }
+
+    /**
+     * @return \Phalcon\DI\FactoryDefault
+     */
+    private function getDI()
+    {
+        return $this->di;
+    }
+
+    /**
+     * @return string
+     */
+    private function getHttpHost()
+    {
+        return $this->getDi()->get('request')->getHttpHost();
     }
 
     private function initRequest()

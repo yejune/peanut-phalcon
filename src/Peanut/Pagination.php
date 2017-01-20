@@ -39,33 +39,6 @@ class Pagination
         return $pagination->toArray();
     }
 
-    private function getPageUrl($pageNum = null)
-    {
-        if (!$pageNum) {
-            return null;
-        }
-
-        return str_replace('{=page}', $pageNum, $this->urlPattern);
-    }
-
-    private function createPage($pageNum, $isCurrent = false)
-    {
-        return [
-            'num'       => $pageNum,
-            'url'       => $this->getPageUrl($pageNum),
-            'isCurrent' => $isCurrent,
-        ];
-    }
-
-    private function createEllipsisPage()
-    {
-        return [
-            'num'       => '...',
-            'url'       => null,
-            'isCurrent' => false,
-        ];
-    }
-
     public function getPages()
     {
         $pages = [];
@@ -147,6 +120,33 @@ class Pagination
         $html .= '</ul>';
 
         return $html;
+    }
+
+    private function getPageUrl($pageNum = null)
+    {
+        if (!$pageNum) {
+            return null;
+        }
+
+        return str_replace('{=page}', $pageNum, $this->urlPattern);
+    }
+
+    private function createPage($pageNum, $isCurrent = false)
+    {
+        return [
+            'num'       => $pageNum,
+            'url'       => $this->getPageUrl($pageNum),
+            'isCurrent' => $isCurrent,
+        ];
+    }
+
+    private function createEllipsisPage()
+    {
+        return [
+            'num'       => '...',
+            'url'       => null,
+            'isCurrent' => false,
+        ];
     }
 }
 

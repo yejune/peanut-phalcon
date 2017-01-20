@@ -13,85 +13,9 @@ class Micro extends \Phalcon\Mvc\Micro
     private $pattern;
 
     /**
-     * @param  $className
-     * @return mixed
-     */
-    private function classLoader($className)
-    {
-        if (false === isset($this->instance[$className])) {
-            $this->instance[$className] = new $className();
-        }
-
-        return $this->instance[$className];
-    }
-
-    /**
-     * @param  $handler
-     * @param  array      $args
-     * @param  $name
-     * @return mixed
-     */
-    private function callHandler($handler, $args = [], $name = '')
-    {
-        if (true === is_callable($handler)) {
-            $status = call_user_func_array($handler, $args);
-        } elseif (true === is_string($handler)) {
-            if (false !== strpos($handler, '->')) {
-                $tmp = explode('->', $handler);
-                try {
-                    $class = $this->classLoader($tmp[0]);
-                } catch (\Throwable $e) {
-                    throw new \Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable: '.$e->getMessage().' in '.$e->getFile().' line '.$e->getLine());
-                }
-                if (true === is_callable([$class, $tmp[1]])) {
-                    $status = call_user_func_array([$class, $tmp[1]], $args);
-                } else {
-                    throw new \Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable');
-                }
-            } else {
-                echo $handler;
-                $status = $this->response;
-            }
-        } else {
-            throw new \Exception(($name ? $name.' ' : '').str_replace([PHP_EOL, ' '], ['', ' '], print_r($handler, true)).' is not support');
-        }
-
-        return $status;
-    }
-
-    /**
-     * @param  $matchedRoute
-     * @return mixed
-     */
-    private function getPatternParts($matchedRoute)
-    {
-        $pattern = $matchedRoute->getPattern();
-
-        if ('/' == $pattern) {
-            return [$pattern];
-        } else {
-            $url          = '';
-            $patternParts = [];
-
-            if (false === strpos($pattern, '{')) {
-                $patterns = explode('/', $pattern);
-            } else {
-                $patterns = preg_split('#(?<!\^|\\\)/#', $pattern, -1, PREG_SPLIT_DELIM_CAPTURE);
-            }
-
-            foreach ($patterns as $uri) {
-                $url .= '/'.$uri;
-                $patternParts[] = '/'.trim($url, '/');
-            }
-
-            return $patternParts;
-        }
-    }
-
-    /**
      * Handle the whole request
      *
-     * @param  string  uri
+     * @param  string  $uri
      * @return mixed
      */
     public function handle($uri = null)
@@ -211,6 +135,81 @@ class Micro extends \Phalcon\Mvc\Micro
         }
 
         return $returnedValue;
+    }
+
+    /**
+     * @param  $className
+     * @return mixed
+     */
+    private function classLoader($className)
+    {
+        if (false === isset($this->instance[$className])) {
+            $this->instance[$className] = new $className();
+        }
+
+        return $this->instance[$className];
+    }
+
+    /**
+     * @param  $handler
+     * @param  array      $args
+     * @param  $name
+     * @return mixed
+     */
+    private function callHandler($handler, $args = [], $name = '')
+    {
+        if (true === is_callable($handler)) {
+            $status = call_user_func_array($handler, $args);
+        } elseif (true === is_string($handler)) {
+            if (false !== strpos($handler, '->')) {
+                $tmp = explode('->', $handler);
+                try {
+                    $class = $this->classLoader($tmp[0]);
+                } catch (\Throwable $e) {
+                    throw new \Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable: '.$e->getMessage().' in '.$e->getFile().' line '.$e->getLine());
+                }
+                if (true === is_callable([$class, $tmp[1]])) {
+                    $status = call_user_func_array([$class, $tmp[1]], $args);
+                } else {
+                    throw new \Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable');
+                }
+            } else {
+                echo $handler;
+                $status = $this->response;
+            }
+        } else {
+            throw new \Exception(($name ? $name.' ' : '').str_replace([PHP_EOL, ' '], ['', ' '], print_r($handler, true)).' is not support');
+        }
+
+        return $status;
+    }
+
+    /**
+     * @param  $matchedRoute
+     * @return mixed
+     */
+    private function getPatternParts($matchedRoute)
+    {
+        $pattern = $matchedRoute->getPattern();
+
+        if ('/' == $pattern) {
+            return [$pattern];
+        }
+        $url          = '';
+        $patternParts = [];
+
+        if (false === strpos($pattern, '{')) {
+            $patterns = explode('/', $pattern);
+        } else {
+            $patterns = preg_split('#(?<!\^|\\\)/#', $pattern, -1, PREG_SPLIT_DELIM_CAPTURE);
+        }
+
+        foreach ($patterns as $uri) {
+            $url .= '/'.$uri;
+            $patternParts[] = '/'.trim($url, '/');
+        }
+
+        return $patternParts;
     }
 }
 

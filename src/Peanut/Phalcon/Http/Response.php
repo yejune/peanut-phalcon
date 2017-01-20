@@ -55,11 +55,9 @@ class Response extends \Phalcon\Http\Response
                     parent::setContentType('text/html', 'UTF-8');
                     parent::setContent(html_encode($response));
                     break 2;
-
                 case 'application/xml':
                 case 'application/xml;charset=UTF-8':
                     break 2;
-
                 case 'application/json':
                 case 'application/json;charset=UTF-8':
                 default:

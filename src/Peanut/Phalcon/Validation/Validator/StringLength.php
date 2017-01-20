@@ -25,6 +25,7 @@ class StringLength extends Validator
 
     /**
      * Executes the validation
+     * @param mixed $field
      */
     public function validate(Validation $validation, /*string! */$field)
     {
