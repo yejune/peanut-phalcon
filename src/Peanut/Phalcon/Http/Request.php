@@ -4,7 +4,7 @@ namespace Peanut\Phalcon\Http;
 class Request extends \Phalcon\Http\Request
 {
     public $bodyParameters = [];
-
+    public $pathParameters = [];
     /**
      * Sets request raw body
      *
@@ -342,6 +342,22 @@ class Request extends \Phalcon\Http\Request
         return $segments;
     }
 
+    public function getPath($name = null)
+    {
+        if (!$this->pathParameters) {
+            $router = $this->getDI()->getShared('router');
+            foreach ($router->getMatchedRoute()->getPaths() as $name => $key) {
+                $this->pathParameters[$name] = $router->getMatches()[$key];
+            }
+        }
+
+        if (null === $name) {
+            return $this->pathParameters;
+        }
+
+        return true === isset($this->pathParameters[$name]) ? $this->pathParameters[$name] : null;
+    }
+
     public function getBody($name = null)
     {
         if (!$this->bodyParameters) {
@@ -365,11 +381,9 @@ class Request extends \Phalcon\Http\Request
                 //return $return;
                 return parent::getPost();
                 break;
-
             case 'application/xml':
             case 'application/xml;charset=UTF-8':
                 break;
-
             case 'application/json':
             case 'application/json;charset=UTF-8':
             default:
@@ -385,5 +399,16 @@ class Request extends \Phalcon\Http\Request
                 return $json;
                 break;
         }
+    }
+
+    public function getSubDomain()
+    {
+        $tmp       = explode('.', $_SERVER['HTTP_HOST']);
+        $subDomain = '';
+        if (2 < count($tmp)) {
+            $subDomain = array_shift($tmp);
+        }
+
+        return $subDomain ?: 'www';
     }
 }
