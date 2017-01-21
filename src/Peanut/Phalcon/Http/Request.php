@@ -360,7 +360,7 @@ class Request extends \Phalcon\Http\Request
     public function getBody($bodyname = null)
     {
         if (!$this->bodyParameters) {
-            $this->bodyParameters = $this->getAllBody();
+            $this->bodyParameters = $this->getBodyAll();
         }
         if (null === $bodyname) {
             return $this->bodyParameters;
@@ -369,7 +369,7 @@ class Request extends \Phalcon\Http\Request
         return true === isset($this->bodyParameters[$bodyname]) ? $this->bodyParameters[$bodyname] : null;
     }
 
-    public function getAllBody()
+    public function getBodyAll()
     {
         $body        = parent::getRawBody();
         $contentType = parent::getHeader('CONTENT_TYPE');
