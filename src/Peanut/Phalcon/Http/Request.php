@@ -342,32 +342,31 @@ class Request extends \Phalcon\Http\Request
         return $segments;
     }
 
-    public function getPath($name = null)
+    public function getPath($pathname = null)
     {
-        if (!$this->pathParameters) {
+        if (count($this->pathParameters) == 0) {
             $router = $this->getDI()->getShared('router');
             foreach ($router->getMatchedRoute()->getPaths() as $name => $key) {
                 $this->pathParameters[$name] = $router->getMatches()[$key];
             }
         }
-
-        if (null === $name) {
+        if (null === $pathname) {
             return $this->pathParameters;
         }
 
-        return true === isset($this->pathParameters[$name]) ? $this->pathParameters[$name] : null;
+        return true === isset($this->pathParameters[$pathname]) ? $this->pathParameters[$pathname] : null;
     }
 
-    public function getBody($name = null)
+    public function getBody($bodyname = null)
     {
         if (!$this->bodyParameters) {
             $this->bodyParameters = $this->getAllBody();
         }
-        if (null === $name) {
+        if (null === $bodyname) {
             return $this->bodyParameters;
         }
 
-        return true === isset($this->bodyParameters[$name]) ? $this->bodyParameters[$name] : null;
+        return true === isset($this->bodyParameters[$bodyname]) ? $this->bodyParameters[$bodyname] : null;
     }
 
     public function getAllBody()

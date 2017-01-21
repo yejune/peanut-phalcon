@@ -4,7 +4,7 @@ namespace Peanut;
 class Valid
 {
     public $requestMethod    = 'get';
-    public $basedir          = __BASE__.'/app/specs';
+    public $basedir          = __BASE__.'/app/Specs';
     public $path             = '';
     public $errors           = [];
     public $spec             = [];
@@ -22,13 +22,12 @@ class Valid
      */
     public function __construct(\Phalcon\DI\FactoryDefault $di)
     {
-        $this->setBasedir(__BASE__.'/app/specs');
+        $this->setBasedir(__BASE__.'/app/Specs');
 
         $this->setQueryParameters($di->getShared('request')->getQuery());
         $this->setBodyParameters($di->getShared('request')->getBody());
         $this->setHeaderParameters($di->getShared('request')->getHeaders());
-        $this->setPathParameters($di->getShared('router')->getMatchedRoute()->getPaths());
-
+        $this->setPathParameters($di->getShared('request')->getPath());
         $this->setMethod($di->getShared('request')->getMethod());
         $this->setPath($di->getShared('router')->getMatchedRoute()->getPattern());
     }
@@ -124,6 +123,7 @@ class Valid
 
     public function setSpec($swagger)
     {
+        $this->path = str_replace($swagger['basePath'], '', $this->path);
         if (
             true === isset($swagger['paths'][$this->path])
             && true === isset($swagger['paths'][$this->path][$this->requestMethod])
@@ -178,7 +178,15 @@ class Valid
 
     public function setPath($path)
     {
-        $this->path = '/'.trim(preg_replace('#/{([^/]+)}$#', '', $path), '/');
+        while (1) {
+            if (1 === preg_match('#\/\{([^:]+):(.*)\}\/#U', $path.'/', $match)) {
+                $path = str_replace($match[1].':'.$match[2], $match[1], $path);
+            } else {
+                break;
+            }
+        }
+
+        $this->path = '/'.trim($path, '/');
     }
 
     public function setMethod($method)
@@ -346,8 +354,8 @@ class Validator extends Valid
     public function getReference($reference)
     {
         if (1 === preg_match('@^(?P<file>)?#/(?P<define>)@', $reference, $match)) {
-            if (true === isset($match['define'])) {
-                if (true === isset($match['file'])) {
+            if (true === isset($match['define']) && $match['define']) {
+                if (true === isset($match['file']) && $match['file']) {
                     $swagger = $this->parserFile($match['file']);
                 } else {
                     $swagger = $this->swagger;
@@ -474,6 +482,9 @@ class Validator extends Valid
     private function check($data, $parameter)
     {
         if (true === is_array($data)) {
+            if (false === isset($parameter['type'])) {
+                $parameter['type'] = 'body';
+            }
             $this->errors[$parameter['name']]['type'] = $parameter['type'].' type error';
 
             return;
