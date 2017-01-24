@@ -47,7 +47,6 @@ class Response extends \Phalcon\Http\Response
         }
 
         $contentTypeAll = $this->getDI()->get('request')->getAcceptableContent();
-
         foreach ($contentTypeAll as $contentType) {
             switch ($contentType['accept']) {
                 case 'text/html':
@@ -57,6 +56,11 @@ class Response extends \Phalcon\Http\Response
                     break 2;
                 case 'application/xml':
                 case 'application/xml;charset=UTF-8':
+                    parent::setContentType('application/xml', 'UTF-8');
+                    parent::setContent('<error>
+<code>500</code>
+<message>accept xml not support</message>
+</error>');
                     break 2;
                 case 'application/json':
                 case 'application/json;charset=UTF-8':
