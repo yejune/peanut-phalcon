@@ -127,39 +127,37 @@ class Client
         switch ($method) {
             case 'GET':
                 $curlOptions[CURLOPT_HTTPGET] = true;
-                if ($parameters) {
-                    $curlOptions[CURLOPT_URL] .= $this->buildQueryString($parameters);
-                }
                 break;
             case 'POST':
                 $curlOptions[CURLOPT_POST] = true;
+                break;
             case 'DELETE':
                 $curlOptions[CURLOPT_CUSTOMREQUEST] = 'DELETE';
+                break;
             case 'PUT':
+                $curlOptions[CURLOPT_CUSTOMREQUEST] = 'PUT';
+                break;
             case 'PATCH':
-                $contentType       = '';
-                $contentTypeExists = false;
-
-                foreach ($curlOptions[CURLOPT_HTTPHEADER] as $header) {
-                    if (1 === preg_match('/^content-type/i', $header)) {
-                        $contentType       = $header;
-                        $contentTypeExists = true;
-                        break;
+                $curlOptions[CURLOPT_CUSTOMREQUEST] = 'PATCH';
+                break;
+        }
+        switch ($method) {
+            case 'GET':
+                if ($parameters) {
+                    $query = http_build_query($parameters);
+                    if (false === strpos($curlOptions[CURLOPT_URL], '?')) {
+                        $curlOptions[CURLOPT_URL] .= '?'.$query;
+                    } else {
+                        $curlOptions[CURLOPT_URL] .= '&'.$query;
                     }
                 }
-                if (false === $contentTypeExists) {
-                    array_push($curlOptions[CURLOPT_HTTPHEADER], 'Content-Type: application/json');
-                    $contentType = 'application/json';
-                }
-
-                if (1 === preg_match('/json/i', $contentType)) {
-                    $curlOptions[CURLOPT_POSTFIELDS] = json_encode($parameters);
-                } else {
-                    $curlOptions[CURLOPT_POSTFIELDS] = $parameters;
-                }
                 break;
-            default:
-                throw new \Exception('invalid http request method!');
+            case 'POST':
+            case 'DELETE':
+            case 'PUT':
+            case 'PATCH':
+                $curlOptions[CURLOPT_POSTFIELDS] = $parameters;
+                break;
         }
         curl_setopt_array($curl, $curlOptions);
 
@@ -205,19 +203,5 @@ class Client
         }
 
         return $headers;
-    }
-    public function buildQueryString($parameters = [])
-    {
-        return array_reduce(
-            array_keys($parameters),
-            function ($previous, $key) use ($parameters) {
-                return $previous
-                    .($previous ? '&' : '?')
-                    .$key
-                    .'='
-                    .urlencode($parameters[$key]);
-            },
-            ''
-        );
     }
 }
