@@ -126,20 +126,6 @@ class Client
         }
         switch ($method) {
             case 'GET':
-            $contentType       = '';
-            $contentTypeExists = false;
-
-            foreach ($curlOptions[CURLOPT_HTTPHEADER] as $header) {
-                if (1 === preg_match('/^content-type/i', $header)) {
-                    $contentType       = $header;
-                    $contentTypeExists = true;
-                    break;
-                }
-            }
-            if (false === $contentTypeExists) {
-                array_push($curlOptions[CURLOPT_HTTPHEADER], 'Content-Type: application/json');
-                $contentType = 'application/json';
-            }
                 $curlOptions[CURLOPT_HTTPGET] = true;
                 if ($parameters) {
                     $curlOptions[CURLOPT_URL] .= $this->buildQueryString($parameters);
