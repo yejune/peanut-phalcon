@@ -3,8 +3,9 @@ namespace Peanut\Phalcon\Http;
 
 class Request extends \Phalcon\Http\Request
 {
-    public $bodyParameters = [];
-    public $pathParameters = [];
+    public $bodyParameters    = [];
+    public $pathParameters    = [];
+    public $segmentParameters = [];
     /**
      * Sets request raw body
      *
@@ -328,18 +329,25 @@ class Request extends \Phalcon\Http\Request
 
     /**
      * @return array
+     * @param null|mixed $index
      */
-    public function getSegments()
+    public function getSegment($index = null)
     {
-        $uri = trim($this->getDI()->get('router')->getRewriteUri(), '/');
+        if (!$this->segmentParameters) {
+            $uri      = trim($this->getDI()->get('router')->getRewriteUri(), '/');
+            $uri      = trim($_SERVER['REQUEST_URI'], '/');
+            $segments = [];
 
-        $segments = [];
-
-        if (false === empty($uri)) {
-            $segments = explode('/', $uri);
+            if (false === empty($uri)) {
+                $segments = explode('/', $uri);
+            }
+            $this->segmentParameters = $segments;
+        }
+        if (null === $index) {
+            return $this->segmentParameters;
         }
 
-        return $segments;
+        return true === isset($this->segmentParameters[$index]) ? $this->segmentParameters[$index] : null;
     }
 
     public function getPath($pathname = null)
@@ -400,13 +408,21 @@ class Request extends \Phalcon\Http\Request
         }
     }
 
-    public function getSubDomain()
+    public function extractDomain($domain)
     {
-        $tmp       = explode('.', $_SERVER['HTTP_HOST']);
-        $subDomain = '';
-        if (2 < count($tmp)) {
-            $subDomain = array_shift($tmp);
+        if (preg_match("/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i", $domain, $matches)) {
+            return $matches['domain'];
         }
+
+        return $domain;
+    }
+    public function getSubDomain($host = null)
+    {
+        if (null === $host) {
+            $host = $_SERVER['HTTP_HOST'];
+        }
+        $domain    = $this->extractDomain($host);
+        $subDomain = str_replace('.'.$domain, '', $host);
 
         return $subDomain ?: 'www';
     }

@@ -160,7 +160,7 @@ class Template
      */
     public function cplPath($fid)
     {
-        return $this->compileRoot.DIRECTORY_SEPARATOR.$this->templateRoot.DIRECTORY_SEPARATOR.ltrim($this->tpl_[$fid], './').$this->ext;
+        return str_replace(__BASE__, $this->compileRoot, $this->templateRoot.DIRECTORY_SEPARATOR.ltrim($this->tpl_[$fid], './').$this->ext);
     }
 
     /**
@@ -226,8 +226,8 @@ class Template
      */
     private function getCompilePath($fid)
     {
-        $tplPath      = ($this->tplPath($fid));
-        $cplPath      = $this->cplPath($fid);
+        $tplPath = ($this->tplPath($fid));
+        $cplPath = $this->cplPath($fid);
         if (false === $this->compileCheck) {
             return $cplPath;
         }
@@ -250,8 +250,7 @@ class Template
         }
 
         $compiler = new \Peanut\Template\Compiler();
-        $compiler->execute($this, $fid, $tplPath, __BASE__.'/'.$cplPath, $cplHead);
-
+        $compiler->execute($this, $fid, $tplPath, $cplPath, $cplHead);
         $cplPath      = stream_resolve_include_path($cplPath);
 
         return $cplPath;

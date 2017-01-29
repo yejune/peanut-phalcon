@@ -393,7 +393,6 @@ class Compiler
             preg_match('/^
             (:P<unknown>(?:\.\s*)+)
             |(?P<number>(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+\-]?\d+)?)
-            |(?P<array_keyword>array)
             |(?P<assoc_array>=\>)
             |(?P<object_sign>-\>)
             |(?P<namespace_sigh>\\\)
@@ -468,8 +467,7 @@ class Compiler
             } else {
                 $next = ['org' => '', 'name' => '', 'value' => ''];
             }
-
-// 마지막이 종결되지 않음
+            // 마지막이 종결되지 않음
             if (!$next['name'] && false === in_array($current['name'], ['string', 'number', 'string_number', 'right_bracket', 'right_parenthesis', 'double_operator', 'quote'])) {
                 //pr($current);
                 return false;
@@ -518,6 +516,7 @@ class Compiler
 
                     break;
                 case 'dollar':
+                    return false;
                     if (false === in_array($prev['name'], [ 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma'])) {
                         return false; // 원본 출력(javascript)
                     }
@@ -680,7 +679,7 @@ class Compiler
                         $xpr .= $current['value'];
 
                     break;
-                case 'array_keyword':
+                case 'array_keyword': // number next             |(?P<array_keyword>array)
                     if (false === in_array($prev['name'], ['', 'compare', 'operator', 'left_parenthesis', 'left_bracket', 'comma', 'assign'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
                     }

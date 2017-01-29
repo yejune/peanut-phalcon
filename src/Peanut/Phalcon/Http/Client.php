@@ -104,7 +104,7 @@ class Client
     }
     public function execute($method, $url, array $parameters = [], array $headers = [], array $options = [])
     {
-        if (in_array($method, ['GET', 'POST', 'PATCH', 'PUT', 'DELETE']) !== true) {
+        if (false === in_array($method, ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'], true)) {
             throw new \Exception('invalid \'method\'!', 400);
         }
         $headers = array_merge($this->headers, $headers);
