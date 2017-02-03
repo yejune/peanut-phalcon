@@ -394,10 +394,30 @@ class Request extends \Phalcon\Http\Request
             case 'application/json':
             case 'application/json;charset=UTF-8':
             default:
+                $body = str_replace(' \\', '', $body);
                 $json = json_decode($body, true);
                 if (0 < strlen($body)) {
-                    if (json_last_error()) {
-                        throw new \Exception('Invalid JSON syntax');
+                    if ($type = json_last_error()) {
+                        switch ($type) {
+                            case JSON_ERROR_DEPTH:
+                                $message = 'Maximum stack depth exceeded';
+                            break;
+                            case JSON_ERROR_CTRL_CHAR:
+                                $message = 'Unexpected control character found';
+                            break;
+                            case JSON_ERROR_SYNTAX:
+                                $message = 'Syntax error, malformed JSON';
+                            break;
+                            case JSON_ERROR_NONE:
+                                $message = 'No errors';
+                            break;
+                            case JSON_ERROR_UTF8:
+                                $message = 'Malformed UTF-8 characters';
+                            break;
+                            default:
+                                $message = 'Invalid JSON syntax';
+                        }
+                        throw new \Exception($message);
                     }
                 } else {
                     $json = [];
