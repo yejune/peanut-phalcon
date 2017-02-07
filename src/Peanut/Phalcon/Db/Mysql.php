@@ -136,6 +136,77 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
         }
     }
 
+    /*
+    \Peanut\Phalcon\Db::name('master')->sets(
+        'insert into test (a,b,c,d) values (:a,:b,:c,:d)', [
+            [
+                ':a' => 1,
+                ':b' => 2,
+                ':c' => 1,
+                ':d' => 2,
+            ],
+            [
+                ':a' => 1,
+                ':b' => 2,
+                ':c' => 1,
+                ':d' => 2,
+            ],
+            [
+                ':a' => 1,
+                ':b' => 2,
+                ':c' => 1,
+                ':d' => 2,
+            ],
+        ]
+    );
+    =>
+    insert into test(a,b,c,d) values(:a0, :b0, :c0, :d0),(:a1, :b1, :c1, :d1),(:a2, :b2, :c2, :d2)
+    [
+      [:a0] => 1
+      [:b0] => 2
+      [:c0] => 1
+      [:d0] => 2
+      [:a1] => 1
+      [:b1] => 2
+      [:c1] => 1
+      [:d1] => 2
+      [:a2] => 1
+      [:b2] => 2
+      [:c2] => 1
+      [:d2] => 2
+    ]
+    */
+    public function sets($statement, $bindParameters)
+    {
+        if (
+            0 < count($bindParameters)
+            && 1 === preg_match('/(?P<control>.*)(?:[\s]+)values(?:[^\(]+)\((?P<holders>.*)\)/Us', $statement, $m)
+        ) {
+            $holders = explode(',', preg_replace('/\s/', '', $m['holders']));
+
+            $newStatements     = [];
+            $newBindParameters = [];
+            foreach ($bindParameters as $key => $value) {
+                $statements = [];
+                foreach ($holders as $holder) {
+                    $statements[]                    = $holder.$key;
+                    $newBindParameters[$holder.$key] = $value[$holder];
+                }
+                $newStatements[] = '('.implode(', ', $statements).')';
+            }
+            $newStatement = $m['control'].' values '.implode(', ', $newStatements);
+            try {
+                if (parent::execute($newStatement, $newBindParameters)) {
+                    return count($bindParameters);
+                }
+            } catch (\PDOException $e) {
+                throw $e;
+            }
+        }
+
+        return -1;
+    }
+
     /**
      * @param  $statement
      * @param  array        $bindParameters
