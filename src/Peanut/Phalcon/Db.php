@@ -17,20 +17,45 @@ class Db
     {
         $di = \Phalcon\Di::getDefault();
 
-        if (true === isset($di['databases'][$name])) {
-            if (false === isset(self::$instance[$name])) {
-                try {
-                    $dbConfig = $di['databases'][$name];
-                    $class    = '\\Peanut\\Phalcon\Db\\'.ucfirst($dbConfig['scheme']);
-
-                    self::$instance[$name] = new $class($dbConfig);
-                } catch (\Throwable $e) {
-                    throw new \Exception($e->getMessage());
-                }
-            }
-
+        if (true === isset(self::$instance[$name])) {
             return self::$instance[$name];
         }
-        throw new \Exception($name.' config not found');
+        throw new \Exception($name.' not connect');
+    }
+
+    public static function connect($name, $dsn)
+    {
+        if (false === isset(self::$instance[$name])) {
+            try {
+                $dbConfig = self::dsnParser($dsn);
+                $class    = '\\Peanut\\Phalcon\\Db\\'.ucfirst($dbConfig['scheme']);
+
+                self::$instance[$name] = new $class($dbConfig);
+            } catch (\Throwable $e) {
+                throw new \Exception($e->getMessage());
+            }
+        }
+
+        return self::$instance[$name];
+    }
+
+    /**
+     * @param $url
+     * @return array
+     */
+    private static function dsnParser($url)
+    {
+        $dbSource = parse_url($url);
+        $user     = $dbSource['user'];
+        $password = $dbSource['pass'];
+        $dsn      = $dbSource['scheme'].':host='.$dbSource['host'].
+                    ';dbname='.trim($dbSource['path'], '/').';charset=utf8mb4';
+
+        return [
+            'scheme'   => $dbSource['scheme'],
+            'dsn'      => $dsn,
+            'username' => $user,
+            'password' => $password,
+        ];
     }
 }
