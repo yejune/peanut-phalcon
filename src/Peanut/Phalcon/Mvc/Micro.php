@@ -112,9 +112,9 @@ class Micro extends \Phalcon\Mvc\Micro
             }
 
             $this->_returnedValue = $returnedValue;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if ($this->_errorHandler) {
-                $returnedValue = $this->callHandler($this->_errorHandler, [$e], 'error');
+                $returnedValue = $this->callHandler($this->_errorHandler, [$e, $e->getCode()], 'error');
 
                 if (true === is_object($returnedValue)
                     && !($returnedValue instanceof \Phalcon\Http\ResponseInterface)

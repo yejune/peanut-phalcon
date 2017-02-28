@@ -236,7 +236,7 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
             return $return;
         } catch (\Throwable $e) {
             parent::rollback();
-            throw new \Exception($e->getMessage());
+            throw $e;
         }
     }
 }

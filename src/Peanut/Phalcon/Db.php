@@ -32,7 +32,7 @@ class Db
 
                 self::$instance[$name] = new $class($dbConfig);
             } catch (\Throwable $e) {
-                throw new \Exception($e->getMessage());
+                throw $e;
             }
         }
 
