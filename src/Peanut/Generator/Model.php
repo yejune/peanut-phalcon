@@ -96,8 +96,18 @@ class Model
             ORDER BY
                 i.TABLE_NAME ASC, i.CONSTRAINT_TYPE ASC
         ");
+
+        $deleteMultiUnique = [];
+        foreach ($indexes as $k => $v) {
+            if ($v['CONSTRAINT_NAME'] != 'PRIMARY' && true === isset($deleteMultiUnique[$v['TABLE_NAME'].'_'.$v['CONSTRAINT_NAME']])) {
+                unset($deleteMultiUnique[$v['TABLE_NAME'].'_'.$v['CONSTRAINT_NAME']]);
+            } else {
+                $deleteMultiUnique[$v['TABLE_NAME'].'_'.$v['CONSTRAINT_NAME']] = $v;
+            }
+        }
+
         $foreignKeys = [];
-        foreach ($indexes as $index) {
+        foreach ($deleteMultiUnique as $index) {
             if (true === isset($foreignKeys[$index['TABLE_NAME']][$index['CONSTRAINT_TYPE']][$index['COLUMN_NAME']])) {
                 //die($index['TABLE_NAME'].' '.$index['CONSTRAINT_TYPE'].' '.$index['COLUMN_NAME'].' duplication not support');
             }
@@ -160,7 +170,6 @@ class Model
                 }
             }
         }
-
         $return = $relations;
         foreach ($relations as $tableName => $relation) {
             foreach ($relation as $relationName => $fields) {
@@ -207,7 +216,7 @@ class Model
                                         ],
                                     ],
                                 ];
-                                unset($return[$sss[0]['table']]['hasMany'][$sss[0]['column']]);
+                                //unset($return[$sss[0]['table']]['hasMany'][$sss[0]['column']]);
 
                                 /*
                                 $return[$sss[1]['table']]['hasManyToMany'][$sss[1]['column']][$tableName] = [
