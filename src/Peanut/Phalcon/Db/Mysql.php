@@ -242,7 +242,33 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
             if (parent::getTransactionLevel()) {
                 parent::rollback();
             }
-            throw $e;
+
+            throw new TransactionException($e);
         }
+    }
+}
+class TransactionException extends \Exception
+{
+    public function __construct($message, $code = 0)
+    {
+        parent::__construct($message->getMessage(), $code);
+
+        $tmp  = $message->getTrace()[0] ?? [];
+
+        if (true === isset($tmp['file']) && $tmp['file']) {
+            $this->addFile($tmp['file']);
+            $this->addLine($tmp['line'].' {Closure}');
+        } else {
+            $this->addFile($message->getFile());
+            $this->addLine($message->getLine());
+        }
+    }
+    public function addFile($file)
+    {
+        $this->file = $file;
+    }
+    public function addLine($line)
+    {
+        $this->line = $line;
     }
 }
