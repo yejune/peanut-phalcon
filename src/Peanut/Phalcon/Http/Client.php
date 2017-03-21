@@ -156,7 +156,7 @@ class Client
             case 'DELETE':
             case 'PUT':
             case 'PATCH':
-                $curlOptions[CURLOPT_POSTFIELDS] = $parameters;
+                $curlOptions[CURLOPT_POSTFIELDS] = $this->buildPostData($parameters, $headers);
                 break;
         }
         curl_setopt_array($curl, $curlOptions);
@@ -203,5 +203,25 @@ class Client
         }
 
         return $headers;
+    }
+    private function buildPostData(array $data, array $headers)
+    {
+        $contentType = '';
+        foreach ($headers as $header) {
+            if (preg_match('/^Content-Type/i', $header)) {
+                $contentType = $header;
+                break;
+            }
+        }
+        if (preg_match('/^(?:application|text)\/(?:[a-z]+(?:[\.-][0-9a-z]+){0,}[\+\.]|x-)?json(?:-[a-z]+)?/i', $contentType)) {
+            $json_str = json_encode($data);
+            if (!($json_str === false)) {
+                $data = $json_str;
+            }
+        } else {
+            $data = http_build_query($data, '', '&');
+        }
+
+        return $data;
     }
 }
