@@ -218,15 +218,14 @@ class Client
     public function getHeadersFromCurlResponse($headerContent)
     {
         $headers     = [];
-        $arrRequests = explode(PHP_EOL.PHP_EOL, trim($headerContent));
-
+        $arrRequests = explode("\r\n\r\n", trim($headerContent));
         foreach ($arrRequests as $index => $request) {
-            foreach (explode(PHP_EOL, $request) as $i => $line) {
-                if ($i === 0) {
-                    $headers[$index]['Http-Code'] = $line;
-                } else {
-                    list($key, $value)     = explode(': ', $line);
+            foreach (explode("\r\n", trim($request)) as $i => $line) {
+                if (1 === preg_match('#:#', $line)) {
+                    list($key, $value)     = explode(': ', $line, 2);
                     $headers[$index][$key] = $value;
+                } else {
+                    $headers[$index]['Http-Code'] = $line;
                 }
             }
         }
