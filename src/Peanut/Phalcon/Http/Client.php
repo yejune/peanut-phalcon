@@ -12,8 +12,9 @@ class Client
     public $responseError;
     public $responseHttpCode;
 
-    public $options = [];
-    public $headers = [];
+    public $options     = [];
+    public $headers     = [];
+    public $parameters  = [];
 
     private static $instance;
 
@@ -51,7 +52,6 @@ class Client
     {
         return $this->responseHttpCode;
     }
-
     public static function getInstance()
     {
         if (!static::$instance) {
@@ -69,6 +69,12 @@ class Client
     public static function setOptions($options = [])
     {
         static::getInstance()->options = $options;
+
+        return static::getInstance();
+    }
+    public static function setParameters($parameters = [])
+    {
+        static::getInstance()->parameters = $parameters;
 
         return static::getInstance();
     }
@@ -107,23 +113,34 @@ class Client
         if (false === in_array($method, ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'], true)) {
             throw new \Exception('invalid \'method\'!', 400);
         }
-        $headers = array_merge($this->headers, $headers);
-        $options = array_merge($this->options, $options);
+        $parameters = array_merge($this->parameters, $parameters);
+        $options    = array_merge($this->options, $options);
+        $headers    = array_merge($this->headers, $headers);
+
+        $curlHeaders = [];
+        foreach ($headers as $headerKey => $headerValue) {
+            $curlHeaders[] = $headerKey.': '.$headerValue;
+        }
 
         $curl                = curl_init();
         $curlOptions         = [
             CURLOPT_URL             => $url,
             CURLOPT_CUSTOMREQUEST   => $method,
-            CURLOPT_HTTPHEADER      => $headers,
+            CURLOPT_HTTPHEADER      => $curlHeaders,
             CURLOPT_CONNECTTIMEOUT  => self::DEFAULT_CONNECT_TIMEOUT,
             CURLOPT_TIMEOUT         => self::DEFAULT_TIMEOUT,
             CURLOPT_RETURNTRANSFER  => true,
             CURLOPT_HEADER          => true,
         ];
 
-        if (array_key_exists('timeout', $options)) {
+        if (true === array_key_exists('timeout', $options)) {
             $curlOptions[CURLOPT_TIMEOUT] = $options['timeout'];
         }
+
+        if (true === isset($headers['User-Agent'])) {
+            $curlOptions[CURLOPT_USERAGENT] = $headers['User-Agent'];
+        }
+
         switch ($method) {
             case 'GET':
                 $curlOptions[CURLOPT_HTTPGET] = true;
@@ -156,9 +173,14 @@ class Client
             case 'DELETE':
             case 'PUT':
             case 'PATCH':
-                $curlOptions[CURLOPT_POSTFIELDS] = $parameters;
+                if (true === isset($headers['Content-Type']) && 1 === preg_match('#json#i', $headers['Content-Type'])) {
+                    $curlOptions[CURLOPT_POSTFIELDS] = json_encode($parameters);
+                } else {
+                    $curlOptions[CURLOPT_POSTFIELDS] = $parameters;
+                }
                 break;
         }
+
         curl_setopt_array($curl, $curlOptions);
 
         $response   = curl_exec($curl);
@@ -175,24 +197,31 @@ class Client
         $headerContent = substr($response, 0, $headerSize);
         $body          = substr($response, $headerSize);
 
-        $this->responseRaw      = $response;
-        $this->responseHeaders  = $this->getHeadersFromCurlResponse($headerContent);
-        $this->responseBody     = $body;
-        $this->responseHttpCode = $httpCode;
+        $this->responseRaw     = $response;
+        $this->responseHeaders = $this->getHeadersFromCurlResponse($headerContent);
+        $this->responseBody    = $body;
 
-        return [
-            'httpCode'  => $this->responseHttpCode,
-            'header'    => $this->responseHeaders,
-            'body'      => $this->responseBody,
-        ];
+        foreach ($this->getLastHeaders() as $headerKey => $headerValue) {
+            if (1 === preg_match('#Content-Type#i', $headerKey)) {
+                if (1 === preg_match('#json#', $headerValue)) {
+                    $this->responseBody = json_decode($body, true);
+                    break;
+                } elseif (1 === preg_match('#x-www-form-urlencoded#', $headerValue)) {
+                    parse_str($body, $this->responseBody);
+                    break;
+                }
+            }
+        }
+
+        $this->responseHttpCode = $httpCode;
     }
     public function getHeadersFromCurlResponse($headerContent)
     {
         $headers     = [];
-        $arrRequests = explode("\r\n\r\n", trim($headerContent));
+        $arrRequests = explode(PHP_EOL.PHP_EOL, trim($headerContent));
 
         foreach ($arrRequests as $index => $request) {
-            foreach (explode("\r\n", $request) as $i => $line) {
+            foreach (explode(PHP_EOL, $request) as $i => $line) {
                 if ($i === 0) {
                     $headers[$index]['Http-Code'] = $line;
                 } else {
