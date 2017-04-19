@@ -65,9 +65,9 @@ class Compiler
         // get template
         $source = '';
 
-        if ($source_size = filesize($tplPath)) {
+        if ($sourceSize = filesize($tplPath)) {
             $fpTpl  = fopen($tplPath, 'rb');
-            $source = fread($fpTpl, $source_size);
+            $source = fread($fpTpl, $sourceSize);
             fclose($fpTpl);
         }
 
@@ -753,9 +753,9 @@ class Compiler
      */
     private function saveResult($cplPath, $source, $cplHead, $initCode)
     {
-        $source_size = strlen($cplHead) + strlen($initCode) + strlen($source) + 9;
+        $sourceSize = strlen($cplHead) + strlen($initCode) + strlen($source) + 9; // filesize
 
-        $source = $cplHead.str_pad($source_size, 9, '0', STR_PAD_LEFT).$initCode.$source;
+        $source = $cplHead.str_pad($sourceSize, 9, '0', STR_PAD_LEFT).$initCode.$source;
 
         $fpCpl = fopen($cplPath, 'wb');
 

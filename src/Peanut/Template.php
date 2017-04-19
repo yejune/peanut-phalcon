@@ -236,7 +236,7 @@ class Template
             trigger_error('cannot find defined template "'.$tplPath.'"', E_USER_ERROR);
         }
 
-        $cplHead = '<?php /* Peanut\Template '.date('Y/m/d H:i:s', filemtime($tplPath)).' '.$tplPath.' ';
+        $cplHead = '<?php /* Peanut\Template '.sha1_file($tplPath).' '.date('Y/m/d H:i:s', filemtime($tplPath)).' '.$tplPath.' ';
 
         if ('dev' !== $this->compileCheck && false !== $cplPath) {
             $fp   = fopen($cplPath, 'rb');
