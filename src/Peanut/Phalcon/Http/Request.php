@@ -438,7 +438,7 @@ class Request extends \Phalcon\Http\Request
     public function getSubDomain($host = null)
     {
         if (null === $host) {
-            $host = $_SERVER['HTTP_HOST'];
+            $host = $_SERVER['HTTP_HOST'] ?? null;
         }
         $domain    = $this->extractDomain($host);
         $subDomain = str_replace('.'.$domain, '', $host);
