@@ -95,12 +95,12 @@ class Compiler
 
         $line       = 0;
         $is_open    = 0;
-        $new_tokens = [];
+        $newTokens  = [];
 
         for ($_index = 0, $s = count($tokens); $_index < $s; $_index++) {
-            $line = substr_count(implode('', $new_tokens), chr(10)) + 1;
+            $line = substr_count(implode('', $newTokens), chr(10)) + 1;
 
-            $new_tokens[$_index] = $tokens[$_index];
+            $newTokens[$_index] = $tokens[$_index];
 
             switch (strtolower($tokens[$_index])) {
                 case '<?php':
@@ -109,9 +109,9 @@ class Compiler
                 case '<%':
 
                     if (false == $this->phpengine) {
-                        $new_tokens[$_index] = str_replace('<', '&lt;', $tokens[$_index]);
+                        $newTokens[$_index] = str_replace('<', '&lt;', $tokens[$_index]);
                     } else {
-                        $new_tokens[$_index] = $tokens[$_index];
+                        $newTokens[$_index] = $tokens[$_index];
                     }
 
                     break;
@@ -119,9 +119,9 @@ class Compiler
                 case '%>':
 
                     if (false == $this->phpengine) {
-                        $new_tokens[$_index] = str_replace('>', '&gt', $tokens[$_index]);
+                        $newTokens[$_index] = str_replace('>', '&gt', $tokens[$_index]);
                     } else {
-                        $new_tokens[$_index] = $tokens[$_index];
+                        $newTokens[$_index] = $tokens[$_index];
                     }
 
                     break;
@@ -139,11 +139,11 @@ class Compiler
                     $result = $this->compileStatement($tokens[$_index - 1], $line);
 
                     if (1 == $result[0] || false === $result[1]) {
-                        $new_tokens[$_index - 1] = $tokens[$_index - 1];
+                        $newTokens[$_index - 1] = $tokens[$_index - 1];
                     } elseif (2 == $result[0]) {
-                        $new_tokens[$is_open]    = '<?php ';
-                        $new_tokens[$_index - 1] = $result[1];
-                        $new_tokens[$_index]     = '?>';
+                        $newTokens[$is_open]    = '<?php ';
+                        $newTokens[$_index - 1] = $result[1];
+                        $newTokens[$_index]     = '?>';
                     }
 
                     $is_open = 0;
@@ -158,7 +158,7 @@ class Compiler
             throw new Compiler\Exception('error line '.$c[1]);
         }
 
-        $source = implode('', $new_tokens);
+        $source = implode('', $newTokens);
         $this->saveResult($cplPath, $source, $cplHead, '*/ ?>');
     }
 
@@ -296,7 +296,7 @@ class Compiler
             .'if(true===is_array('.$loopArrayName.')&&0<('.$loopSizeName.'=count('.$loopArrayName.'))'.'){'
             .'foreach('.$loopArrayName.' as '.$loopKeyName.'=>'.$loopValueName.'){'
             //.$loop_ValueName.'='.$loopValueName.';'
-.$loopIndexName.'++;'
+            .$loopIndexName.'++;'
             .$loopValueName.'_index_='.$loopIndexName.';'
             .$loopValueName.'_size_='.$loopSizeName.';'
             .$loopValueName.'_key_='.$loopKeyName.';'
