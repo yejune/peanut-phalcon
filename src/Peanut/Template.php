@@ -160,7 +160,7 @@ class Template
      */
     public function cplPath($fid)
     {
-        return str_replace(__BASE__, $this->compileRoot, $this->templateRoot.DIRECTORY_SEPARATOR.ltrim($this->tpl_[$fid], './').$this->ext);
+        return $this->compileRoot.DIRECTORY_SEPARATOR.ltrim($this->tpl_[$fid], './').$this->ext;
     }
 
     /**
@@ -251,7 +251,7 @@ class Template
 
         $compiler = new \Peanut\Template\Compiler();
         $compiler->execute($this, $fid, $tplPath, $cplPath, $cplHead);
-        $cplPath      = stream_resolve_include_path($cplPath);
+        $cplPath = stream_resolve_include_path($cplPath);
 
         return $cplPath;
     }
