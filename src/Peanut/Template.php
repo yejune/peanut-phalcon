@@ -11,60 +11,49 @@ class Template
      * @var string
      */
     public $compileRoot = '.';
-
     /**
      * @var string
      */
-
     public $templateRoot = '.';
     /**
-     * @var mixed
+     * @var array
      */
-    public $tpl_;// = [];
-
+    public $tpl_ = [];
     /**
-     * @var mixed
+     * @var array
      */
-    public $var_;// = [];
-
+    public $var_ = [];
     /**
      * @var string
      */
     public $skin;
-
     /**
      * @var string
      */
     public $tplPath;
-
     /**
      * @var int
      */
-    public $permission      = 0777;
-
+    public $permission = 0777;
     /**
      * @var bool
      */
-    public $phpengine       = true;
-
+    public $phpengine = true;
     /**
      * @var array
      */
-    public $relativePath    = [];
-
+    public $relativePath = [];
     /**
      * @var string
      */
-    public $ext             = '.php';
+    public $ext = '.php';
 
-    public $notice          = false;
+    public $notice = false;
 
     public $noticeReporting = 0;
 
     public function __construct()
     {
-        $this->tpl_ = [];
-        $this->var_ = [];
     }
 
     /**
@@ -129,7 +118,6 @@ class Template
      */
     public function render($fid)
     {
-        // define 되어있으나 값이 없을때
         if (true === isset($this->tpl_[$fid]) && !$this->tpl_[$fid]) {
             return;
         }
@@ -158,44 +146,64 @@ class Template
      * @param  $fid
      * @return mixed
      */
-    public function cplPath($fid)
+    public function getCplPath($fid)
     {
-        return $this->compileRoot.DIRECTORY_SEPARATOR.ltrim($this->tpl_[$fid], './').$this->ext;
+        //$cplPath = stream_resolve_include_path($cplPath);
+        return $this->compileRoot.$this->tpl_[$fid].$this->ext;
     }
-
+    public function setTemplateRoot($path)
+    {
+        $this->templateRoot = rtrim($path, '/').'/';
+    }
+    public function setCompileRoot($path)
+    {
+        $this->compileRoot = rtrim($path, '/').'/';
+    }
+    public function setSkin($name)
+    {
+        $this->skin = trim($name, '/').'/';
+    }
+    public function setPhpEngine($switch = true)
+    {
+        $this->phpengine = $switch;
+    }
+    public function setNotice($switch = true)
+    {
+        $this->notice = $switch;
+    }
+    public function setCompileCheck($switch = true)
+    {
+        $this->compileCheck = $switch;
+    }
     /**
      * @param  $fid
      * @return mixed
      */
-    public function tplPath($fid)
+    public function getTplPath($fid)
     {
-        $path      = '';
-        $addFolder = rtrim($this->templateRoot, '/').'/';
+        $path = '';
 
         if (true === isset($this->tpl_[$fid])) {
             $path = $this->tpl_[$fid];
         } else {
             trigger_error('template id "'.$fid.'" is not defined', E_USER_ERROR);
         }
-        if (1 === preg_match('#^/#', $path)) {
-            trigger_error('Only relative paths are allowed. '.$path, E_USER_ERROR);
+
+        if (0 === strpos($path, '/')) {
+            $tplPath = $path;
+        } else {
+            $addFolder = $this->templateRoot;
+            if ($this->skin) {
+                $addFolder .= $this->skin;
+            }
+            $tplPath = $addFolder.$path;
         }
-        $path = str_replace(__BASE__.'/'.$addFolder, '', $path);
-
-        $skinFolder = trim($this->skin, '/');
-
-        if ($skinFolder) {
-            $addFolder .= '/'.$skinFolder.'/';
-        }
-
-        $tplPath = $addFolder.ltrim($path, './');
-        //trigger_error(print_r([$path, $tplPath], true), E_USER_ERROR);
 
         if (false === stream_resolve_include_path($tplPath)) {
             trigger_error('cannot find defined template "'.$tplPath.'"', E_USER_ERROR);
         }
 
-        return  stream_resolve_include_path($tplPath);
+        return $tplPath;
     }
 
     public function templateNoticeHandler($type, $msg, $file, $line)
@@ -218,7 +226,7 @@ class Template
      */
     private function _define($fid, $path)
     {
-        $this->tpl_[$fid] = $path;
+        $this->tpl_[$fid] = ltrim($path, $this->templateRoot);
     }
     /**
      * @param  $fid
@@ -226,8 +234,9 @@ class Template
      */
     private function getCompilePath($fid)
     {
-        $tplPath = ($this->tplPath($fid));
-        $cplPath = $this->cplPath($fid);
+        $tplPath = $this->getTplPath($fid);
+        $cplPath = $this->getCplPath($fid);
+
         if (false === $this->compileCheck) {
             return $cplPath;
         }
@@ -236,7 +245,7 @@ class Template
             trigger_error('cannot find defined template "'.$tplPath.'"', E_USER_ERROR);
         }
 
-        $cplHead = '<?php /* Peanut\Template '.sha1_file($tplPath).' '.date('Y/m/d H:i:s', filemtime($tplPath)).' '.$tplPath.' ';
+        $cplHead = '<?php /* Peanut\Template '.sha1_file($tplPath, true).' '.date('Y/m/d H:i:s', filemtime($tplPath)).' '.$tplPath.' ';
 
         if ('dev' !== $this->compileCheck && false !== $cplPath) {
             $fp   = fopen($cplPath, 'rb');
@@ -244,14 +253,13 @@ class Template
             fclose($fp);
 
             if (strlen($head) > 9
-                && substr($head, 0, -9) == $cplHead && filesize($cplPath) == (int) substr($head, -9)) {
+                && substr($head, 0, 46) == substr($cplHead, 0, 46) && filesize($cplPath) == (int) substr($head, -9)) {
                 return $cplPath;
             }
         }
 
         $compiler = new \Peanut\Template\Compiler();
         $compiler->execute($this, $fid, $tplPath, $cplPath, $cplHead);
-        $cplPath = stream_resolve_include_path($cplPath);
 
         return $cplPath;
     }

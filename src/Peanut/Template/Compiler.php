@@ -753,7 +753,8 @@ class Compiler
      */
     private function saveResult($cplPath, $source, $cplHead, $initCode)
     {
-        $sourceSize = strlen($cplHead) + strlen($initCode) + strlen($source) + 9; // filesize
+        // +9 cpl직접수정방지
+        $sourceSize = strlen($cplHead) + 9 + strlen($initCode) + strlen($source);
 
         $source = $cplHead.str_pad($sourceSize, 9, '0', STR_PAD_LEFT).$initCode.$source;
 
