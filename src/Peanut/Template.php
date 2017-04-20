@@ -148,7 +148,6 @@ class Template
      */
     public function getCplPath($fid)
     {
-        //$cplPath = stream_resolve_include_path($cplPath);
         return $this->compileRoot.$this->tpl_[$fid].$this->ext;
     }
     public function setTemplateRoot($path)
@@ -199,7 +198,7 @@ class Template
             $tplPath = $addFolder.$path;
         }
 
-        if (false === stream_resolve_include_path($tplPath)) {
+        if (false === ($tplPath = stream_resolve_include_path($tplPath))) {
             trigger_error('cannot find defined template "'.$tplPath.'"', E_USER_ERROR);
         }
 
@@ -260,6 +259,10 @@ class Template
 
         $compiler = new \Peanut\Template\Compiler();
         $compiler->execute($this, $fid, $tplPath, $cplPath, $cplHead);
+
+        if (false === ($cplPath = stream_resolve_include_path($cplPath))) {
+            trigger_error('cannot find defined template compile "'.$cplPath.'"', E_USER_ERROR);
+        }
 
         return $cplPath;
     }
