@@ -176,7 +176,7 @@ class Client
                 if (true === isset($headers['Content-Type']) && 1 === preg_match('#json#i', $headers['Content-Type'])) {
                     $curlOptions[CURLOPT_POSTFIELDS] = json_encode($parameters);
                 } else {
-                    $curlOptions[CURLOPT_POSTFIELDS] = $parameters;
+                    $curlOptions[CURLOPT_POSTFIELDS] = http_build_query($data);
                 }
                 break;
         }
