@@ -451,6 +451,14 @@ class Compiler
             if ('semi_colon' == $current['name']) {
                 return false;
             }
+            $current['value'] = strtr($current['value'], [
+                '{`' => '{',
+                '`}' => '}',
+            ]);
+            $current['org'] = strtr($current['org'], [
+                '{`' => '{',
+                '`}' => '}',
+            ]);
 
             $current['key'] = $key;
 
