@@ -32,30 +32,30 @@ class System
     }
     public function debug($message)
     {
-        $this->printOutput($message, __METHOD__);
+        $this->printOutput($message, __FUNCTION__);
     }
     public function info($message)
     {
-        $this->printOutput($message, __METHOD__);
+        $this->printOutput($message, __FUNCTION__);
     }
     public function notice($message)
     {
-        $this->printOutput($message, __METHOD__);
+        $this->printOutput($message, __FUNCTION__);
     }
     public function warning($message)
     {
-        $this->printOutput($message, __METHOD__);
+        $this->printOutput($message, __FUNCTION__);
     }
     public function error($message)
     {
-        $this->printOutput($message, __METHOD__);
+        $this->printOutput($message, __FUNCTION__);
     }
     public function critical($message)
     {
-        $this->printOutput($message, __METHOD__);
+        $this->printOutput($message, __FUNCTION__);
     }
     public function log($message)
     {
-        $this->printOutput($message, __METHOD__);
+        $this->printOutput($message, __FUNCTION__);
     }
 }
