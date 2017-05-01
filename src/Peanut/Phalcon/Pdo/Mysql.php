@@ -1,68 +1,25 @@
 <?php
-namespace Peanut\Phalcon\Db;
+namespace Peanut\Phalcon\Pdo;
 
 class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
 {
     /**
      * @param $descriptor
+     * @param mixed $connect
      */
-    public function connect(array $descriptor = null)
+    public function connect(array $connect = null)
     {
-        if (null === $descriptor) {
-            $descriptor = $this->_descriptor;
+        if (true === isset($connect['timezone'])) {
+            $connect['options'][\PDO::MYSQL_ATTR_INIT_COMMAND] = "SET time_zone = '".$connect['timezone']."'";
         }
-
-        if (true === isset($descriptor['username'])) {
-            $username = $descriptor['username'];
-            unset($descriptor['username']);
-        } else {
-            $username = null;
+        if (true === isset($connect['persistent'])) {
+            $connect['options'][\Pdo::ATTR_PERSISTENT] = true;
         }
-
-        if (true === isset($descriptor['password'])) {
-            $password = $descriptor['password'];
-            unset($descriptor['password']);
-        } else {
-            $password = null;
+        try {
+            $this->_pdo = new \Pdo($connect['dsn'], $connect['username'], $connect['password'], $connect['options']);
+        } catch (\Exception $e) {
+            throw $e;
         }
-
-        if (true === isset($descriptor['options'])) {
-            $options = $descriptor['options'];
-            unset($descriptor['options']);
-        } else {
-            $options = [];
-        }
-
-        if (true === isset($descriptor['persistent'])) {
-            if ($descriptor['persistent']) {
-                $options[\Pdo::ATTR_PERSISTENT] = true;
-            }
-
-            unset($descriptor['persistent']);
-        }
-
-        if (true === isset($descriptor['dialectClass'])) {
-            unset($descriptor['dialectClass']);
-        }
-
-        if (true === isset($descriptor['dsn'])) {
-            $dsnAttributes = $descriptor['dsn'];
-        } else {
-            $dsnParts = [];
-
-            foreach ($descriptor as $key => $value) {
-                $dsnParts[] = $key.'='.$value;
-            }
-
-            $dsnAttributes = implode(';', $dsnParts);
-        }
-
-        $options[\Pdo::ATTR_ERRMODE]            = \Pdo::ERRMODE_EXCEPTION;
-        $options[\Pdo::ATTR_EMULATE_PREPARES]   = false;
-        $options[\Pdo::ATTR_STRINGIFY_FETCHES]  = false;
-        $options[\Pdo::ATTR_DEFAULT_FETCH_MODE] = \Pdo::FETCH_ASSOC;
-
-        $this->_pdo = new \Pdo($dsnAttributes, $username, $password, $options);
     }
 
     /**
