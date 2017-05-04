@@ -13,7 +13,7 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
             $connect['options'][\PDO::MYSQL_ATTR_INIT_COMMAND] = "SET time_zone = '".$connect['timezone']."'";
         }
         if (true === isset($connect['persistent'])) {
-            $connect['options'][\Pdo::ATTR_PERSISTENT] = true;
+            $connect['options'][\Pdo::ATTR_PERSISTENT] = $connect['persistent'];
         }
         try {
             $this->_pdo = new \Pdo($connect['dsn'], $connect['username'], $connect['password'], $connect['options']);
