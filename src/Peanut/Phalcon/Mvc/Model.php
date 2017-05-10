@@ -19,7 +19,7 @@ class Model extends \Phalcon\Mvc\Model
             }
         }
     }
-    public function save($data = null, $whiteList = null) : boolean
+    public function save($data = null, $whiteList = null) : bool
     {
         $result = parent::save($data, $whiteList);
         if (false === $result || parent::getMessages()) {
@@ -30,7 +30,7 @@ class Model extends \Phalcon\Mvc\Model
 
         return $result;
     }
-    public function create($data = null, $whiteList = null) : boolean
+    public function create($data = null, $whiteList = null) : bool
     {
         $result = parent::create($data, $whiteList);
         if (false === $result || parent::getMessages()) {
@@ -41,7 +41,7 @@ class Model extends \Phalcon\Mvc\Model
 
         return $result;
     }
-    public function update($data = null, $whiteList = null) : boolean
+    public function update($data = null, $whiteList = null) : bool
     {
         $result = parent::update($data, $whiteList);
         if (false === $result || parent::getMessages()) {
