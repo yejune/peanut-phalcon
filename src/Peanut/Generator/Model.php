@@ -94,7 +94,7 @@ class Model
             WHERE
                 i.TABLE_SCHEMA = '{$dbname}'
             ORDER BY
-                i.TABLE_NAME ASC, i.CONSTRAINT_TYPE ASC
+                i.TABLE_NAME ASC, i.CONSTRAINT_TYPE = 'PRIMARY KEY' DESC
         ");
 
         $deleteMultiUnique = [];
@@ -130,7 +130,7 @@ class Model
     public function getRelations()
     {
         $relations = [];
-        //pr($this->indexes);
+
         foreach ($this->indexes as $tableName => $indexes) {
             if (true === isset($indexes['FOREIGN KEY'])) {
                 foreach ($indexes['FOREIGN KEY'] as $fieldName => $index) {
