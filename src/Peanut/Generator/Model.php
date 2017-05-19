@@ -56,6 +56,7 @@ class Model
                 $fieldField   = new CreateField($field['fieldName']);
                 $fieldField->addDescription($field['comment']);
                 $fieldField->setScope('protected');
+                $fieldField->setType($field['type']);
                 $propertyClass->addField($fieldField);
             }
 
@@ -83,9 +84,8 @@ class Model
 
                     $getMethod       = new CreateMethod('get'.$aliasModelName);
                     //$getMethod->addDescription('test');
-                    $getMethod->addContentLine("return \$this->getRelated('{$aliasModelName}', \$parameters) ?: null;");
+                    $getMethod->addContentLine("return \$this->getRelated('{$aliasModelName}', \$parameters);");
                     $getMethod->setReturn("\Phalcon\Mvc\Model\Resultset\Simple");
-                    $getMethod->addReturnNull();
                     $getMethodParam1 = new CreateMethodParam('parameters');
                     $getMethodParam1->setType('array');
                     $getMethodParam1->setDefaultValue('[]');
@@ -136,9 +136,8 @@ class Model
                     $aliasModelName = $refModelName;
 
                     $getMethod       = new CreateMethod('get'.$refModelName);
-                    $getMethod->addContentLine("return \$this->getRelated('{$refModelName}', \$parameters) ?: null;");
+                    $getMethod->addContentLine("return \$this->getRelated('{$refModelName}', \$parameters);");
                     $getMethod->setReturn("{$this->namespace}\\{$refModelName}");
-                    $getMethod->addReturnNull();
                     $getMethodParam1 = new CreateMethodParam('parameters');
                     $getMethodParam1->setType('array');
                     $getMethodParam1->setDefaultValue('[]');
@@ -181,9 +180,8 @@ class Model
                         $aliasModelName = $refModelName;
 
                         $getMethod       = new CreateMethod('get'.$refModelName);
-                        $getMethod->addContentLine("return \$this->getRelated('{$refModelName}', \$parameters) ?: null;");
+                        $getMethod->addContentLine("return \$this->getRelated('{$refModelName}', \$parameters);");
                         $getMethod->setReturn("{$this->namespace}\\{$refModelName}");
-                        $getMethod->addReturnNull();
                         $getMethodParam1 = new CreateMethodParam('parameters');
                         $getMethodParam1->setType('array');
                         $getMethodParam1->setDefaultValue('[]');
@@ -244,9 +242,8 @@ class Model
                             $aliasModelName = 'Through'.\Peanut\Text::pluralize($desModelName);
 
                             $getMethod       = new CreateMethod('get'.''.$aliasModelName);
-                            $getMethod->addContentLine("return \$this->getRelated('{$aliasModelName}', \$parameters) ?: null;");
+                            $getMethod->addContentLine("return \$this->getRelated('{$aliasModelName}', \$parameters);");
                             $getMethod->setReturn("\Phalcon\Mvc\Model\Resultset\Simple");
-                            $getMethod->addReturnNull();
                             $getMethodParam1 = new CreateMethodParam('parameters');
                             $getMethodParam1->setType('array');
                             $getMethodParam1->setDefaultValue('[]');
@@ -428,6 +425,7 @@ class Model
         $metaDataMethod->addContentLine('    MetaData::MODELS_EMPTY_STRING_VALUES => [');
         $metaDataMethod->addContentLine('    ],');
         $metaDataMethod->addContentLine('];');
+        $metaDataMethod->setReturn('array');
 
         return $metaDataMethod;
     }
