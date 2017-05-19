@@ -111,7 +111,7 @@ class Client
     public function execute($method, $url, array $parameters = [], array $headers = [], array $options = [])
     {
         if (false === in_array($method, ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'], true)) {
-            throw new \Exception('invalid \'method\'!', 400);
+            throw new \Peanut\Exception('invalid \'method\'!', 400);
         }
         $parameters = array_merge($this->parameters, $parameters);
         $options    = array_merge($this->options, $options);
@@ -191,7 +191,7 @@ class Client
         curl_close($curl);
 
         if ($curlError) {
-            throw new \Exception($curlError);
+            throw new \Peanut\Exception($curlError);
         }
 
         $headerContent = substr($response, 0, $headerSize);

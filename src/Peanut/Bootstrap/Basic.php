@@ -65,7 +65,7 @@ class Basic
                     }
 
                     if (false === isset($globalConfig['environment']) || !$globalConfig['environment']) {
-                        throw new \Exception($configFile.' '.$this->getHttpHost().' domains config error');
+                        throw new \Peanut\Exception($configFile.' '.$this->getHttpHost().' domains config error');
                     }
 
                     $envConfigFile = dirname($configFile).'/environment/'.$globalConfig['environment'].'.php';
@@ -76,20 +76,20 @@ class Basic
                         if (true === is_array($envConfig)) {
                             $config = array_merge($globalConfig, $envConfig);
                         } else {
-                            throw new \Exception($envConfigFile.' config error');
+                            throw new \Peanut\Exception($envConfigFile.' config error');
                         }
                     } else {
-                        throw new \Exception($envConfigFile.' can\'t be loaded');
+                        throw new \Peanut\Exception($envConfigFile.' can\'t be loaded');
                     }
                 } else {
-                    throw new \Exception($configFile.' domains config error');
+                    throw new \Peanut\Exception($configFile.' domains config error');
                 }
             } else {
-                throw new \Exception($configFile.' can\'t be loaded.');
+                throw new \Peanut\Exception($configFile.' can\'t be loaded.');
             }
 
             if (false === isset($config) || !$config || false === is_array($config)) {
-                throw new \Exception('config error');
+                throw new \Peanut\Exception('config error');
             }
         } catch (\Exception $e) {
             throw $e;
@@ -193,7 +193,7 @@ class Basic
         if (true === is_file(__BASE__.'/app/config/route.php')) {
             include __BASE__.'/app/config/route.php';
         } else {
-            throw new \Exception(__BASE__.'/app/config/route.php 을 확인하세요.');
+            throw new \Peanut\Exception(__BASE__.'/app/config/route.php 을 확인하세요.');
         }
     }
 }

@@ -7,49 +7,37 @@ class Model extends \Phalcon\Mvc\Model
     {
         $this->_related[$alias][] = $properties;
     }
-    public function beforeSave() : void
+    /*
+    public function _save($data = null, $whiteList = null) : bool
     {
-        $metaData   = $this->getModelsMetaData();
-        $attributes = $metaData->getNotNullAttributes($this);
+        $result = parent::save($data, $whiteList);
+        $trace  = debug_backtrace()[1];
 
-        // Set all not null fields to their default value.
-        foreach ($attributes as $field) {
-            if (false === isset($this->{$field}) || true === is_null($this->{$field})) {
-                $this->{$field} = new \Phalcon\Db\RawValue('default');
+        if (false === $result || parent::getMessages()) {
+            foreach (parent::getMessages() as $message) {
+                $ex = new \Peanut\Exception($message->getMessage(), 500);
+                if (true === isset($trace['file'])) {
+                    $ex->setFile($trace['file']);
+                    $ex->setLine($trace['line']);
+                }
+                $ex->setCode(500);
+                throw $ex;
             }
         }
+
+        return $result;
     }
     public function save($data = null, $whiteList = null) : bool
     {
-        $result = parent::save($data, $whiteList);
-        if (false === $result || parent::getMessages()) {
-            foreach (parent::getMessages() as $message) {
-                throw new \Exception($message->getMessage());
-            }
-        }
-
-        return $result;
+        return $this->_save($data, $whiteList);
     }
     public function create($data = null, $whiteList = null) : bool
     {
-        $result = parent::create($data, $whiteList);
-        if (false === $result || parent::getMessages()) {
-            foreach (parent::getMessages() as $message) {
-                throw new \Exception($message->getMessage());
-            }
-        }
-
-        return $result;
+        return $this->_save($data, $whiteList);
     }
     public function update($data = null, $whiteList = null) : bool
     {
-        $result = parent::update($data, $whiteList);
-        if (false === $result || parent::getMessages()) {
-            foreach (parent::getMessages() as $message) {
-                throw new \Exception($message->getMessage());
-            }
-        }
-
-        return $result;
+        return $this->_save($data, $whiteList);
     }
+    */
 }

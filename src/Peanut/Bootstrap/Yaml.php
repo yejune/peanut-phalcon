@@ -88,7 +88,7 @@ class Yaml
             $config = yaml_parse_file($configFile);
 
             if (false === is_array($config)) {
-                throw new \Exception($configFile.' can\'t be loaded.');
+                throw new \Peanut\Exception($configFile.' can\'t be loaded.');
             }
         } catch (\Exception $e) {
             throw $e;
@@ -100,7 +100,7 @@ class Yaml
     public function initEnvironment()
     {
         if ($stage = getenv('STAGE_NAME')) {
-            throw new \Exception('stage를 확인할수 없습니다.');
+            throw new \Peanut\Exception('stage를 확인할수 없습니다.');
         }
 
         $this->stageName = $stage;

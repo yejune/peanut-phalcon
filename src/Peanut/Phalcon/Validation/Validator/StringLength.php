@@ -34,7 +34,7 @@ class StringLength extends Validator
         $isSetMax = $this->hasOption('max');
 
         if (!$isSetMin && !$isSetMax) {
-            throw new Exception('A minimum or maximum must be set');
+            throw new \Peanut\Exception('A minimum or maximum must be set');
         }
 
         $value = $validation->getValue($field);

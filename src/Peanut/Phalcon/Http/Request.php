@@ -416,7 +416,7 @@ class Request extends \Phalcon\Http\Request
                             default:
                                 $message = 'Invalid JSON syntax';
                         }
-                        throw new \Exception($message);
+                        throw new \Peanut\Exception($message);
                     }
                 } else {
                     $json = [];

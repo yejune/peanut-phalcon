@@ -131,7 +131,7 @@ class Valid
             $this->setSpecByParameter($swagger['paths'][$this->path][$this->requestMethod]);
         } else {
             if ($this->mode == 'strict') {
-                throw new \Exception(strtoupper($this->requestMethod).' "'.$this->path.'" spec not exists');
+                throw new \Peanut\Exception(strtoupper($this->requestMethod).' "'.$this->path.'" spec not exists');
             }
         }
     }
@@ -142,7 +142,7 @@ class Valid
             $this->setSpecByParameter($this->decodeFile($filename));
         } else {
             if ($this->mode == 'strict') {
-                throw new \Exception('spec file not exists');
+                throw new \Peanut\Exception('spec file not exists');
             }
 
             return [];
@@ -152,7 +152,7 @@ class Valid
     public function decodeFile($filename)
     {
         if (false === file_exists($filename)) {
-            throw new Exception($filename.' file not exists');
+            throw new \Peanut\Exception($filename.' file not exists');
         }
         $contents = file_get_contents($filename);
 
@@ -165,11 +165,11 @@ class Valid
             case 'json':
                 $result = json_decode($contents, true);
                 if (json_last_error()) {
-                    throw new \Exception($filename.' Invalid JSON syntax');
+                    throw new \Peanut\Exception($filename.' Invalid JSON syntax');
                 }
                 break;
             default:
-                throw new \Exception($ext.' not support');
+                throw new \Peanut\Exception($ext.' not support');
                 break;
         }
 

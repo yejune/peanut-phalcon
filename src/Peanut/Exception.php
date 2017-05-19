@@ -3,22 +3,43 @@ namespace Peanut;
 
 class Exception extends \Exception
 {
-    public function __construct($e, $status = '500')
+    public function __construct($e, $code=0, \Throwable $previous = null)
     {
         if (true === is_object($e)) {
-            $e = $e->getMessage().' in '.$e->getFile().' on line '.$e->getLine();
+            $this->setMessage($e->getMessage());
+            $this->setLine($e->getLine());
+            $this->setFile($e->getFile());
+            $this->setCode($e->getCode());
+            $this->setTrace($e->getTrace());
+            $this->setPrevious($e->getPrevious());
+        } else {
+            $this->setMessage($e);
+            $this->setCode($code);
+            $this->setPrevious($previous);
         }
-        $di = \Phalcon\DI\FactoryDefault::getDefault();
-        if (null === $di) {
-            $di = new \Phalcon\DI\FactoryDefault;
-        }
-        $di->setShared('response', function () {
-            return new \Peanut\Phalcon\Http\Response();
-        });
-        $di->getShared('response')->content([
-            'status'  => $status,
-            'message' => $e,
-        ])->send();
-        die();
+    }
+    public function setLine($line)
+    {
+        $this->line = $line;
+    }
+    public function setFile($file)
+    {
+        $this->file = $file;
+    }
+    public function setMessage($message)
+    {
+        $this->message = $message;
+    }
+    public function setCode($code)
+    {
+        $this->code = $code;
+    }
+    public function setTrace($trace)
+    {
+        $this->trace = $trace;
+    }
+    public function setPrevious($previous)
+    {
+        $this->previous = $previous;
     }
 }

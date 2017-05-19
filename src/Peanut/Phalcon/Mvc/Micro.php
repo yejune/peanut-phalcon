@@ -23,7 +23,7 @@ class Micro extends \Phalcon\Mvc\Micro
         $dependencyInjector = $this->_dependencyInjector;
 
         if (false === is_object($dependencyInjector)) {
-            throw new \Exception('A dependency injection container is required to access required micro services');
+            throw new \Peanut\Exception('A dependency injection container is required to access required micro services');
         }
 
         try {
@@ -43,7 +43,7 @@ class Micro extends \Phalcon\Mvc\Micro
                 $handler = $this->_handlers[$matchedRoute->getRouteId()];
 
                 if (!$handler) {
-                    throw new \Exception("Matched route doesn't have an associated handler");
+                    throw new \Peanut\Exception("Matched route doesn't have an associated handler");
                 }
 
                 $this->_activeHandler = $handler;
@@ -166,19 +166,19 @@ class Micro extends \Phalcon\Mvc\Micro
                 try {
                     $class = $this->classLoader($tmp[0]);
                 } catch (\Throwable $e) {
-                    throw new \Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable: '.$e->getMessage().' in '.$e->getFile().' line '.$e->getLine());
+                    throw new \Peanut\Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable: '.$e->getMessage().' in '.$e->getFile().' line '.$e->getLine());
                 }
                 if (true === is_callable([$class, $tmp[1]])) {
                     $status = call_user_func_array([$class, $tmp[1]], $args);
                 } else {
-                    throw new \Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable');
+                    throw new \Peanut\Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable');
                 }
             } else {
                 echo $handler;
                 $status = $this->response;
             }
         } else {
-            throw new \Exception(($name ? $name.' ' : '').str_replace([PHP_EOL, ' '], ['', ' '], print_r($handler, true)).' is not support');
+            throw new \Peanut\Exception(($name ? $name.' ' : '').str_replace([PHP_EOL, ' '], ['', ' '], print_r($handler, true)).' is not support');
         }
 
         return $status;
