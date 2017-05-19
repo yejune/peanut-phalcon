@@ -9,6 +9,7 @@
     "require": {
         "ext-phalcon": "*",
         "ext-yaml": "*",
-        "ext-uuid": "*"
+        "ext-uuid": "*",
+        "yejune/php-class-generator": "*"
     }
 }
