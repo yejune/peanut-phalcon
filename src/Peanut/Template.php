@@ -243,16 +243,15 @@ class Template
         if (false === $tplPath) {
             trigger_error('cannot find defined template "'.$tplPath.'"', E_USER_ERROR);
         }
-
-        $cplHead = '<?php /* Peanut\Template '.sha1_file($tplPath, true).' '.date('Y/m/d H:i:s', filemtime($tplPath)).' '.$tplPath.' ';
+        //( 24 + 1 + 40 + 1 ) + ( 11 + 1 )
+        $cplHead = '<?php /* Peanut\Template '.sha1_file($tplPath, false).' '.date('Y/m/d H:i:s', filemtime($tplPath)).' '.$tplPath.' ';
 
         if ('dev' !== $this->compileCheck && false !== $cplPath) {
             $fp   = fopen($cplPath, 'rb');
             $head = fread($fp, strlen($cplHead) + 9);
             fclose($fp);
-
             if (strlen($head) > 9
-                && substr($head, 0, 46) == substr($cplHead, 0, 46) && filesize($cplPath) == (int) substr($head, -9)) {
+                && substr($head, 0, 66) == substr($cplHead, 0, 66) && filesize($cplPath) == (int) substr($head, -9)) {
                 return $cplPath;
             }
         }
