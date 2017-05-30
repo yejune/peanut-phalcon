@@ -136,11 +136,12 @@ class Model
                     $aliasModelName = $refModelName;
 
                     $getMethod       = new CreateMethod('get'.$refModelName);
-                    $getMethod->addContentLine("return \$this->getRelated('{$refModelName}', \$parameters);");
+                    $getMethod->addContentLine("return \$this->getRelated('{$refModelName}', \$parameters) ?: null;");
                     $getMethod->setReturn("{$this->namespace}\\{$refModelName}");
                     $getMethodParam1 = new CreateMethodParam('parameters');
                     $getMethodParam1->setType('array');
                     $getMethodParam1->setDefaultValue('[]');
+                    $getMethod->addReturnNull();
                     $getMethod->addParam($getMethodParam1);
                     $propertyClass->addMethod($getMethod);
 
@@ -180,11 +181,12 @@ class Model
                         $aliasModelName = $refModelName;
 
                         $getMethod       = new CreateMethod('get'.$refModelName);
-                        $getMethod->addContentLine("return \$this->getRelated('{$refModelName}', \$parameters);");
+                        $getMethod->addContentLine("return \$this->getRelated('{$refModelName}', \$parameters) ?: null;");
                         $getMethod->setReturn("{$this->namespace}\\{$refModelName}");
                         $getMethodParam1 = new CreateMethodParam('parameters');
                         $getMethodParam1->setType('array');
                         $getMethodParam1->setDefaultValue('[]');
+                        $getMethod->addReturnNull();
                         $getMethod->addParam($getMethodParam1);
                         $propertyClass->addMethod($getMethod);
 
