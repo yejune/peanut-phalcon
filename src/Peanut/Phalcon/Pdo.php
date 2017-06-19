@@ -76,6 +76,6 @@ class Pdo
     }
     private function buildDsn()
     {
-        return $this->scheme.':host='.$this->host.';dbname='.$this->dbname.';charset='.$this->charset;
+        return $this->scheme.':dbname='.$this->dbname.';host='.$this->host.';charset='.$this->charset;
     }
 }
