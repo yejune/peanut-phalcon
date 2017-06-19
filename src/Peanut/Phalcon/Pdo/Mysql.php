@@ -17,7 +17,7 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
         }
         try {
             $this->_pdo = new \Pdo($connect['dsn'], $connect['username'], $connect['password'], $connect['options']);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw $e;
         }
     }
@@ -200,32 +200,28 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
                 parent::rollback();
             }
 
-            throw new TransactionException($e, $e->getCode());
+            throw new TransactionException($e);
         }
     }
 }
-class TransactionException extends \Exception
-{
-    public function __construct($message, $code = 0)
-    {
-        parent::__construct($message->getMessage(), $code);
 
-        $tmp  = $message->getTrace()[0] ?? [];
+class TransactionException extends \Peanut\Exception
+{
+    public function __construct($e, $code = 0)
+    {
+        $this->setMessage($e->getMessage());
+        $this->setCode($code ?: $e->getCode());
+        $this->setTrace($e->getTrace());
+        $this->setPrevious($e->getPrevious());
+
+        $tmp = $e->getTrace()[0] ?? [];
 
         if (true === isset($tmp['file']) && $tmp['file']) {
-            $this->addFile($tmp['file']);
-            $this->addLine($tmp['line'].' {Closure}');
+            $this->setFile($tmp['file']);
+            $this->setLine($tmp['line'].' {Closure}');
         } else {
-            $this->addFile($message->getFile());
-            $this->addLine($message->getLine());
+            $this->setFile($e->getFile());
+            $this->setLine($e->getLine());
         }
-    }
-    public function addFile($file)
-    {
-        $this->file = $file;
-    }
-    public function addLine($line)
-    {
-        $this->line = $line;
     }
 }

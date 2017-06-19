@@ -180,17 +180,17 @@ class Client
                 }
                 break;
         }
-
         curl_setopt_array($curl, $curlOptions);
 
         $response   = curl_exec($curl);
+
         $curlError  = curl_error($curl);
         $httpCode   = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         $headerSize = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
-
         curl_close($curl);
 
         if ($curlError) {
+            pr(func_get_args());
             throw new \Peanut\Exception($curlError);
         }
 
@@ -203,8 +203,13 @@ class Client
 
         foreach ($this->getLastHeaders() as $headerKey => $headerValue) {
             if (1 === preg_match('#Content-Type#i', $headerKey)) {
+                if (1 === preg_match('#charset=([^;]+)#', $headerValue, $c)) {
+                    if (strtoupper($c[1]) == 'EUC-KR') {
+                        $this->responseBody = iconv('EUC-KR', 'UTF-8', $this->responseBody);
+                    }
+                }
                 if (1 === preg_match('#json#', $headerValue)) {
-                    $this->responseBody = json_decode($body, true);
+                    $this->responseBody = json_decode($this->responseBody, true);
                     break;
                 } elseif (1 === preg_match('#x-www-form-urlencoded#', $headerValue)) {
                     parse_str($body, $this->responseBody);

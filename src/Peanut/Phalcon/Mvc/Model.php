@@ -1,11 +1,25 @@
 <?php
 namespace Peanut\Phalcon\Mvc;
 
+use Phalcon\DI\FactoryDefault;
+
 class Model extends \Phalcon\Mvc\Model
 {
     public function setRelated($alias, $properties) : void
     {
         $this->_related[$alias][] = $properties;
+    }
+    public static function getModelManager()
+    {
+        $di = FactoryDefault::getDefault();
+
+        return $di->get('modelsManager');
+    }
+    public static function getConnection($dbName)
+    {
+        $di = FactoryDefault::getDefault();
+
+        return $di->get($dbName);
     }
     /*
     public function _save($data = null, $whiteList = null) : bool

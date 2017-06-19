@@ -24,7 +24,7 @@ class System
         } else {
             $format = http_build_query($array);
         }
-        error_log($format);
+        error_log($format.PHP_EOL);
     }
     public function setOutputFormat($format)
     {

@@ -17,6 +17,9 @@ class Logger extends \Phalcon\Logger
                 static::$instance = new \Phalcon\Logger\Adapter\Stream($driver);
             }
         }
+        if (getenv('LOG_FORMAT') == 'json') {
+            static::$instance->setFormatter(new \Phalcon\Logger\Formatter\Json());
+        }
 
         return static::$instance;
     }
