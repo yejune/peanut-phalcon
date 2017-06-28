@@ -27,14 +27,14 @@ class Pagination
 
     public static function getHtml($totalCount, $currentPage, $recordsPerPage = 10, $pagesPerBlock = 9, $urlPattern = '', $viewStartEnd = false)
     {
-        $pagination = new Pagination($totalCount, $currentPage, $recordsPerPage, $pagesPerBlock = 9, $urlPattern, $viewStartEnd);
+        $pagination = new Pagination($totalCount, $currentPage, $recordsPerPage, $pagesPerBlock, $urlPattern, $viewStartEnd);
 
         return $pagination->toHtml();
     }
 
     public static function get($totalCount, $currentPage, $recordsPerPage = 10, $pagesPerBlock = 9, $urlPattern = '', $viewStartEnd = false)
     {
-        $pagination = new Pagination($totalCount, $currentPage, $recordsPerPage, $pagesPerBlock = 9, $urlPattern, $viewStartEnd);
+        $pagination = new Pagination($totalCount, $currentPage, $recordsPerPage, $pagesPerBlock, $urlPattern, $viewStartEnd);
 
         return $pagination->toArray();
     }
@@ -42,18 +42,17 @@ class Pagination
     public function getPages()
     {
         $pages = [];
+        if ($this->pagesPerBlock % 2 == 0) {
+            $this->pagesPerBlock += 1;
+        }
 
         if ($this->totalPages <= $this->pagesPerBlock) {
             for ($i = 1; $i <= $this->totalPages; $i++) {
                 $pages[] = $this->createPage($i, $i == $this->currentPage);
             }
         } else {
-            if (true === $this->viewStartEnd) {
-                $pagesPerBlock = $this->pagesPerBlock - 2;
-            } else {
-                $pagesPerBlock = $this->pagesPerBlock;
-            }
-            $numAdjacents = (int)floor(($pagesPerBlock - 1) / 2);
+            $pagesPerBlock = $this->pagesPerBlock;
+            $numAdjacents  = (int)floor(($pagesPerBlock - 1) / 2);
 
             if ($this->currentPage + $numAdjacents > $this->totalPages) {
                 $startPage = $this->totalPages - $pagesPerBlock + 1;// + 2;
@@ -68,16 +67,22 @@ class Pagination
                 $endPage = $this->totalPages;
             }
 
-            if (true === $this->viewStartEnd && $startPage > 2) {
-                $pages[] = $this->createPage(1, $this->currentPage == 1);
-                $pages[] = $this->createEllipsisPage();
-            }
             for ($i = $startPage; $i <= $endPage; $i++) {
                 $pages[] = $this->createPage($i, $i == $this->currentPage);
             }
-            if (true === $this->viewStartEnd && $endPage < $this->totalPages - 1) {
-                $pages[] = $this->createEllipsisPage();
-                $pages[] = $this->createPage($this->totalPages, $this->currentPage == $this->totalPages);
+
+            if ($this->viewStartEnd) {
+                if ($this->currentPage > 4) {
+                    $pages[0] = $this->createPage(1, $this->currentPage == 1);
+                    $pages[1] = $this->createEllipsisPage();
+                }
+
+                if ($this->currentPage <= $this->totalPages - 4) {
+                    array_pop($pages);
+                    array_pop($pages);
+                    $pages[] = $this->createEllipsisPage();
+                    $pages[] = $this->createPage($this->totalPages, $this->currentPage == $this->totalPages);
+                }
             }
         }
 
