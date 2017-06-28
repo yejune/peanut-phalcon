@@ -228,20 +228,22 @@ class Compiler
                         throw new Compiler\Exception('error line '.$line);
                     }
 
-//    $this->brace[] = ['elseif', $line];
+                    //    $this->brace[] = ['elseif', $line];
                     //    $this->brace[] = ['if', $line];
                     $result = [2, $this->compileElseif($statement, $line)];
                     break;
                 default:
-
-                    $compileString = $this->compileDefault($statement, $line);
-
-                    if (false === $compileString) {
+                    if (!$statement) {
                         $result = [1, $org];
                     } else {
-                        $result = [2, $compileString.';'];
-                    }
+                        $compileString = $this->compileDefault($statement, $line);
 
+                        if (false === $compileString) {
+                            $result = [1, $org];
+                        } else {
+                            $result = [2, $compileString.';'];
+                        }
+                    }
                     break;
             }
         }
