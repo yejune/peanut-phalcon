@@ -21,25 +21,6 @@ class Cli extends \Peanut\Bootstrap
         return $this->getDi()->get('request')->getHttpHost();
     }
 
-    /**
-     * @param $config
-     */
-    protected function initialize(\Phalcon\Cli\Console $app, \Phalcon\DI\FactoryDefault $di)
-    {
-    }
-
-    /**
-     * @param  \Phalcon\Cli\Console   $app
-     * @return \Phalcon\Cli\Console
-     */
-    private function run(\Phalcon\Cli\Console $app)
-    {
-        $app->setDi($this->di);
-        $this->initialize($app, $this->di);
-
-        return $app;
-    }
-
     public function arguments(array $argv)
     {
         $arguments = [
@@ -69,5 +50,24 @@ class Cli extends \Peanut\Bootstrap
         $arguments['task'] = '\\App\\Tasks'.$task;
 //        pr($arguments);
         return $arguments;
+    }
+
+    /**
+     * @param $config
+     */
+    protected function initialize(\Phalcon\Cli\Console $app)
+    {
+    }
+
+    /**
+     * @param  \Phalcon\Cli\Console   $app
+     * @return \Phalcon\Cli\Console
+     */
+    private function run(\Phalcon\Cli\Console $app)
+    {
+        $app->setDi($this->di);
+        $this->initialize($app);
+
+        return $app;
     }
 }

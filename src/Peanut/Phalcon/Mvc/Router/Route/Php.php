@@ -7,16 +7,6 @@ class Php extends \Peanut\Phalcon\Mvc\Router\Route
     {
         $this->mount($this->getRoute());
     }
-    /**
-     * @return $this
-     */
-    private function chainInit() : self
-    {
-        $this->methods = parent::getMethods();
-        $this->pattern = '';
-
-        return $this;
-    }
 
     /**
      * @param  $pattern
@@ -249,6 +239,16 @@ class Php extends \Peanut\Phalcon\Mvc\Router\Route
         }
 
         $this->chainInit();
+    }
+    /**
+     * @return $this
+     */
+    private function chainInit() : self
+    {
+        $this->methods = parent::getMethods();
+        $this->pattern = '';
+
+        return $this;
     }
 }
 

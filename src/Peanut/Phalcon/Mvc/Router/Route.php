@@ -105,7 +105,7 @@ class Route //extends \Phalcon\Di\Injectable
 
     protected function mount(array $routesGroup = []) : void
     {
-        $app = $this->getApplication();
+        $app         = $this->getApplication();
         $collections = [];
         foreach ($routesGroup as $method => $routes) {
             foreach ($routes as $path => $handler) {

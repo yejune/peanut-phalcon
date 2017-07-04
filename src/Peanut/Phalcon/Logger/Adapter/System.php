@@ -20,9 +20,9 @@ class System
         }
         $messages = array_merge($messages, [
             'remote_addr' => $this->getClientIp(),
-            'user_agent'  => $_SERVER['HTTP_USER_AGENT']??'',
-            'request_uri' => $_SERVER['PATH_INFO']??'',
-            'host'        => $_SERVER['HTTP_HOST']??''
+            'user_agent'  => $_SERVER['HTTP_USER_AGENT'] ?? '',
+            'request_uri' => $_SERVER['PATH_INFO'] ?? '',
+            'host'        => $_SERVER['HTTP_HOST'] ?? '',
         ]);
         $array = [
             'type'        => 'php',

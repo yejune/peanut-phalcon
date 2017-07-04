@@ -23,7 +23,7 @@ class Basic extends \Peanut\Bootstrap
     /**
      * @param $config
      */
-    protected function initialize(\Phalcon\Mvc\Micro $app, \Phalcon\DI\FactoryDefault $di)
+    protected function initialize(\Phalcon\Mvc\Micro $app)
     {
     }
 
@@ -34,7 +34,7 @@ class Basic extends \Peanut\Bootstrap
     private function run(\Phalcon\Mvc\Micro $app)
     {
         $app->setDi($this->di);
-        $this->initialize($app, $this->di);
+        $this->initialize($app);
 
         return $app;
     }
