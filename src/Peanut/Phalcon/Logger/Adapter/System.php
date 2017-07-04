@@ -3,7 +3,7 @@ namespace Peanut\Phalcon\Logger\Adapter;
 
 class System
 {
-    public $outputFormat = 'json';
+    public $outputFormat = '';
     public $fifo;
     public function __construct($fifo = null)
     {
@@ -24,9 +24,9 @@ class System
             'fields'      => $messages,
             'time'        => date('Y-m-d\TH:i:sP'),
             'remote_addr' => $this->getClientIp(),
-            'user_agent'  => $_SERVER['HTTP_USER_AGENT']??'',
-            'request_uri' => $_SERVER['PATH_INFO']??'',
-            'host'        => $_SERVER['HTTP_HOST']??''
+            'user_agent'  => $_SERVER['HTTP_USER_AGENT'] ?? '',
+            'request_uri' => $_SERVER['PATH_INFO'] ?? '',
+            'host'        => $_SERVER['HTTP_HOST'] ?? '',
         ];
         if ('json' == $this->outputFormat) {
             $format = json_encode($array);
