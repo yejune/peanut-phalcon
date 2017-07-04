@@ -1,12 +1,16 @@
 <?php
-namespace Peanut\Phalcon\Mvc\Router\Rules;
+namespace Peanut\Phalcon\Mvc\Router\Route;
 
-class Object extends \Peanut\Phalcon\Mvc\Router
+class Php extends \Peanut\Phalcon\Mvc\Router\Route
 {
+    public function register() : void
+    {
+        $this->mount($this->getRoute());
+    }
     /**
      * @return $this
      */
-    private function chainInit()
+    private function chainInit() : self
     {
         $this->methods = parent::getMethods();
         $this->pattern = '';
@@ -18,7 +22,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param  $pattern
      * @return $this
      */
-    public function pattern($pattern)
+    public function pattern($pattern) : self
     {
         $this->pattern = trim($pattern, '/');
 
@@ -29,7 +33,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param  array   $methods
      * @return $this
      */
-    public function methods($methods = [])
+    public function methods($methods = []) : self
     {
         if (false === is_array($methods)) {
             $methods = func_get_args();
@@ -48,7 +52,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param  $callback
      * @throws \Exception
      */
-    public function group($callback)
+    public function group($callback) : void
     {
         if (func_num_args() === 2) {
             list($prefix, $callback) = func_get_args();
@@ -74,7 +78,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param $handler
      * @param $pattern
      */
-    public function get($handler, $pattern = '')
+    public function get($handler, $pattern = '') : void
     {
         if (func_num_args() === 2) {
             list($pattern, $handler) = func_get_args();
@@ -92,7 +96,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param $handler
      * @param $pattern
      */
-    public function post($handler, $pattern = '')
+    public function post($handler, $pattern = '') : void
     {
         if (func_num_args() === 2) {
             list($pattern, $handler) = func_get_args();
@@ -110,7 +114,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param $handler
      * @param $pattern
      */
-    public function put($handler, $pattern = '')
+    public function put($handler, $pattern = '') : void
     {
         if (func_num_args() === 2) {
             list($pattern, $handler) = func_get_args();
@@ -128,7 +132,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param $handler
      * @param $pattern
      */
-    public function patch($handler, $pattern = '')
+    public function patch($handler, $pattern = '') : void
     {
         if (func_num_args() === 2) {
             list($pattern, $handler) = func_get_args();
@@ -146,7 +150,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param $handler
      * @param $pattern
      */
-    public function head($handler, $pattern = '')
+    public function head($handler, $pattern = '') : void
     {
         if (func_num_args() === 2) {
             list($pattern, $handler) = func_get_args();
@@ -164,7 +168,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param $handler
      * @param $pattern
      */
-    public function options($handler, $pattern = '')
+    public function options($handler, $pattern = '') : void
     {
         if (func_num_args() === 2) {
             list($pattern, $handler) = func_get_args();
@@ -182,7 +186,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param $handler
      * @param $pattern
      */
-    public function any($handler, $pattern = '')
+    public function any($handler, $pattern = '') : void
     {
         if (func_num_args() === 2) {
             list($pattern, $handler) = func_get_args();
@@ -200,7 +204,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param $handler
      * @param $pattern
      */
-    public function param($param, $handler, $pattern = '')
+    public function param($param, $handler, $pattern = '') : void
     {
         if (func_num_args() === 2) {
             list($pattern, $handler) = func_get_args();
@@ -217,7 +221,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param $handler
      * @param $pattern
      */
-    public function before($handler, $pattern = '')
+    public function before($handler, $pattern = '') : void
     {
         if (func_num_args() === 2) {
             list($pattern, $handler) = func_get_args();
@@ -234,7 +238,7 @@ class Object extends \Peanut\Phalcon\Mvc\Router
      * @param $handler
      * @param $pattern
      */
-    public function after($handler, $pattern = '')
+    public function after($handler, $pattern = '') : void
     {
         if (func_num_args() === 2) {
             list($pattern, $handler) = func_get_args();
@@ -269,88 +273,83 @@ class ChainingException extends \Exception
 
 /*
 
-$router = new \Peanut\Phalcon\Mvc\Router\RulesObject;
-$router->group('huga', function() use ($router)
-{
-    $router->before(function()
-    {
+
+$routes = new \Peanut\Phalcon\Mvc\Router\Route\Php($app);
+$routes->group('huga', function () use ($routes) {
+    $routes->before(function () {
         echo 'huga before';
     });
-    $router->get(function()
-    {
+    $routes->get(function () {
         echo 'huga index page';
     });
-    $router->get('{name}', function($name)
-    {
+    $routes->get('{name}', function ($name) {
         echo $name;
     });
-    $router->get('view/{view_id:[0-9]+}', function()
-    {
-
+    $routes->get('view/{view_id:[0-9]+}', function () {
     });
-    $router->get('write', function()
-    {
-
+    $routes->get('write', function () {
     });
-    $router->after(function() {
+    $routes->after(function () {
         echo 'huga after';
     });
 });
-$router->group('board', function() use ($router)
+$routes->register();
+
+$routes->group('board', function() use ($routes)
 {
-    $router->before(function()
+    $routes->before(function()
     {
         echo 'board before';
     });
-    $router->get(function()
+    $routes->get(function()
     {
         echo 'board index page';
     });
-    $router->group('{board_id:[a-z0-9A-Z]+}', function() use ($router)
+    $routes->group('{board_id:[a-z0-9A-Z]+}', function() use ($routes)
     {
-        $router->param('board_id', function($boardId)
+        $routes->param('board_id', function($boardId)
         {
             $this->board = $boardId;
             echo 'board id : ' .$boardId;
         });
-        $router->param('view_id', function($viewId)
+        $routes->param('view_id', function($viewId)
         {
             $this->view = $viewId;
             echo 'view id : ' .$viewId;
         });
-        $router->get(function($boardId)
+        $routes->get(function($boardId)
         {
             echo 'board index page <b>'.$boardId.'</b>';
         });
-        $router->get('add', function($board)
+        $routes->get('add', function($board)
         {
             echo 'add '.($this->board === $board ? $board : false);
         });
-        $router->get('view/{view_id:[0-9]+}', function($boardId, $viewId)
+        $routes->get('view/{view_id:[0-9]+}', function($boardId, $viewId)
         {
             echo '<hr />';
             echo $viewId;
             echo '<hr />';
         });
-        $router->get('write', function()
+        $routes->get('write', function()
         {
 
         });
     });
-    $router->after(function()
+    $routes->after(function()
     {
         echo 'board after';
     });
 });
-$router->get('info', function()
+$routes->get('info', function()
 {
     phpinfo();
 });
-$router->get(function()
+$routes->get(function()
 {
     echo '/';
 });
 
-return $router;
+return $routes;
 
 */

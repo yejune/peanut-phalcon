@@ -1,15 +1,20 @@
 <?php
-namespace Peanut\Phalcon\Mvc\Router\Rules;
+namespace Peanut\Phalcon\Mvc\Router\Route;
 
-class Hash extends \Peanut\Phalcon\Mvc\Router
+class Yaml extends \Peanut\Phalcon\Mvc\Router\Route
 {
     /**
      * @param $config
      */
-    public function group($config)
+    public function register(array $config = []) : void
+    {
+        $this->mount($this->getRoute());
+    }
+
+    public function group(array $config = []) : void
     {
         foreach ($config as $key => $value) {
-            if (list($type, $uri, $methods, $param) = $this->getArgs($key)) {
+            if (list($type, $uri, $methods, $param) = $this->split($key)) {
                 switch ($type) {
                     case 'group':
                         array_push($this->groupParts, $uri);
@@ -51,7 +56,7 @@ class Hash extends \Peanut\Phalcon\Mvc\Router
     /**
      * @param $key
      */
-    private function getArgs($key)
+    private function split($key) : array
     {
         if (1 === preg_match('#(?P<type>[^\s]+)(\s+(?P<left>[^\s]+))?(\s+(?P<center>[^\s]+))?(\s+(?P<right>[^\s]+))?#', $key, $matches)) {
             $type = strtolower($matches['type']);
