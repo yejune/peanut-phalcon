@@ -18,15 +18,17 @@ class System
         } else {
             $messages = $message;
         }
-        $array = [
-            'type'        => 'php',
-            'mode'        => $type,
-            'fields'      => $messages,
-            'time'        => date('Y-m-d\TH:i:sP'),
+        $messages = array_merge($messages, [
             'remote_addr' => $this->getClientIp(),
             'user_agent'  => $_SERVER['HTTP_USER_AGENT']??'',
             'request_uri' => $_SERVER['PATH_INFO']??'',
             'host'        => $_SERVER['HTTP_HOST']??''
+        ]);
+        $array = [
+            'type'        => 'php',
+            'mode'        => $type,
+            'time'        => date('Y-m-d\TH:i:sP'),
+            'fields'      => $messages,
         ];
         if ('json' == $this->outputFormat) {
             $format = json_encode($array);
