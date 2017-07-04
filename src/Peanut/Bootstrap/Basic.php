@@ -23,7 +23,7 @@ class Basic extends \Peanut\Bootstrap
     /**
      * @param $config
      */
-    protected function initialize(\Phalcon\Mvc\Micro $app, \Phalcon\DI\FactoryDefault $di)
+    protected function initialize(\Phalcon\Mvc\Micro $app)
     {
     }
 
