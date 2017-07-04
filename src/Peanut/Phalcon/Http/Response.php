@@ -154,16 +154,20 @@ class Response extends \Phalcon\Http\Response
     }
 }
 
-function html_encode($in)
+function html_encode(array $in = [])
 {
-    $t = '<table border=1 cellspacing="0" cellpadding="0">';
-    foreach ($in as $key => $value) {
-        if (is_array($value)) {
-            $t .= '<tr><td>'.$key.'</td><td>'.html_encode($value).'</td></tr>';
-        } else {
-            $t .= '<tr><td>'.$key.'</td><td>'.$value.'</td></tr>';
+    if (true === is_array($in)) {
+        $t = '<table border=1 cellspacing="0" cellpadding="0">';
+        foreach ($in as $key => $value) {
+            if (is_array($value)) {
+                $t .= '<tr><td>'.$key.'</td><td>'.html_encode($value).'</td></tr>';
+            } else {
+                $t .= '<tr><td>'.$key.'</td><td>'.$value.'</td></tr>';
+            }
         }
-    }
 
-    return $t.'</table>';
+        return $t.'</table>';
+    } else {
+        return $in;
+    }
 }
