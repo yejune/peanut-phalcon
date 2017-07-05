@@ -167,7 +167,7 @@ function html_encode(array $in = [])
         }
 
         return $t.'</table>';
-    } else {
-        return $in;
     }
+
+    return $in;
 }
