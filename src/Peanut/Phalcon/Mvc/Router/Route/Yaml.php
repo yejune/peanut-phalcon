@@ -3,14 +3,6 @@ namespace Peanut\Phalcon\Mvc\Router\Route;
 
 class Yaml extends \Peanut\Phalcon\Mvc\Router\Route
 {
-    /**
-     * @param $config
-     */
-    public function register(array $config = []) : void
-    {
-        $this->mount($this->getRoute());
-    }
-
     public function group(array $config = []) : void
     {
         foreach ($config as $key => $value) {
@@ -113,7 +105,7 @@ routes:
     get: \App\Controllers\V1->index
   get: /index page
 
-$router = new \Peanut\Phalcon\Mvc\Router\RulesArray();
+$router = new \Peanut\Phalcon\Mvc\Router\Route\Yaml();
 $router->group(yaml_parse_file('evn.yaml'));
 return $router;
 

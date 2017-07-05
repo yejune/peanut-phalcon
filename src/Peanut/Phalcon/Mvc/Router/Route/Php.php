@@ -3,21 +3,6 @@ namespace Peanut\Phalcon\Mvc\Router\Route;
 
 class Php extends \Peanut\Phalcon\Mvc\Router\Route
 {
-    public function register() : void
-    {
-        $this->mount($this->getRoute());
-    }
-    /**
-     * @return $this
-     */
-    private function chainInit() : self
-    {
-        $this->methods = parent::getMethods();
-        $this->pattern = '';
-
-        return $this;
-    }
-
     /**
      * @param  $pattern
      * @return $this
@@ -250,6 +235,16 @@ class Php extends \Peanut\Phalcon\Mvc\Router\Route
 
         $this->chainInit();
     }
+    /**
+     * @return $this
+     */
+    private function chainInit() : self
+    {
+        $this->methods = parent::getMethods();
+        $this->pattern = '';
+
+        return $this;
+    }
 }
 
 class ChainingException extends \Exception
@@ -293,7 +288,7 @@ $routes->group('huga', function () use ($routes) {
         echo 'huga after';
     });
 });
-$routes->register();
+
 
 $routes->group('board', function() use ($routes)
 {

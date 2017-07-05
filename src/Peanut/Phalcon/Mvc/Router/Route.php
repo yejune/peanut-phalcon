@@ -1,7 +1,7 @@
 <?php
 namespace Peanut\Phalcon\Mvc\Router;
 
-class Route //extends \Phalcon\Di\Injectable
+class Route extends \Phalcon\Mvc\Router
 {
     const METHODS = ['POST', 'GET', 'PUT', 'PATCH', 'HEAD', 'DELETE', 'OPTIONS'];
     /**
@@ -29,16 +29,6 @@ class Route //extends \Phalcon\Di\Injectable
      */
     protected $routeHandler = [];
 
-    protected $application;
-
-    public function __construct(\Phalcon\Mvc\Micro $app)
-    {
-        $this->application = $app;
-    }
-    public function getApplication()
-    {
-        return $this->application;
-    }
     /**
      * @param  $uri
      * @return string
@@ -101,41 +91,5 @@ class Route //extends \Phalcon\Di\Injectable
     public function getMethods()
     {
         return self::METHODS;
-    }
-
-    protected function mount(array $routesGroup = []) : void
-    {
-        $app = $this->getApplication();
-        $collections = [];
-        foreach ($routesGroup as $method => $routes) {
-            foreach ($routes as $path => $handler) {
-                if (true === is_string($handler)) {
-                    if (true === is_callable($handler)) {
-                        $app->{$method}($path, $handler);
-                    } elseif (false !== strpos($handler, '->')) {
-                        [$className, $methodName] = explode('->', $handler);
-                        if (true === isset($collections[$className])) {
-                            $collection = $collections[$className];
-                            $collection->{$method}($path, $methodName);
-                        } else {
-                            $collection = new \Phalcon\Mvc\Micro\Collection;
-                            $collection->setHandler($className, true);
-                            $collection->setLazy(true);
-                            $collection->{$method}($path, $methodName);
-                            $collections[$className] = $collection;
-                        }
-                    } else {
-                        $app->{$method}($path, function () use ($handler) {
-                            echo $handler;
-                        });
-                    }
-                } elseif ($handler instanceof \Closure) {
-                    $app->{$method}($path, $handler);
-                }
-            }
-        }
-        foreach ($collections as $className => $collection) {
-            $app->mount($collection);
-        }
     }
 }
