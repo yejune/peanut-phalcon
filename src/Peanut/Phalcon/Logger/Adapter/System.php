@@ -5,9 +5,12 @@ class System
 {
     public $outputFormat = '';
     public $fifo;
-    public function __construct($fifo = null)
+    public function __construct($fifo = null, $outputFormat = null)
     {
         $this->fifo = $fifo;
+        if ($outputFormat) {
+            $this->outputFormat = $outputFormat;
+        }
     }
     public function printOutput($message, $type = 'log')
     {
