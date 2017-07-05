@@ -190,27 +190,27 @@ view::define([
 <nav style='text-align:center'>
 
     <ul class="pagination">
-        {{?pagination.prevUrl}}
-            <li><a href="{{=pagination.prevUrl}}">&laquo;</a></li>
-        {{:}}
+        {?pagination.prevUrl}
+            <li><a href="{=pagination.prevUrl}">&laquo;</a></li>
+        {:}
             <li class='disabled'><a>&laquo;</a></li>
-        {{/}}
+        {/}
 
-        {{@page =  pagination.pages}}
-            {{?page.url}}
-                <li {{?page.isCurrent}}class="active"{{/}}>
-                    <a href="{{=page.url}}">{{=page.num}}</a>
+        {@page = pagination.pages}
+            {?page.url}
+                <li {?page.isCurrent}class="active"{/}>
+                    <a href="{=page.url}">{=page.num}</a>
                 </li>
-            {{:}}
-                <li class="disabled"><span>{{=page.num}}</span></li>
-            {{/}}
-        {{/}}
+            {:}
+                <li class="disabled"><span>{=page.num}</span></li>
+            {/}
+        {/}
 
-        {{?pagination.nextUrl}}
-            <li><a href="{{=pagination.nextUrl}}">&raquo;</a></li>
-        {{:}}
+        {?pagination.nextUrl}
+            <li><a href="{=pagination.nextUrl}">&raquo;</a></li>
+        {:}
             <li class='disabled'><a>&raquo;</a></li>
-        {{/}}
+        {/}
     </ul>
 
 </nav>
