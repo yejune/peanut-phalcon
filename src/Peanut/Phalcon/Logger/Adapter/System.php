@@ -87,7 +87,7 @@ class System
     }
     public function getProtocal()
     {
-        if (isset($_SERVER['HTTPS']) && $_SEREVER['HTTPS'] != 'off') {
+        if (true === isset($_SERVER['HTTPS']) && $_SEREVER['HTTPS'] != 'off') {
             return 'HTTPS';
         }
 
