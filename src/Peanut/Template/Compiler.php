@@ -728,7 +728,7 @@ class Compiler
                         }
                     }
 
-// 배열이나 인자 속이 아니면 오류
+                    // 배열이나 인자 속이 아니면 오류
                     if (false === in_array($last_stat['name'], ['left_parenthesis', 'left_bracket'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
                     }
