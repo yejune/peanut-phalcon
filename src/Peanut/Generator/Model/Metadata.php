@@ -97,11 +97,13 @@ class Metadata
                 i.TABLE_NAME ASC, i.CONSTRAINT_TYPE = 'PRIMARY KEY' DESC
         ");
 
+        $multiUnique       = [];
         $deleteMultiUnique = [];
         foreach ($indexes as $k => $v) {
-            if ($v['CONSTRAINT_NAME'] != 'PRIMARY' && true === isset($deleteMultiUnique[$v['TABLE_NAME'].'_'.$v['CONSTRAINT_NAME']])) {
+            if ($v['CONSTRAINT_NAME'] != 'PRIMARY' && true === isset($multiUnique[$v['TABLE_NAME'].'_'.$v['CONSTRAINT_NAME']])) {
                 unset($deleteMultiUnique[$v['TABLE_NAME'].'_'.$v['CONSTRAINT_NAME']]);
             } else {
+                $multiUnique[$v['TABLE_NAME'].'_'.$v['CONSTRAINT_NAME']]       = true;
                 $deleteMultiUnique[$v['TABLE_NAME'].'_'.$v['CONSTRAINT_NAME']] = $v;
             }
         }
