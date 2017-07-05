@@ -31,7 +31,21 @@ class System
         if ('json' == $this->outputFormat) {
             $format = json_encode($array);
         } else {
-            $format = http_build_query($array);
+            $smessage = [];
+            foreach ($messages as $key => $value) {
+                $smessage[] = $value;
+            }
+            $smessage = implode(' ', $smessage);
+
+            $format = sprintf('%s - - [%s] "%s %s %s" "%s" "%s"',
+                $this->getClientIp(),
+                date('Y-m-d\TH:i:sP'),
+                $_SERVER['REQUEST_METHOD'] ?? '',
+                $this->getPath(),
+                $this->getProtocal(),
+                $_SERVER['HTTP_USER_AGENT'] ?? '',
+                $smessage
+            );
         }
         if ($this->fifo) {
             error_log($format.PHP_EOL, 3, $this->fifo);
@@ -71,6 +85,14 @@ class System
     {
         $this->printOutput($message, __FUNCTION__);
     }
+    public function getProtocal()
+    {
+        if (isset($_SERVER['HTTPS']) && $_SEREVER['HTTPS'] != 'off') {
+            return 'HTTPS';
+        }
+
+        return 'HTTP';
+    }
     public function getClientIp()
     {
         $ipaddress = '';
@@ -86,8 +108,21 @@ class System
             $ipaddress = $_SERVER['HTTP_FORWARDED'];
         } elseif (true === isset($_SERVER['REMOTE_ADDR'])) {
             $ipaddress = $_SERVER['REMOTE_ADDR'];
+        } else {
+            $ipaddress = '127.0.0.1';
         }
 
         return $ipaddress;
+    }
+    public function getPath()
+    {
+        if (true === isset($_SERVER['argv'])) {
+            return implode(' ', $_SERVER['argv']);
+        }
+        if (true === isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO']) {
+            return $_SERVER['PATH_INFO'];
+        }
+
+        return '/';
     }
 }
