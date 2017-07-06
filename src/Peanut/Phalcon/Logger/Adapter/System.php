@@ -32,7 +32,7 @@ class System
             'host'        => $_SERVER['HTTP_HOST'] ?? '',
         ];
         if ('json' == $this->outputFormat) {
-            $format = json_encode($array);
+            $format = json_encode($array, JSON_UNESCAPED_UNICODE);
         } else {
             $smessage = [];
             foreach ($messages as $key => $value) {
