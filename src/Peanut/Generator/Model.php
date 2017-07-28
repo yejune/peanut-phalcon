@@ -223,62 +223,62 @@ class Model
                 }
             }
 
-            $relations = isset($config['relations']['hasManyToMany']) ? $config['relations']['hasManyToMany'] : [];
-            foreach ($relations as $fieldName => $tables) {
-                foreach ($tables as $tableName => $value) {
-                    $refTableName      = $tableName;
-                    $refFieldName      = $value['column'];
-                    $refModelName      = \Peanut\Text::camelize($refTableName);
-                    $refLcModelName    = \Peanut\Text::lcfirstCamelize($refTableName);
-                    $refPropertyName   = \Peanut\Text::camelize($refFieldName);
-
-                    if (1 === preg_match('#parent_#', $fieldName)) {
-                        continue;
-                    }
-                    //$varNameMany       = SbUtils::getNameMany(lcfirst($refModelName));
-                    foreach ($value['destination'] as $destinationKey => $destination) {
-                        foreach ($destination as $destinationTable => $dest) {
-                            $desModelName = \Peanut\Text::camelize($dest['table']);
-
-                            //$aliasModelName = ''.\Peanut\Text::pluralize($refModelName);
-                            $aliasModelName = 'Through'.\Peanut\Text::pluralize($desModelName);
-
-                            $getMethod       = new CreateMethod('get'.''.$aliasModelName);
-                            $getMethod->addContentLine("return \$this->getRelated('{$aliasModelName}', \$parameters);");
-                            $getMethod->setReturn("\Phalcon\Mvc\Model\Resultset\Simple");
-                            $getMethodParam1 = new CreateMethodParam('parameters');
-                            $getMethodParam1->setType('array');
-                            $getMethodParam1->setDefaultValue('[]');
-                            $getMethod->addParam($getMethodParam1);
-                            $propertyClass->addMethod($getMethod);
-
-                            $setMethod       = new CreateMethod('add'.'Through'.$desModelName);
-                            $setMethod->addContentLine("\$this->setRelated('{$aliasModelName}', \${$refLcModelName});");
-                            $setMethod->addContentLine('');
-                            $setMethod->addContentLine('return $this;');
-                            $setMethodParam1 = new CreateMethodParam($refLcModelName);
-                            $setMethodParam1->setType("{$this->namespace}\\{$refModelName}");
-                            $setMethod->addParam($setMethodParam1);
-                            $setMethod->setReturn('$this');
-                            $propertyClass->addMethod($setMethod);
-
-                            /*
-                            $deleteMethod = new CreateMethod('delete'.$refModelName);
-                            $deleteMethod->addContentLine("\$this->{\$intermediateModel}->delete(function(\$object) use (\${$refLcModelName}) {");
-                            $deleteMethod->addContentLine("    /** @var \\{$this->namespace}\\{\$intermediateModel} \$object *"."/");
-                            $deleteMethod->addContentLine("    return \$object->get{$refPropertyName}() === \${$refLcModelName}->getId();");
-                            $deleteMethod->addContentLine('});');
-                            $deleteMethod->addContentLine('return $this;');
-                            $deleteMethodParam1 = new CreateMethodParam($refLcModelName);
-                            $deleteMethodParam1->setType("{$this->namespace}\\{$refModelName}");
-                            $deleteMethod->addParam($deleteMethodParam1);
-                            $deleteMethod->setReturn('$this');
-                            $propertyClass->addMethod($deleteMethod);
-                            */
-                        }
-                    }
-                }
-            }
+            // $relations = isset($config['relations']['hasManyToMany']) ? $config['relations']['hasManyToMany'] : [];
+            // foreach ($relations as $fieldName => $tables) {
+            //     foreach ($tables as $tableName => $value) {
+            //         $refTableName      = $tableName;
+            //         $refFieldName      = $value['column'];
+            //         $refModelName      = \Peanut\Text::camelize($refTableName);
+            //         $refLcModelName    = \Peanut\Text::lcfirstCamelize($refTableName);
+            //         $refPropertyName   = \Peanut\Text::camelize($refFieldName);
+            //
+            //         if (1 === preg_match('#parent_#', $fieldName)) {
+            //             continue;
+            //         }
+            //         //$varNameMany       = SbUtils::getNameMany(lcfirst($refModelName));
+            //         foreach ($value['destination'] as $destinationKey => $destination) {
+            //             foreach ($destination as $destinationTable => $dest) {
+            //                 $desModelName = \Peanut\Text::camelize($dest['table']);
+            //
+            //                 //$aliasModelName = ''.\Peanut\Text::pluralize($refModelName);
+            //                 $aliasModelName = 'Through'.$refLcModelName.\Peanut\Text::pluralize($desModelName);
+            //
+            //                 $getMethod       = new CreateMethod('get'.''.$aliasModelName);
+            //                 $getMethod->addContentLine("return \$this->getRelated('{$aliasModelName}', \$parameters);");
+            //                 $getMethod->setReturn("\Phalcon\Mvc\Model\Resultset\Simple");
+            //                 $getMethodParam1 = new CreateMethodParam('parameters');
+            //                 $getMethodParam1->setType('array');
+            //                 $getMethodParam1->setDefaultValue('[]');
+            //                 $getMethod->addParam($getMethodParam1);
+            //                 $propertyClass->addMethod($getMethod);
+            //
+            //                 $setMethod       = new CreateMethod('add'.$aliasModelName);
+            //                 $setMethod->addContentLine("\$this->setRelated('{$aliasModelName}', \${$refLcModelName});");
+            //                 $setMethod->addContentLine('');
+            //                 $setMethod->addContentLine('return $this;');
+            //                 $setMethodParam1 = new CreateMethodParam($refLcModelName);
+            //                 $setMethodParam1->setType("{$this->namespace}\\{$refModelName}");
+            //                 $setMethod->addParam($setMethodParam1);
+            //                 $setMethod->setReturn('$this');
+            //                 $propertyClass->addMethod($setMethod);
+            //
+            //                 /*
+            //                 $deleteMethod = new CreateMethod('delete'.$refModelName);
+            //                 $deleteMethod->addContentLine("\$this->{\$intermediateModel}->delete(function(\$object) use (\${$refLcModelName}) {");
+            //                 $deleteMethod->addContentLine("    /** @var \\{$this->namespace}\\{\$intermediateModel} \$object *"."/");
+            //                 $deleteMethod->addContentLine("    return \$object->get{$refPropertyName}() === \${$refLcModelName}->getId();");
+            //                 $deleteMethod->addContentLine('});');
+            //                 $deleteMethod->addContentLine('return $this;');
+            //                 $deleteMethodParam1 = new CreateMethodParam($refLcModelName);
+            //                 $deleteMethodParam1->setType("{$this->namespace}\\{$refModelName}");
+            //                 $deleteMethod->addParam($deleteMethodParam1);
+            //                 $deleteMethod->setReturn('$this');
+            //                 $propertyClass->addMethod($deleteMethod);
+            //                 */
+            //             }
+            //         }
+            //     }
+            // }
 
             if ($this->isMetaData) {
                 $propertyClass->addMethod($this->getMetaData($config));
@@ -683,49 +683,49 @@ class Model
                 $this->belongsTo($initializeMethod, $fieldName, $refModelName, $refFieldName);
             }
         }
-        $relations = isset($config['relations']['hasManyToMany']) ? $config['relations']['hasManyToMany'] : [];
-        foreach ($relations as $fieldName => $tables) {
-            foreach ($tables as $tableName => $value) {
-                $refTableName = $tableName;
-                $refFieldName = $value['column'];
-                $refModelName = \Peanut\Text::camelize($refTableName);
-                //$varNameMany = SbUtils::getNameMany(lcfirst($refModelName));
-                foreach ($value['destination'] as $destinationKey => $destination) {
-                    foreach ($destination as $destinationTable => $dest) {
-                        $desModelName = \Peanut\Text::camelize($dest['table']);
-
-                        //$aliasModelName = ''.\Peanut\Text::pluralize($refModelName);
-                        $aliasModelName = 'Through'.\Peanut\Text::pluralize($desModelName);
-
-                        $initializeMethod->addContentLine('$this->hasManyToMany(');
-                        $initializeMethod->addContentLine("    '{$fieldName}',");
-                        $initializeMethod->addContentLine("    '{$this->namespace}\\{$refModelName}',");
-                        $initializeMethod->addContentLine("    '{$refFieldName}',");
-                        $initializeMethod->addContentLine("    '{$destinationKey}',");
-                        $initializeMethod->addContentLine("    '{$this->namespace}\\{$desModelName}',");
-                        $initializeMethod->addContentLine("    '{$dest['column']}',");
-                        $initializeMethod->addContentLine('    [');
-                        $initializeMethod->addContentLine("        'alias' => '{$aliasModelName}',");
-                        if ($this->reusable) {
-                            $initializeMethod->addContentLine("        'reusable' => true,");
-                        }
-                        if ($this->foreignKey) {
-                            if ($this->cascade) {
-                                $initializeMethod->addContentLine("        'foreignKey' => [");
-                                $initializeMethod->addContentLine("            'action' => \Phalcon\Mvc\Model\Relation::ACTION_CASCADE,");
-                                //$initializeMethod->addContentLine("            'message' => 'Cannot delete table a as it still contains table b\'s'");
-                                $initializeMethod->addContentLine('        ]');
-                            } else {
-                                $initializeMethod->addContentLine("        'foreignKey' => true");
-                            }
-                        }
-
-                        $initializeMethod->addContentLine('    ]');
-                        $initializeMethod->addContentLine(');');
-                    }
-                }
-            }
-        }
+        // $relations = isset($config['relations']['hasManyToMany']) ? $config['relations']['hasManyToMany'] : [];
+        // foreach ($relations as $fieldName => $tables) {
+        //     foreach ($tables as $tableName => $value) {
+        //         $refTableName = $tableName;
+        //         $refFieldName = $value['column'];
+        //         $refModelName = \Peanut\Text::camelize($refTableName);
+        //         //$varNameMany = SbUtils::getNameMany(lcfirst($refModelName));
+        //         foreach ($value['destination'] as $destinationKey => $destination) {
+        //             foreach ($destination as $destinationTable => $dest) {
+        //                 $desModelName = \Peanut\Text::camelize($dest['table']);
+        //
+        //                 //$aliasModelName = ''.\Peanut\Text::pluralize($refModelName);
+        //                 $aliasModelName = 'Through'.\Peanut\Text::pluralize($desModelName);
+        //
+        //                 $initializeMethod->addContentLine('$this->hasManyToMany(');
+        //                 $initializeMethod->addContentLine("    '{$fieldName}',");
+        //                 $initializeMethod->addContentLine("    '{$this->namespace}\\{$refModelName}',");
+        //                 $initializeMethod->addContentLine("    '{$refFieldName}',");
+        //                 $initializeMethod->addContentLine("    '{$destinationKey}',");
+        //                 $initializeMethod->addContentLine("    '{$this->namespace}\\{$desModelName}',");
+        //                 $initializeMethod->addContentLine("    '{$dest['column']}',");
+        //                 $initializeMethod->addContentLine('    [');
+        //                 $initializeMethod->addContentLine("        'alias' => '{$aliasModelName}',");
+        //                 if ($this->reusable) {
+        //                     $initializeMethod->addContentLine("        'reusable' => true,");
+        //                 }
+        //                 if ($this->foreignKey) {
+        //                     if ($this->cascade) {
+        //                         $initializeMethod->addContentLine("        'foreignKey' => [");
+        //                         $initializeMethod->addContentLine("            'action' => \Phalcon\Mvc\Model\Relation::ACTION_CASCADE,");
+        //                         //$initializeMethod->addContentLine("            'message' => 'Cannot delete table a as it still contains table b\'s'");
+        //                         $initializeMethod->addContentLine('        ]');
+        //                     } else {
+        //                         $initializeMethod->addContentLine("        'foreignKey' => true");
+        //                     }
+        //                 }
+        //
+        //                 $initializeMethod->addContentLine('    ]');
+        //                 $initializeMethod->addContentLine(');');
+        //             }
+        //         }
+        //     }
+        // }
 
         return $initializeMethod;
     }
@@ -797,10 +797,14 @@ class Model
             if ($isInFolder) {
                 $dir      = $filepathMatches[1];
                 $fileName = $filepathMatches[2];
+
                 if (!is_dir($dir)) {
                     $dir_p = explode('/', $dir);
                     for ($a = 1; $a <= count($dir_p); $a++) {
-                        @mkdir(implode('/', array_slice($dir_p, 0, $a)));
+                        $dddd = implode('/', array_slice($dir_p, 0, $a));
+                        if ($dddd) {
+                            @mkdir($dddd);
+                        }
                     }
                 }
             }
