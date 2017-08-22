@@ -802,7 +802,7 @@ class Model
                     $dir_p = explode('/', $dir);
                     for ($a = 1; $a <= count($dir_p); $a++) {
                         $dddd = implode('/', array_slice($dir_p, 0, $a));
-                        if ($dddd) {
+                        if ($dddd && false === is_dir($dddd)) {
                             @mkdir($dddd);
                         }
                     }
