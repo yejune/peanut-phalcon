@@ -21,15 +21,15 @@ class Basic extends \Peanut\Bootstrap
     }
 
     /**
-     * @param $config
+     * @param \Peanut\Phalcon\Mvc\Nano $app
      */
     protected function initialize(\Peanut\Phalcon\Mvc\Nano $app)
     {
     }
 
     /**
-     * @param  \Phalcon\Mvc\Nano   $app
-     * @return \Phalcon\Mvc\Nano
+     * @param  \Peanut\Phalcon\Mvc\Nano   $app
+     * @return \Peanut\Phalcon\Mvc\Nano   $app
      */
     private function run(\Peanut\Phalcon\Mvc\Nano $app)
     {
