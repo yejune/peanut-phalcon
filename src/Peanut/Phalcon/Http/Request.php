@@ -6,6 +6,7 @@ class Request extends \Phalcon\Http\Request
     public $bodyParameters    = [];
     public $pathParameters    = [];
     public $segmentParameters = [];
+    public $parameters        = [];
     /**
      * Sets request raw body
      *
@@ -306,7 +307,7 @@ class Request extends \Phalcon\Http\Request
      */
     public function getParam($key)
     {
-        $params = $this->getDI()->get('router')->getParams();
+        $params = $this->getParams();
 
         return true === isset($params[$key]) ? $params[$key] : '';
     }
@@ -316,7 +317,13 @@ class Request extends \Phalcon\Http\Request
      */
     public function getParams()
     {
-        return $this->getDI()->get('router')->getParams();
+        if (!$this->parameters) {
+            foreach ($this->getDI()->get('router')->getParams() as $key => $value) {
+                $this->parameters[$key] = rawurldecode($value);
+            }
+        }
+
+        return $this->parameters;
     }
 
     /**
@@ -324,7 +331,7 @@ class Request extends \Phalcon\Http\Request
      */
     public function getRewriteUri()
     {
-        return $this->getDI()->get('router')->getRewriteUri();
+        return rtrim($this->getDI()->get('router')->getRewriteUri(), '/');
     }
 
     /**
@@ -332,6 +339,17 @@ class Request extends \Phalcon\Http\Request
      * @param null|mixed $index
      */
     public function getSegment($index = null)
+    {
+        if (!$this->segmentParameters) {
+            $this->getSegments();
+        }
+        if (null === $index) {
+            return $this->segmentParameters;
+        }
+
+        return true === isset($this->segmentParameters[$index]) ? $this->segmentParameters[$index] : null;
+    }
+    public function getSegments()
     {
         if (!$this->segmentParameters) {
             $uri      = trim($this->getDI()->get('router')->getRewriteUri(), '/');
@@ -342,13 +360,9 @@ class Request extends \Phalcon\Http\Request
             }
             $this->segmentParameters = $segments;
         }
-        if (null === $index) {
-            return $this->segmentParameters;
-        }
 
-        return true === isset($this->segmentParameters[$index]) ? $this->segmentParameters[$index] : null;
+        return $this->segmentParameters;
     }
-
     public function getPath($pathname = null)
     {
         if (count($this->pathParameters) == 0) {
@@ -383,15 +397,19 @@ class Request extends \Phalcon\Http\Request
 
         switch ($contentType) {
             case 'application/x-www-form-urlencoded':
+            case 'application/x-www-form-urlencoded;charset=UTF-8':
+            case 'application/x-www-form-urlencoded; charset=UTF-8':
                 //parse_str($body, $return);
                 //return $return;
                 return parent::getPost();
                 break;
             case 'application/xml':
             case 'application/xml;charset=UTF-8':
+            case 'application/xml; charset=UTF-8':
                 break;
             case 'application/json':
             case 'application/json;charset=UTF-8':
+            case 'application/json; charset=UTF-8':
             default:
                 $body = str_replace(' \\', '', $body);
                 $json = json_decode($body, true);
@@ -426,7 +444,31 @@ class Request extends \Phalcon\Http\Request
                 break;
         }
     }
+    public function getIp2Long()
+    {
+        if (true === isset($_SERVER['REMOTE_ADDR'])) {
+            return ip2long($_SERVER['REMOTE_ADDR']);
+        }
 
+        return 0;
+    }
+    public function getIp()
+    {
+        if (true === isset($_SERVER['REMOTE_ADDR'])) {
+            return $_SERVER['REMOTE_ADDR'];
+        }
+
+        return '';
+    }
+    public function getRequest($name)
+    {
+        $post = $this->getPost($name);
+        if ($post) {
+            return $post;
+        }
+
+        return $this->getQuery($name);
+    }
     public function extractDomain($domain)
     {
         if (preg_match("/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i", $domain, $matches)) {
@@ -444,5 +486,9 @@ class Request extends \Phalcon\Http\Request
         $subDomain = str_replace('.'.$domain, '', $host);
 
         return $subDomain ?: 'www';
+    }
+    public function getUrl()
+    {
+        return $this->getScheme().'://'.$this->getHttpHost();
     }
 }
