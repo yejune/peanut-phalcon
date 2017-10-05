@@ -77,7 +77,6 @@ class Nano extends \Phalcon\Mvc\Micro
                 }
 
                 $routeBefore = $router->getBefore();
-
                 foreach ($parts as $part) {
                     if (($_method = true === isset($routeBefore['MAP'][$part]) ? 'MAP' : '')
                         || ($_method = true === isset($routeBefore[$method][$part]) ? $method : '')
@@ -135,6 +134,10 @@ class Nano extends \Phalcon\Mvc\Micro
         }
 
         return $returnedValue;
+    }
+    public function getHandler($id)
+    {
+        return $this->_handlers[$id];
     }
 
     /**
