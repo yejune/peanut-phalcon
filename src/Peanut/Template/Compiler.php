@@ -295,7 +295,7 @@ class Compiler
 
         return $loopArrayName.'='.$array.';'
             .$loopIndexName.'=-1;'
-            .'if(true===is_array('.$loopArrayName.')&&0<('.$loopSizeName.'=count('.$loopArrayName.'))'.'){'
+            .'if((true===is_array('.$loopArrayName.') || true===is_object('.$loopArrayName.'))&&0<('.$loopSizeName.'=count('.$loopArrayName.'))'.'){'
             .'foreach('.$loopArrayName.' as '.$loopKeyName.'=>'.$loopValueName.'){'
             //.$loop_ValueName.'='.$loopValueName.';'
             .$loopIndexName.'++;'
@@ -498,7 +498,7 @@ class Compiler
                             }
                             if ('_' == $current['value']) {
                                 //$xpr .= '\\limepie\\'.$current['value'];
-                                    $xpr .= $current['value'];
+                                $xpr .= $current['value'];
                             } else {
                                 $xpr .= $current['value'];
                             }
@@ -558,7 +558,12 @@ class Compiler
 
                     break;
                 case 'quote':
+                    if (true === in_array($prev['name'], ['string'])) {
+                        return false;
+                    }
+
                     if (false === in_array($prev['name'], ['', 'left_parenthesis', 'left_bracket', 'comma', 'compare', 'assoc_array', 'operator', 'quote_number_concat', 'assign'])) {
+                        pr($prev);
                         throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
                     }
                         $xpr .= $current['value'];

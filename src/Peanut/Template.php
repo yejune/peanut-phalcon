@@ -185,7 +185,7 @@ class Template
         if (true === isset($this->tpl_[$fid])) {
             $path = $this->tpl_[$fid];
         } else {
-            trigger_error('template id "'.$fid.'" is not defined', E_USER_ERROR);
+            throw new \Exception('template id "'.$fid.'" is not defined');
         }
 
         if (0 === strpos($path, '/')) {
@@ -198,25 +198,25 @@ class Template
             $tplPath = $addFolder.$path;
         }
 
-        if (false === ($tplPath = stream_resolve_include_path($tplPath))) {
-            trigger_error('cannot find defined template "'.$tplPath.'"', E_USER_ERROR);
+        if (false === ($tplPath2 = stream_resolve_include_path($tplPath))) {
+            throw new \Exception('cannot find defined template "'.$tplPath.'"');
         }
 
-        return $tplPath;
+        return $tplPath2;
     }
 
     public function templateNoticeHandler($type, $msg, $file, $line)
     {
         $msg .= " in <b>$file</b> on line <b>$line</b>";
         switch ($type) {
-            case E_NOTICE:$msg = "'".'"><span style="font:12px tahoma,arial;color:green;background:white">template Notice #1: '.$msg.'</span>';break;
+            case E_NOTICE:$msg = '<span style="font:12px tahoma,arial;color:green;background:white">template Notice #1: '.$msg.'</span>';break;
             case E_WARNING:
             case E_USER_WARNING:$msg = '<b>Warning</b>: '.$msg; break;
             case E_USER_NOTICE:$msg  = '<b>Notice</b>: '.$msg; break;
             case E_USER_ERROR:$msg   = '<b>Fatal</b>: '.$msg; break;
             default:$msg             = '<b>Unknown</b>: '.$msg; break;
         }
-        echo "<br />\n".$msg."<br />\n";
+        echo "<div style='padding:10px;word-break:break-all;'>\n".$msg."</div>\n";
     }
 
     /**
@@ -225,7 +225,8 @@ class Template
      */
     private function _define($fid, $path)
     {
-        $this->tpl_[$fid] = ltrim($path, $this->templateRoot);
+        //pr($path);
+        $this->tpl_[$fid] = $path;//ltrim($path, $this->templateRoot);
     }
     /**
      * @param  $fid
@@ -241,7 +242,7 @@ class Template
         }
 
         if (false === $tplPath) {
-            trigger_error('cannot find defined template "'.$tplPath.'"', E_USER_ERROR);
+            throw new \Exception('cannot find defined template "'.$tplPath.'"');
         }
         //( 24 + 1 + 40 + 1 ) + ( 11 + 1 )
         $cplHead = '<?php /* Peanut\Template '.sha1_file($tplPath, false).' '.date('Y/m/d H:i:s', filemtime($tplPath)).' '.$tplPath.' ';
@@ -259,11 +260,11 @@ class Template
         $compiler = new \Peanut\Template\Compiler();
         $compiler->execute($this, $fid, $tplPath, $cplPath, $cplHead);
 
-        if (false === ($cplPath = stream_resolve_include_path($cplPath))) {
-            trigger_error('cannot find defined template compile "'.$cplPath.'"', E_USER_ERROR);
+        if (false === ($cplPath2 = stream_resolve_include_path($cplPath))) {
+            throw new \Exception('cannot find defined template compile "'.$cplPath.'"');
         }
 
-        return $cplPath;
+        return $cplPath2;
     }
 
     /**
