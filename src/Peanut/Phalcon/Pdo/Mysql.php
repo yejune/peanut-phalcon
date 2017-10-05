@@ -189,7 +189,11 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
             parent::begin();
             $return = call_user_func_array($callback, [$this]);
             if (parent::getTransactionLevel()) {
-                parent::commit();
+                if ($return) {
+                    parent::commit();
+                } else {
+                    parent::rollback();
+                }
             } else {
                 throw new \Exception('There is no active transaction');
             }
