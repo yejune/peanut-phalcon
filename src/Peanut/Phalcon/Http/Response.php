@@ -103,7 +103,7 @@ class Response extends \Phalcon\Http\Response
         return $this->getDI()->get('application')->handle($url);
     }
 
-    public function redirect($location = null, $externalRedirect = false, $statusCode = 302)
+    public function refresh($location = null)
     {
         parent::setContent('<meta http-equiv="refresh" content="0; url='.$location.'" />');
 
