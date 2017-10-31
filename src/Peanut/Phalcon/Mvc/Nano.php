@@ -11,6 +11,7 @@ class Nano extends \Phalcon\Mvc\Micro
      * @var mixed
      */
     private $pattern;
+    public $nonParameters = false;
 
     /**
      * Handle the whole request
@@ -50,7 +51,7 @@ class Nano extends \Phalcon\Mvc\Micro
                 $params               = [];
 
                 foreach ($matchedRoute->getPaths() as $name => $key) {
-                    $params[$name] = $router->getMatches()[$key];
+                    $params[$name] = $router->getMatches()[$key] ?? null;
                 }
 
                 $method = $this->request->getMethod();
@@ -162,17 +163,26 @@ class Nano extends \Phalcon\Mvc\Micro
     private function callHandler($handler, $args = [], $name = '')
     {
         if (true === is_callable($handler)) {
-            $status = call_user_func_array($handler, $args);
+            if ($this->nonParameters) {
+                $status = call_user_func($handler, $this->request, $this->response);
+            } else {
+                $status = call_user_func_array($handler, $args);
+            }
         } elseif (true === is_string($handler)) {
             if (false !== strpos($handler, '->')) {
                 $tmp = explode('->', $handler);
                 try {
                     $class = $this->classLoader($tmp[0]);
                 } catch (\Throwable $e) {
-                    throw new \Peanut\Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable: '.$e->getMessage().' in '.$e->getFile().' line '.$e->getLine());
+                    throw $e;
+                    //throw new \Peanut\Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable: '.$e->getMessage().' in '.$e->getFile().' line '.$e->getLine());
                 }
                 if (true === is_callable([$class, $tmp[1]])) {
-                    $status = call_user_func_array([$class, $tmp[1]], $args);
+                    if ($this->nonParameters) {
+                        $status = call_user_func([$class, $tmp[1]], $this->request, $this->response);
+                    } else {
+                        $status = call_user_func_array([$class, $tmp[1]], $args);
+                    }
                 } else {
                     throw new \Peanut\Exception(($name ? $name.' ' : '').'\''.$handler.'\' handler is not callable');
                 }

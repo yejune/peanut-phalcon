@@ -3,7 +3,7 @@ namespace Peanut;
 
 class Exception extends \Exception
 {
-    public function __construct($e, $code=0, \Throwable $previous = null)
+    public function __construct($e, $code = 0, \Throwable $previous = null)
     {
         if (true === is_object($e)) {
             $this->setMessage($e->getMessage());

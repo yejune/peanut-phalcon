@@ -63,12 +63,29 @@ class Template
     public function assign($key, $value = false)
     {
         if (true === is_array($key)) {
-            $this->var_ = array_merge($this->var_, $key);
+            $this->var_ = $this->array_merge_recursive_distinct($this->var_, $key);
         } else {
             $this->var_[$key] = $value;
         }
     }
 
+    public function array_merge_recursive_distinct(array &$array1, array &$array2)
+    {
+        $merged = $array1;
+
+        foreach ($array2 as $key => &$value) {
+            if (true === is_array($value)
+                && true === isset($merged [$key])
+                && true === is_array($merged [$key])
+            ) {
+                $merged [$key] = $this->array_merge_recursive_distinct($merged [$key], $value);
+            } else {
+                $merged [$key] = $value;
+            }
+        }
+
+        return $merged;
+    }
     /**
      * @param $fid
      * @param $path

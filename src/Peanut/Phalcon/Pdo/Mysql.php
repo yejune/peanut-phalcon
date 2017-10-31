@@ -178,6 +178,33 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
         return false;
     }
 
+    public function begin($nesting = NULL) {
+        return parent::begin($nesting);
+    }
+
+    public function commit($nesting = NULL) {
+        if (parent::getTransactionLevel()) {
+            return parent::commit($nesting);
+        } else {
+            throw new TransactionException('There is no active transaction', \Peanut\Constant::TRANSACTION_NOT_FOUND);
+        }
+    }
+
+    public function rollback($nesting = NULL) {
+        if (parent::getTransactionLevel()) {
+            $result = false;
+            while (parent::getTransactionLevel()) {
+                $result = parent::rollback($nesting);
+                if(false === $result) {
+                    return false;
+                }
+            }
+            return $result;
+        } else {
+            throw new TransactionException('There is no active transaction', \Peanut\Constant::TRANSACTION_NOT_FOUND);
+        }
+    }
+
     /**
      * @param  $callback
      * @throws \Exception
@@ -186,24 +213,18 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
     public function transaction(callable $callback)
     {
         try {
-            parent::begin();
+            $this->begin();
             $return = call_user_func_array($callback, [$this]);
-            if (parent::getTransactionLevel()) {
-                if ($return) {
-                    parent::commit();
-                } else {
-                    parent::rollback();
-                }
-            } else {
-                throw new \Exception('There is no active transaction');
+            if($return) {
+                $this->commit('asdf');
             }
 
+            if(false === $return) {
+                throw new \Peanut\Exception('Transaction Failure', \Peanut\Constant::TRANSACTION_FAILURE);
+            }
             return $return;
         } catch (\Throwable $e) {
-            while (parent::getTransactionLevel()) {
-                parent::rollback();
-            }
-
+            $this->rollback();
             throw new TransactionException($e);
         }
     }
@@ -211,21 +232,25 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
 
 class TransactionException extends \Peanut\Exception
 {
+    public function currentTrace() {
+        $trace = $this->getTrace();
+        foreach($trace as $row) {
+            if(
+                true === isset($row['file'])
+                && $row['class'] == 'Peanut\Phalcon\Pdo\Mysql'
+                && $row['function'] == 'transaction'
+            ) {
+                return $row;
+            }
+        }
+        return false;
+    }
     public function __construct($e, $code = 0)
     {
-        $this->setMessage($e->getMessage());
-        $this->setCode($code ?: $e->getCode());
-        $this->setTrace($e->getTrace());
-        $this->setPrevious($e->getPrevious());
+        parent::__construct($e, $code);
+        $current = $this->currentTrace();
 
-        $tmp = $e->getTrace()[0] ?? [];
-
-        if (true === isset($tmp['file']) && $tmp['file']) {
-            $this->setFile($tmp['file']);
-            $this->setLine($tmp['line'].' {Closure}');
-        } else {
-            $this->setFile($e->getFile());
-            $this->setLine($e->getLine());
-        }
+        $this->setFile($current['file']);
+        $this->setLine($current['line'].' {Closure}');
     }
 }

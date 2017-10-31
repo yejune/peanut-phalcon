@@ -136,11 +136,13 @@ EOT;
     {
         $path = $this->path;
         $var  = array_shift($path);
+        $var  = str_replace(['[', ']'], ['_', ''], $var);
+
         if ($path) {
             $var .= '_'.implode('_', $path);
         }
-
-        return $var;
+        //$var = preg_replace('#[_]{2,}#', '_', $var);
+        return trim($var, '_');
     }
     public function getValue()
     {

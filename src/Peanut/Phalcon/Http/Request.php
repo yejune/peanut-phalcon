@@ -392,24 +392,23 @@ class Request extends \Phalcon\Http\Request
 
     public function getBodyAll()
     {
+        if ($this->bodyParameters) {
+            return $this->bodyParameters;
+        }
         $body        = parent::getRawBody();
-        $contentType = parent::getHeader('CONTENT_TYPE');
+        $contentType = explode(';', parent::getContentType())[0];
 
         switch ($contentType) {
             case 'application/x-www-form-urlencoded':
-            case 'application/x-www-form-urlencoded;charset=UTF-8':
-            case 'application/x-www-form-urlencoded; charset=UTF-8':
-                //parse_str($body, $return);
-                //return $return;
-                return parent::getPost();
+                parse_str($body, $return);
+                return $this->bodyParameters = $return;
                 break;
             case 'application/xml':
-            case 'application/xml;charset=UTF-8':
-            case 'application/xml; charset=UTF-8':
+                throw new \App\Exceptions\Exception('xml content type not support', 415);
+            break;
                 break;
             case 'application/json':
-            case 'application/json;charset=UTF-8':
-            case 'application/json; charset=UTF-8':
+            case 'text/javascript':
             default:
                 $body = str_replace(' \\', '', $body);
                 $json = json_decode($body, true);
@@ -440,7 +439,7 @@ class Request extends \Phalcon\Http\Request
                     $json = [];
                 }
 
-                return $json;
+                return $this->bodyParameters = $json;
                 break;
         }
     }
@@ -490,5 +489,32 @@ class Request extends \Phalcon\Http\Request
     public function getUrl()
     {
         return $this->getScheme().'://'.$this->getHttpHost();
+    }
+    public function isCli()
+    {
+        //PHP 상수 PHP_SAPI는 php_sapi_name()과 같은 값을 가집니다.
+        return php_sapi_name() == 'cli';
+        return defined('PHP_SAPI') && PHP_SAPI === 'cli';
+        if ((php_sapi_name() == 'cli' || defined('STDIN')) && empty($_SERVER['REMOTE_ADDR'])) {
+            return true;
+        }
+
+        return false;
+    }
+    public function getSliceUri($depth = 2)
+    {
+        $url      = $this->getRewriteUri();
+        $segments = $this->getSegments();
+        if (count($segments) > 2) {
+            $url = '';
+            $i = 1;
+            foreach ($segments as $segment) {
+                $url .= '/'.$segment;
+                if($i == $depth) break;
+                $i++;
+            }
+        }
+
+        return trim($url, '/');
     }
 }

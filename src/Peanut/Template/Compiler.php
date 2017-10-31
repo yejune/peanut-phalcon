@@ -107,7 +107,6 @@ class Compiler
                 case '<?=':
                 case '<?':
                 case '<%':
-
                     if (false == $this->phpengine) {
                         $newTokens[$_index] = str_replace('<', '&lt;', $tokens[$_index]);
                     } else {
@@ -117,7 +116,6 @@ class Compiler
                     break;
                 case '?>':
                 case '%>':
-
                     if (false == $this->phpengine) {
                         $newTokens[$_index] = str_replace('>', '&gt', $tokens[$_index]);
                     } else {
@@ -131,7 +129,6 @@ class Compiler
                     break;
                 case '}-->':
                 case '}':
-
                     if ($is_open !== $_index - 2) {
                         break; // switch exit
                     }
@@ -201,7 +198,6 @@ class Compiler
                     $result = [2, $this->compileElse($statement, $line)];
                     break;
                 case '/':
-
                     if (0 === strpos($match[3], '/')) {
                         $result = [1, $org];
                         break;
@@ -491,45 +487,45 @@ class Compiler
                         throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
                     }
                         // 클로저를 허용하지 않음. 그래서 string_concat 비교 보다 우선순위가 높음
-                        if (true === in_array($next['name'], ['left_parenthesis', 'static_object_sign', 'namespace_sigh'])) {
-                            if ('string_concat' == $prev['name']) {
-                                return false;
-                                throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org'].$next['org']);
-                            }
-                            if ('_' == $current['value']) {
-                                //$xpr .= '\\limepie\\'.$current['value'];
-                                $xpr .= $current['value'];
-                            } else {
-                                $xpr .= $current['value'];
-                            }
-                        } elseif ('object_sign' == $prev['name']) {
-                            $xpr .= $current['value'];
-                        } elseif ('static_object_sign' == $prev['name']) {
-                            $xpr .= '$'.$current['value'];
-                        } elseif ('namespace_sigh' == $prev['name']) {
-                            $xpr .= $current['value'];
-                        } elseif ('string_concat' == $prev['name']) {
-                            if (true == in_array($current['value'], ['index_', 'key_', 'value_', 'last_', 'size_'])) {
-                                $xpr .= '_'.$current['value'].'';
-                            } else {
-                                $xpr .= '[\''.$current['value'].'\']';
-                            }
-                        } else {
-                            if (true === in_array(strtolower($current['value']), ['true', 'false', 'null'])) {
-                                $xpr .= $current['value'];
-                            } elseif (preg_match('#__([a-zA-Z_]+)__#', $current['value'])) {
-                                $xpr .= $current['value']; // 처음
-                            } else {
-                                $xpr .= '$'.$current['value']; // 처음
-                            }
+                    if (true === in_array($next['name'], ['left_parenthesis', 'static_object_sign', 'namespace_sigh'])) {
+                        if ('string_concat' == $prev['name']) {
+                            return false;
+                            throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org'].$next['org']);
                         }
+                        if ('_' == $current['value']) {
+                            //$xpr .= '\\limepie\\'.$current['value'];
+                            $xpr .= $current['value'];
+                        } else {
+                            $xpr .= $current['value'];
+                        }
+                    } elseif ('object_sign' == $prev['name']) {
+                        $xpr .= $current['value'];
+                    } elseif ('static_object_sign' == $prev['name']) {
+                        $xpr .= '$'.$current['value'];
+                    } elseif ('namespace_sigh' == $prev['name']) {
+                        $xpr .= $current['value'];
+                    } elseif ('string_concat' == $prev['name']) {
+                        if (true == in_array($current['value'], ['index_', 'key_', 'value_', 'last_', 'size_'])) {
+                            $xpr .= '_'.$current['value'].'';
+                        } else {
+                            $xpr .= '[\''.$current['value'].'\']';
+                        }
+                    } else {
+                        if (true === in_array(strtolower($current['value']), ['true', 'false', 'null'])) {
+                            $xpr .= $current['value'];
+                        } elseif (preg_match('#__([a-zA-Z_]+)__#', $current['value'])) {
+                            $xpr .= $current['value']; // 처음
+                        } else {
+                            $xpr .= '$'.$current['value']; // 처음
+                        }
+                    }
 
                     break;
                 case 'dollar':
                     return false;
-                    if (false === in_array($prev['name'], [ 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma'])) {
-                        return false; // 원본 출력(javascript)
-                    }
+                if (false === in_array($prev['name'], [ 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma'])) {
+                    return false; // 원본 출력(javascript)
+                }
                     throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
                     break;
                 case 'not_support':
@@ -585,14 +581,14 @@ class Compiler
                     if (false === in_array($prev['name'], ['', 'left_bracket', 'left_parenthesis', 'comma', 'compare', 'operator', 'assign', 'assoc_array', 'string', 'right_bracket', 'number_concat', 'string_concat', 'quote_number_concat'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        if ('quote_number_concat' == $prev['name']) {
-                            $xpr .= "'".$current['value']."'";
-                            $current['name'] = 'quote';
-                        } elseif (true === in_array($prev['name'], ['string', 'right_bracket', 'number_concat'])) {
-                            $xpr .= '['.$current['value'].']';
-                        } else {
-                            $xpr .= $current['value'];
-                        }
+                    if ('quote_number_concat' == $prev['name']) {
+                        $xpr .= "'".$current['value']."'";
+                        $current['name'] = 'quote';
+                    } elseif (true === in_array($prev['name'], ['string', 'right_bracket', 'number_concat'])) {
+                        $xpr .= '['.$current['value'].']';
+                    } else {
+                        $xpr .= $current['value'];
+                    }
 
                     break;
                 case 'string_number':
@@ -638,23 +634,23 @@ class Compiler
 
                     break;
                 case 'operator':
-                    if (false === in_array($prev['name'], ['', 'right_parenthesis', 'right_bracket', 'number', 'string', 'string_number', 'quote', 'assign'])) {
+                    if (false === in_array($prev['name'], ['', 'right_parenthesis', 'right_bracket', 'number', 'string', 'string_number', 'quote', 'assign', 'comma'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
                     }
                         // + 이지만 앞이나 뒤가 quote라면 + -> .으로 바꾼다. 지금의 name또한 변경한다.
-                        if ('+' == $current['value'] && ('quote' == $prev['name'] || 'quote' == $next['name'])) {
-                            $xpr .= '.';
-                            $current['name'] = 'quote_number_concat';
-                        } else {
-                            $xpr .= $current['value'];
-                        }
+                    if ('+' == $current['value'] && ('quote' == $prev['name'] || 'quote' == $next['name'])) {
+                        $xpr .= '.';
+                        $current['name'] = 'quote_number_concat';
+                    } else {
+                        $xpr .= $current['value'];
+                    }
 
                     break;
                 case 'compare':
-                    if (false === in_array($prev['name'], ['number', 'string', 'string_number', 'assign', 'left_parenthesis', 'left_bracket', 'quote', 'right_parenthesis'])) {
+                    if (false === in_array($prev['name'], ['number', 'string', 'string_number', 'assign', 'left_parenthesis', 'left_bracket', 'quote', 'right_parenthesis', 'right_bracket'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'assign':
@@ -667,9 +663,9 @@ class Compiler
                         throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
                     }
                         // = 앞에는 일부의 연산자만 허용된다. +=, -=...
-                        if ('operator' == $prev['name'] && false === in_array($prev['value'], ['+', '-', '*', '/', '%', '^', '!'])) {
-                            throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
-                        }
+                    if ('operator' == $prev['name'] && false === in_array($prev['value'], ['+', '-', '*', '/', '%', '^', '!'])) {
+                        throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
+                    }
 
                         $xpr .= $current['value'];
 
@@ -773,21 +769,15 @@ class Compiler
 
         $source = $cplHead.str_pad($sourceSize, 9, '0', STR_PAD_LEFT).$initCode.$source;
 
-        $fpCpl = fopen($cplPath, 'wb');
-
-        if (false === $fpCpl) {
-            throw new Compiler\Exception('cannot write compiled file "<b>'.$cplPath.'</b>"');
-        }
-
-        fwrite($fpCpl, $source);
-        fclose($fpCpl);
+        file_put_contents($cplPath, $source, LOCK_EX);
 
         if (filesize($cplPath) != strlen($source)) {
             @unlink($cplPath);
-            throw new Compiler\Exception('Problem by concurrent access. Just retry after some seconds. "<b>'.$cplPath.'</b>"');
+            throw new Compiler\Exception(filesize($cplPath).' | '.strlen($source).' Problem by concurrent access. Just retry after some seconds. "<b>'.$cplPath.'</b>"');
         }
     }
 }
+
 namespace Peanut\Template\Compiler;
 
 class Exception extends \Exception

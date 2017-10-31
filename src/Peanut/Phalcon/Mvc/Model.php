@@ -21,6 +21,14 @@ class Model extends \Phalcon\Mvc\Model
 
         return $di->get($dbName);
     }
+    public function xafterSave()
+    {
+        $messages = $this->getMessages();
+
+        foreach ($messages as $message) {
+            echo $message, "\n";
+        }
+    }
     /*
     public function _save($data = null, $whiteList = null) : bool
     {

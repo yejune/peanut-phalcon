@@ -5,6 +5,9 @@ use Peanut\Phalcon\Mvc\Micro;
 
 class Response extends \Phalcon\Http\Response
 {
+    public $payload     = [];
+    public $responseUuid;
+    public $error       = '';
     public $statusCodes = [
         // INFORMATIONAL CODES
         100 => 'Continue',                        // RFC 7231, 6.2.1
@@ -77,15 +80,16 @@ class Response extends \Phalcon\Http\Response
     ];
     /**
      * @param  array   $content
+     * @param null|mixed $options
      * @return $this
      */
-    public function setJsonContent($content)
+    public function setJsonContent($content, $options = null)
     {
         if (!parent::getHeaders()->get('Content-Type')) {
             parent::setContentType('application/json', 'UTF-8');
         }
 
-        parent::setJsonContent($content);
+        parent::setJsonContent($content, $options);
 
         return $this;
     }
@@ -97,7 +101,14 @@ class Response extends \Phalcon\Http\Response
     {
         return json_decode(parent::getContent(), true);
     }
-
+    public function setPayload($payload = [])
+    {
+        $this->payload = $payload;
+    }
+    public function getpayload()
+    {
+        return $this->payload;
+    }
     public function forward($url)
     {
         return $this->getDI()->get('application')->handle($url);
@@ -111,43 +122,72 @@ class Response extends \Phalcon\Http\Response
     }
     public function setStatusCode($code, $message = null)
     {
-        if (in_array($code, array_keys($this->statusCodes))) {
-            parent::setStatusCode($code, $message);
-        } else {
-            parent::setStatusCode(500, $message);
+        if (false == in_array($code, array_keys($this->statusCodes))) {
+            $code = 500;
         }
+        if (!$message) {
+            $message = $this->statusCodes[$code];
+        }
+        parent::setStatusCode($code, $message);
 
         return $this;
     }
-    public function content($response)
+    public function getResponseUuid() {
+        if (!$this->responseUuid) {
+            $this->responseUuid = uuid_create(UUID_TYPE_TIME);
+        }
+        return $this->responseUuid;
+    }
+    public function getResponseCodeTitle($code, $message = null)
     {
-        if (true === isset($response['status'])) {
-            $this->setStatusCode($response['status']);
+        if (in_array($code, array_keys($this->statusCodes))) {
+            return $this->statusCodes[$code];
         }
 
-        $contentTypeAll = $this->getDI()->get('request')->getAcceptableContent();
-        foreach ($contentTypeAll as $contentType) {
-            switch ($contentType['accept']) {
-                case 'text/html':
-                case 'application/xhtml':
-                    parent::setContentType('text/html', 'UTF-8');
-                    parent::setContent(html_encode($response));
-                    break 2;
-                case 'application/xml':
-                case 'application/xml;charset=UTF-8':
-                    parent::setContentType('application/xml', 'UTF-8');
-                    parent::setContent('<error>
+        return $this->statusCodes[500];
+    }
+    public function getResponseCode($code)
+    {
+        if (in_array($code, array_keys($this->statusCodes))) {
+            return $code;
+        }
+
+        return 500;
+    }
+    public function setError($error)
+    {
+        $this->error = $error;
+    }
+    public function getError()
+    {
+        return $this->error;
+    }
+    public function content($response, $status = 0)
+    {
+        if ($status) {
+            $this->setStatusCode(200);
+        }
+
+        $contentType = $this->getDI()->get('request')->getBestAccept();
+        switch ($contentType) {
+            case 'text/html':
+                parent::setContentType('text/html', 'UTF-8');
+                parent::setContent(html_encode($response));
+                break;
+            case 'application/xml':
+                parent::setStatusCode(415);
+                parent::setContentType('application/xml', 'UTF-8');
+                parent::setContent('<error>
 <code>500</code>
 <message>accept xml not support</message>
 </error>');
-                    break 2;
+                break;
                 case 'application/json':
-                case 'application/json;charset=UTF-8':
+                case 'text/javascript':
                 default:
-                    parent::setContentType('application/json', 'UTF-8');
-                    parent::setJsonContent($response);
-                    break 2;
-            }
+                parent::setContentType('application/json', 'UTF-8');
+                parent::setJsonContent($response);
+                break;
         }
 
         return $this;
