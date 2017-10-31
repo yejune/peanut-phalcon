@@ -30,6 +30,7 @@ class Validate
     public $errors   = [];
     public $data     = [];
     public $debug    = false;
+    public $exception = true;
 
     public function __construct($spec = [], $data = [])
     {
@@ -44,7 +45,20 @@ class Validate
     }
     public function getValue($name)
     {
-        return $this->data[$name] ?? null;
+        $name  = str_replace(']', '', $name);
+        $names = explode('[', $name);
+
+        $data = $this->data;
+
+        foreach ($names as $name) {
+            if (true === isset($data[$name])) {
+                $data = $data[$name];
+            } else {
+                return false;
+            }
+        }
+
+        return $data;
     }
     public function getMethod($name)
     {
@@ -74,12 +88,13 @@ class Validate
         foreach ($this->rules as $fieldName => $rules) {
             $cleanFieldName = rtrim($fieldName, '[]');// javascript에서의 배열 네임과 php에서의 배열네임간의 차이 제거
 
-            if (true === isset($this->data[$cleanFieldName]) && true === is_array($this->data[$cleanFieldName])) {
-                $data = $this->data[$cleanFieldName];
-            } elseif (true === isset($this->data[$cleanFieldName])) {
-                $data = [0 => $this->data[$cleanFieldName]];
+            $value = $this->getValue($cleanFieldName);
+            if (false !== $value && true === is_array($value)) {
+                $data = $value;
+            } elseif (false !== $value) {
+                $data = [0 => $value];
             } else {//값이 없음
-                $data = [0 => ''];
+                $data = [0 => null];
             }
             $fieldSize = count($data);
             foreach ($data as $dataValue) {
@@ -115,6 +130,11 @@ class Validate
             }
         }
         if ($this->errors) {
+            if ($this->exception) {
+                $e = new ValidateException('Invalid Parameter', 400);
+                $e->setErrors($this->errors);
+                throw $e;
+            }
             return false;
         }
 
@@ -191,16 +211,24 @@ Validate::addMethod('range', function ($value, $name, $param) {
     return $this->optional($value) || $value >= $param[0] && $value <= $param[1];
 });
 
+// required일때 동작
 Validate::addMethod('mincount', function ($value, $name, $param) {
-    $length = count($this->data[$name]);
+    $elements = $this->getValue($name);
+    $count = 0;
+    foreach ($elements as $val) {
+        if ($val) {
+            $count++;
+        }
+    }
 
-    return $this->optional($value) || $length >= $param;
+    return $this->optional($value) || $count >= $param;
+    return $count >= $param;
 });
 
 Validate::addMethod('unique', function ($value, $name, $param) {
     $unique = [];
     $check = false;
-    foreach ($this->data[$name] as $v) {
+    foreach ($this->getValue($name) as $v) {
         if (true === isset($unique[$v])) {
             $check = true;
         }
@@ -243,3 +271,26 @@ Validate::addMethod('equalTo', function ($value, $name, $param) {
 
     return $value === $this->getValue($target);
 });
+
+class ValidateException extends \Peanut\Exception
+{
+    public $errors = [];
+    public function __construct($e, $statusCode = 400)
+    {
+        parent::__construct($e, $statusCode);
+
+        $tmp = $this->getTrace()[0] ?? [];
+        if (true === isset($tmp['file']) && $tmp['file']) {
+            $this->setFile($tmp['file']);
+            $this->setLine($tmp['line']);
+        }
+    }
+    public function setErrors($errors)
+    {
+        $this->errors=$errors;
+    }
+    public function getErrors()
+    {
+        return $this->errors;
+    }
+}
