@@ -1,15 +1,18 @@
 <?php
 namespace Peanut\Parser;
 
-class Yml
+class Spec
 {
-    public static function parse($path, $mix = [])
+    public static function parse($path, $mix = [], $mix2 = [])
     {
         $arr = yaml_parse(file_get_contents($path));
 
         $arr = static::_parse($arr);
         if ($mix) {
             $arr = static::mix($arr, $mix);
+        }
+        if ($mix2) {
+            $arr = static::mix($arr, $mix2);
         }
 
         return $arr;
