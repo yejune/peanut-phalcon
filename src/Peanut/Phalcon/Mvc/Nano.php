@@ -3,6 +3,7 @@ namespace Peanut\Phalcon\Mvc;
 
 class Nano extends \Phalcon\Mvc\Micro
 {
+    public $nonParameters = false;
     /**
      * @var array
      */
@@ -11,7 +12,6 @@ class Nano extends \Phalcon\Mvc\Micro
      * @var mixed
      */
     private $pattern;
-    public $nonParameters = false;
 
     /**
      * Handle the whole request

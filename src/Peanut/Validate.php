@@ -25,11 +25,11 @@ class Validate
         'step'        => 'Please enter a multiple of {0}.',
         'unique'      => 'unique',
     ];
-    public $messages = [];
-    public $rules    = [];
-    public $errors   = [];
-    public $data     = [];
-    public $debug    = false;
+    public $messages  = [];
+    public $rules     = [];
+    public $errors    = [];
+    public $data      = [];
+    public $debug     = false;
     public $exception = true;
 
     public function __construct($spec = [], $data = [])
@@ -135,6 +135,7 @@ class Validate
                 $e->setErrors($this->errors);
                 throw $e;
             }
+
             return false;
         }
 

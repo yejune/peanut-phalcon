@@ -81,15 +81,15 @@ class Response extends \Phalcon\Http\Response
     /**
      * @param  array   $content
      * @param null|mixed $options
+     * @param mixed $depth
      * @return $this
      */
-    public function setJsonContent($content, $options = null)
+    public function setJsonContent($content, $options = 0, $depth = 512)
     {
         if (!parent::getHeaders()->get('Content-Type')) {
             parent::setContentType('application/json', 'UTF-8');
         }
-
-        parent::setJsonContent($content, $options);
+        parent::setJsonContent($content, $options, $depth);
 
         return $this;
     }
@@ -132,10 +132,12 @@ class Response extends \Phalcon\Http\Response
 
         return $this;
     }
-    public function getResponseUuid() {
+    public function getResponseUuid()
+    {
         if (!$this->responseUuid) {
             $this->responseUuid = uuid_create(UUID_TYPE_TIME);
         }
+
         return $this->responseUuid;
     }
     public function getResponseCodeTitle($code, $message = null)

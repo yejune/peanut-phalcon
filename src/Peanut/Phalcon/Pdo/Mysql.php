@@ -215,17 +215,15 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
         try {
             $this->begin();
             $return = call_user_func_array($callback, [$this]);
-            if($return) {
-                $this->commit('asdf');
+            if (false === $return) {
+                throw new TransactionException('Transaction Failure', \Peanut\Constant::TRANSACTION_FAILURE);
             }
+            $this->commit();
 
-            if(false === $return) {
-                throw new \Peanut\Exception('Transaction Failure', \Peanut\Constant::TRANSACTION_FAILURE);
-            }
             return $return;
         } catch (\Throwable $e) {
             $this->rollback();
-            throw new TransactionException($e);
+            throw $e;
         }
     }
 }
