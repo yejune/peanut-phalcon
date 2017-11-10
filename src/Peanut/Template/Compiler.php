@@ -620,7 +620,7 @@ class Compiler
 
                     break;
                 case 'namespace_sigh':
-                    if (false === in_array($prev['name'], ['string', 'assign', ''])) {
+                    if (false === in_array($prev['name'], ['string', 'assign', 'comma', 'operator', ''])) {
                         throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$prev['org'].$current['org']);
                     }
                         $xpr .= $current['value'];
@@ -777,7 +777,6 @@ class Compiler
         }
     }
 }
-
 namespace Peanut\Template\Compiler;
 
 class Exception extends \Exception
