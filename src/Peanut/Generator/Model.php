@@ -1,10 +1,10 @@
 <?php
 namespace Peanut\Generator;
 
-use Sb\Generator\Object as CreateClass;
-use Sb\Generator\Object\Property as CreateField;
-use Sb\Generator\Object\Method as CreateMethod;
-use Sb\Generator\Object\Method\Param as CreateMethodParam;
+use Sb\Generator\PhpClass as CreateClass;
+use Sb\Generator\PhpClass\Property as CreateField;
+use Sb\Generator\PhpClass\Method as CreateMethod;
+use Sb\Generator\PhpClass\Method\Param as CreateMethodParam;
 
 class Model
 {
@@ -264,9 +264,9 @@ class Model
             //
             //                 /*
             //                 $deleteMethod = new CreateMethod('delete'.$refModelName);
-            //                 $deleteMethod->addContentLine("\$this->{\$intermediateModel}->delete(function(\$object) use (\${$refLcModelName}) {");
-            //                 $deleteMethod->addContentLine("    /** @var \\{$this->namespace}\\{\$intermediateModel} \$object *"."/");
-            //                 $deleteMethod->addContentLine("    return \$object->get{$refPropertyName}() === \${$refLcModelName}->getId();");
+            //                 $deleteMethod->addContentLine("\$this->{\$intermediateModel}->delete(function(\$cls) use (\${$refLcModelName}) {");
+            //                 $deleteMethod->addContentLine("    /** @var \\{$this->namespace}\\{\$intermediateModel} \$cls *"."/");
+            //                 $deleteMethod->addContentLine("    return \$cls->get{$refPropertyName}() === \${$refLcModelName}->getId();");
             //                 $deleteMethod->addContentLine('});');
             //                 $deleteMethod->addContentLine('return $this;');
             //                 $deleteMethodParam1 = new CreateMethodParam($refLcModelName);
