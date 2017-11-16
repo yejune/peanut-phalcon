@@ -3,8 +3,12 @@ namespace Peanut\Parser;
 
 class Spec
 {
+    public static $baseUrl = '';
     public static function parse($path, $mix = [], $mix2 = [])
     {
+        if(!static::$baseUrl) {
+            static::$baseUrl = dirname($path).'/';
+        }
         $arr = yaml_parse(file_get_contents($path));
 
         $arr = static::_parse($arr);
@@ -40,7 +44,9 @@ class Spec
                 }
                 $data = [];
                 foreach ($value as $path) {
-                    $path =  __BASE__.'/app/Specs/'.$path.'';
+                    if (0 !== \strpos($path, '/')) {
+                        $path =  static::$baseUrl.$path.'';
+                    }
                     $yml  = static::parse($path);
                     if (true === isset($yml['properties'])) {
                         $data = array_merge($data, $yml['properties']);
