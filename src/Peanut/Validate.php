@@ -89,6 +89,7 @@ class Validate
             $cleanFieldName = rtrim($fieldName, '[]');// javascript에서의 배열 네임과 php에서의 배열네임간의 차이 제거
 
             $value = $this->getValue($cleanFieldName);
+
             if (false !== $value && true === is_array($value)) {
                 $data = $value;
             } elseif (false !== $value) {
@@ -164,10 +165,13 @@ class Validate
 }
 
 Validate::addMethod('required', function ($value, $name, $param) {
+    if(false === $param) {
+        return true;
+    }
     if (true === is_array($value) && count($value)) {
         return true;
     }
-    if (0 < strlen($value)) {
+    if (0 < strlen($value) && 0 !== $value) {
         return true;
     }
 

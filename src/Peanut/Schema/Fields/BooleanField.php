@@ -18,7 +18,7 @@ class BooleanField extends \Peanut\Schema\Fields
 %s
 </label>
 EOT;
-        if (strlen($value)) {
+        if (strlen($value) && 1 == $value) {
             $checked = 'checked';
         } else {
             $checked = '';
