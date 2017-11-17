@@ -14,7 +14,7 @@ class BooleanField extends \Peanut\Schema\Fields
 
         $select = <<<EOT
 <label class="group">
-<input type=checkbox name="%s" id="%s" value=1 %s %s required />
+<input type=checkbox name="%s" id="%s" value=1 %s %s />
 %s
 </label>
 EOT;
