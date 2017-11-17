@@ -68,48 +68,48 @@ class Schema
     }
     public function arrayRule($schema, $path = [])
     {
-        $this->rules[$this->name($path)]    = $this->getRules($schema->rules);
-        $this->messages[$this->name($path)] = $this->getMessages($schema->messages);
+        $this->rules[$this->name($path)]    = $this->getRules($schema->rules??[]);
+        $this->messages[$this->name($path)] = $this->getMessages($schema->messages??[]);
     }
     public function phoneRule($schema, $path = [])
     {
-        $this->rules[$this->name($path)]    = $this->getRules($schema->rules);
-        $this->messages[$this->name($path)] = $this->getMessages($schema->messages);
+        $this->rules[$this->name($path)]    = $this->getRules($schema->rules??[]);
+        $this->messages[$this->name($path)] = $this->getMessages($schema->messages??[]);
     }
     public function booleanRule($schema, $path = [])
     {
-        $this->rules[$this->name($path)]    = $this->getRules($schema->rules);
-        $this->messages[$this->name($path)] = $this->getMessages($schema->messages);
+        $this->rules[$this->name($path)]    = $this->getRules($schema->rules??[]);
+        $this->messages[$this->name($path)] = $this->getMessages($schema->messages??[]);
     }
     public function selectRule($schema, $path = [])
     {
-        $this->rules[$this->name($path)]    = $this->getRules($schema->rules);
-        $this->messages[$this->name($path)] = $this->getMessages($schema->messages);
+        $this->rules[$this->name($path)]    = $this->getRules($schema->rules??[]);
+        $this->messages[$this->name($path)] = $this->getMessages($schema->messages??[]);
     }
     public function textRule($schema, $path = [])
     {
-        $this->rules[$this->name($path)]    = $this->getRules($schema->rules);
-        $this->messages[$this->name($path)] = $this->getMessages($schema->messages);
+        $this->rules[$this->name($path)]    = $this->getRules($schema->rules??[]);
+        $this->messages[$this->name($path)] = $this->getMessages($schema->messages??[]);
     }
     public function passwordRule($schema, $path = [])
     {
-        $this->rules[$this->name($path)]    = $this->getRules($schema->rules);
-        $this->messages[$this->name($path)] = $this->getMessages($schema->messages);
+        $this->rules[$this->name($path)]    = $this->getRules($schema->rules??[]);
+        $this->messages[$this->name($path)] = $this->getMessages($schema->messages??[]);
     }
     public function textareaRule($schema, $path = [])
     {
-        $this->rules[$this->name($path)]    = $this->getRules($schema->rules);
-        $this->messages[$this->name($path)] = $this->getMessages($schema->messages);
+        $this->rules[$this->name($path)]    = $this->getRules($schema->rules??[]);
+        $this->messages[$this->name($path)] = $this->getMessages($schema->messages??[]);
     }
     public function hiddenRule($schema, $path = [])
     {
-        $this->rules[$this->name($path)]    = $this->getRules($schema->rules);
-        $this->messages[$this->name($path)] = $this->getMessages($schema->messages);
+        $this->rules[$this->name($path)]    = $this->getRules($schema->rules??[]);
+        $this->messages[$this->name($path)] = $this->getMessages($schema->messages??[]);
     }
     public function captchaRule($schema, $path = [])
     {
-        $this->rules[$this->name($path)]    = $this->getRules($schema->rules);
-        $this->messages[$this->name($path)] = $this->getMessages($schema->messages);
+        $this->rules[$this->name($path)]    = $this->getRules($schema->rules??[]);
+        $this->messages[$this->name($path)] = $this->getMessages($schema->messages??[]);
     }
     public function name($path)
     {
