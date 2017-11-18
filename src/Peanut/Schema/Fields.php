@@ -252,9 +252,11 @@ EOT;
     }
     public function getRequired()
     {
-        return '';
         return $this->schema->rules->required ?? '';
     }
-
+    public function getPlaceholder()
+    {
+        return $this->schema->placeholder ?? '';
+    }
     abstract protected function fetch();
 }

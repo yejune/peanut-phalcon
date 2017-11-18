@@ -10,6 +10,7 @@ class TextField extends \Peanut\Schema\Fields
         $value    = $this->getValue();
         $id       = $this->getId();
         $required = $this->getRequired();
+        $placeholder = $this->getPlaceholder();
         /*
                 $input = '';
                 if (isset($this->schema->size)) {
@@ -20,7 +21,7 @@ class TextField extends \Peanut\Schema\Fields
         */
         $select = <<<EOT
 <span class="input %s">
-<input type="%s"  class="form-control" name="%s" id="%s" value="%s" %s />
+<input type="%s"  class="form-control" name="%s" id="%s" value="%s" %s %s />
 %s
 </span>
 EOT;
@@ -39,7 +40,7 @@ EOT;
                 $class   ='entry input-group';
             }
             //pr($select, $class, 'type', $name, rtrim($id, '[]').'_'.$i, $required ? 'required' : '', $dynamic);
-            $input .= sprintf($select, $class, 'type', $name, rtrim($id, '[]').'_'.$i, $data, $required ? 'required' : '', $dynamic);
+            $input .= sprintf($select, $class, 'type', $name, rtrim($id, '[]').'_'.$i, $data, $required ? 'required' : '', $placeholder ? 'placeholder="'.$placeholder.'"':'', $dynamic);
         }
 
         return sprintf($this->getStringHtml($label), $label, $input);
