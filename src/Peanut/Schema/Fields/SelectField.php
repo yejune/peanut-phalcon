@@ -30,7 +30,15 @@ OPT;
 
         $input = '';
 
+        $j     = -1;
+        $count = count($value);
+
         foreach ($value as $i => $data) {
+            $j ++;
+            $isLast                      = false;
+            if ($j + 1 == $count) {
+                $isLast = true;
+            }
             $opt = '';
             //pr($this);
             foreach ($this->schema->items as $enumValue => $enumLabel) {
@@ -45,7 +53,7 @@ OPT;
             $dynamic = '';
             $class   = '';
             if (isset($this->schema->size)) {
-                $dynamic = $this->getDynamic($i);
+                $dynamic = $this->getDynamic($isLast);
                 $class   ='entry input-group';
             }
 

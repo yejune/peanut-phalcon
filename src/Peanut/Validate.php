@@ -32,7 +32,7 @@ class Validate
     public $debug     = false;
     public $exception = true;
 
-    public function __construct($spec = [], $data = [])
+    public function __construct($spec = [], $data = [], $files = [])
     {
         if (true === isset($spec['rules'])) {
             $this->rules = $spec['rules'];
@@ -41,7 +41,21 @@ class Validate
         if (true === isset($spec['messages'])) {
             $this->messages = $spec['messages'];
         }
-        $this->data = $data;
+        $this->data = $this->merge($data, $files);
+    }
+    function merge(array &$array1, array &$array2)
+    {
+        $merged = $array1;
+
+        foreach ($array2 as $key => &$value) {
+            if (is_array($value) && isset($merged [$key]) && is_array($merged [$key])) {
+                $merged [$key] = $this->merge($merged [$key], $value);
+            } else {
+                $merged [$key] = $value;
+            }
+        }
+
+        return $merged;
     }
     public function getValue($name)
     {
@@ -91,12 +105,21 @@ class Validate
             $value = $this->getValue($cleanFieldName);
 
             if (false !== $value && true === is_array($value)) {
-                $data = $value;
+                if(false === is_assoc($value)) {
+                    $data = $value;
+                } else {
+                    if (current($value)) {
+                        $data = [0 => $value];
+                    } else {
+                        $data = [0 => null];
+                    }
+                }
             } elseif (false !== $value) {
                 $data = [0 => $value];
             } else {//값이 없음
                 $data = [0 => null];
             }
+
             $fieldSize = count($data);
             foreach ($data as $dataValue) {
                 foreach ($rules as $ruleName => $ruleParam) {
@@ -110,7 +133,6 @@ class Validate
                                 'value'   => $dataValue,
                                 'message' => $this->sprintf($message, $ruleParam),
                             ];
-
                             if (1 < $fieldSize) {
                                 $this->errors[$cleanFieldName][][$ruleName] = $error;
                             } else {
@@ -220,12 +242,14 @@ Validate::addMethod('range', function ($value, $name, $param) {
 Validate::addMethod('mincount', function ($value, $name, $param) {
     $elements = $this->getValue($name);
     $count = 0;
-    foreach ($elements as $val) {
-        if ($val) {
-            $count++;
+
+    if (true === is_array($elements)) {
+        foreach ($elements as $val) {
+            if ($val) {
+                $count++;
+            }
         }
     }
-
     return $this->optional($value) || $count >= $param;
     return $count >= $param;
 });

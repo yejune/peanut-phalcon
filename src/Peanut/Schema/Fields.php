@@ -16,9 +16,20 @@ abstract class Fields
         $this->data = $data;
         $this->lang = $lang;
     }
-    public function getDynamic($i=0)
+    public function getDynamic($isLast=false)
     {
-        if ($i == 0) {
+        if ($isLast) {
+            return <<<EOT
+            <span class="input-group-btn">
+                <button class="btn btn-success btn-add" type="button">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </button>
+                <button class="btn btn-danger btn-remove" type="button">
+                    <span class="glyphicon glyphicon-minus"></span>
+                </button>
+            </span>
+EOT;
+        } elseif(0 === $isLast) {
             return <<<EOT
             <span class="input-group-btn">
                 <button class="btn btn-success btn-add" type="button">

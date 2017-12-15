@@ -13,9 +13,9 @@ class TextareaField extends \Peanut\Schema\Fields
 
         $input = '';
         if (isset($this->schema->size)) {
-            $input .= sprintf($this->textarea('text', $name, rtrim($id, '[]'), $value, $required, true));
+            $input .= $this->textarea('text', $name, rtrim($id, '[]'), $value, $required, true);
         } else {
-            $input = sprintf($this->textarea('text', $name, $id, $value, $required, false));
+            $input = $this->textarea('text', $name, $id, $value, $required, false);
         }
 
         return sprintf($this->getStringHtml($label), $label, $input);
