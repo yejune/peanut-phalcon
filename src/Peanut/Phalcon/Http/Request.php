@@ -389,7 +389,26 @@ class Request extends \Phalcon\Http\Request
 
         return true === isset($this->bodyParameters[$bodyname]) ? $this->bodyParameters[$bodyname] : null;
     }
-
+    public function getUploadedFileKeys() {
+        $data = [];
+        if (true === is_array($_FILES)) {
+            foreach ($_FILES as $key => $files) {
+                foreach ($files as $attrName => $file) {
+                    if(true === is_array($file)) {
+                        foreach ($file as $i => $f) {
+                            $data[$key][$i] = '#UploadedFile '.$i;
+                        }
+                        break;
+                    } else {
+                        $data[$key] = '#UploadedFile';
+                        break;
+                    }
+                }
+            }
+            return $data;
+        }
+        return [];
+    }
     public function getBodyAll()
     {
         if ($this->bodyParameters) {
@@ -401,7 +420,14 @@ class Request extends \Phalcon\Http\Request
         switch ($contentType) {
             case 'application/x-www-form-urlencoded':
                 parse_str($body, $return);
+
                 return $this->bodyParameters = $return;
+                break;
+            case 'multipart/form-data':
+                $data = $_POST;
+                $new  = [];
+
+                return $this->bodyParameters = $data;
                 break;
             case 'application/xml':
                 throw new \App\Exceptions\Exception('xml content type not support', 415);
@@ -507,10 +533,12 @@ class Request extends \Phalcon\Http\Request
         $segments = $this->getSegments();
         if (count($segments) > 2) {
             $url = '';
-            $i = 1;
+            $i   = 1;
             foreach ($segments as $segment) {
                 $url .= '/'.$segment;
-                if($i == $depth) break;
+                if ($i == $depth) {
+                    break;
+                }
                 $i++;
             }
         }
