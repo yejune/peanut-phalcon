@@ -45,14 +45,12 @@ class Compiler
 
         if (!@is_file($cplPath)) {
             $dirs = explode('/', $cplPath);
-
-            $path         = '';
-            $once_checked = false;
+            $path = '';
 
             for ($i = 0, $s = count($dirs) - 1; $i < $s; $i++) {
                 $path .= $dirs[$i].'/';
 
-                if ($once_checked or !is_dir($path) and $once_checked = true) {
+                if (!is_dir($path)) {
                     if (false === mkdir($path)) {
                         throw new Compiler\Exception('cannot create compile directory <b>'.$path.'</b>');
                     }
