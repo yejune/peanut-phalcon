@@ -105,7 +105,7 @@ class Validate
             $value = $this->getValue($cleanFieldName);
 
             if (false !== $value && true === is_array($value)) {
-                if (false === is_assoc($value)) {
+                if (false === \Peanut\is_assoc($value)) {
                     $data = $value;
                 } else {
                     if (current($value)) {

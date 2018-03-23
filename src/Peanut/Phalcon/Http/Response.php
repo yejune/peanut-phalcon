@@ -174,7 +174,7 @@ class Response extends \Phalcon\Http\Response
         switch ($contentType) {
             case 'text/html':
                 parent::setContentType('text/html', 'UTF-8');
-                parent::setContent(html_encode($response));
+                parent::setContent(\Peanut\html_encode($response));
                 break;
             case 'application/xml':
                 parent::setStatusCode(415);
