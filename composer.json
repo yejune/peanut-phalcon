@@ -6,7 +6,7 @@
             "Peanut\\": "src/Peanut/"
         },
         "files": [
-            "src/Function.php"
+            "src/Peanut/Function.php"
         ]
     },
     "require": {
