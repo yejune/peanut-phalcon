@@ -184,9 +184,9 @@ class Response extends \Phalcon\Http\Response
 <message>accept xml not support</message>
 </error>');
                 break;
-                case 'application/json':
-                case 'text/javascript':
-                default:
+            case 'application/json':
+            case 'text/javascript':
+            default:
                 parent::setContentType('application/json', 'UTF-8');
                 parent::setJsonContent($response);
                 break;
@@ -194,22 +194,4 @@ class Response extends \Phalcon\Http\Response
 
         return $this;
     }
-}
-
-function html_encode(array $in = [])
-{
-    if (true === is_array($in)) {
-        $t = '<table border=1 cellspacing="0" cellpadding="0">';
-        foreach ($in as $key => $value) {
-            if (is_array($value)) {
-                $t .= '<tr><td>'.$key.'</td><td>'.html_encode($value).'</td></tr>';
-            } else {
-                $t .= '<tr><td>'.$key.'</td><td>'.$value.'</td></tr>';
-            }
-        }
-
-        return $t.'</table>';
-    }
-
-    return $in;
 }

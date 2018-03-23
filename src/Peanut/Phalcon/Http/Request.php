@@ -389,26 +389,30 @@ class Request extends \Phalcon\Http\Request
 
         return true === isset($this->bodyParameters[$bodyname]) ? $this->bodyParameters[$bodyname] : null;
     }
-    public function getUploadedFileKeys() {
+
+    public function getUploadedFileKeys()
+    {
         $data = [];
         if (true === is_array($_FILES)) {
             foreach ($_FILES as $key => $files) {
                 foreach ($files as $attrName => $file) {
-                    if(true === is_array($file)) {
+                    if (true === is_array($file)) {
                         foreach ($file as $i => $f) {
                             $data[$key][$i] = '#UploadedFile '.$i;
                         }
                         break;
-                    } else {
-                        $data[$key] = '#UploadedFile';
-                        break;
                     }
+                    $data[$key] = '#UploadedFile';
+                    break;
                 }
             }
+
             return $data;
         }
+
         return [];
     }
+
     public function getBodyAll()
     {
         if ($this->bodyParameters) {

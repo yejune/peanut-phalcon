@@ -43,7 +43,7 @@ class Validate
         }
         $this->data = $this->merge($data, $files);
     }
-    function merge(array &$array1, array &$array2)
+    public function merge(array &$array1, array &$array2)
     {
         $merged = $array1;
 
@@ -105,7 +105,7 @@ class Validate
             $value = $this->getValue($cleanFieldName);
 
             if (false !== $value && true === is_array($value)) {
-                if(false === is_assoc($value)) {
+                if (false === is_assoc($value)) {
                     $data = $value;
                 } else {
                     if (current($value)) {
@@ -187,7 +187,7 @@ class Validate
 }
 
 Validate::addMethod('required', function ($value, $name, $param) {
-    if(false === $param) {
+    if (false === $param) {
         return true;
     }
     if (true === is_array($value) && count($value)) {
@@ -250,6 +250,7 @@ Validate::addMethod('mincount', function ($value, $name, $param) {
             }
         }
     }
+
     return $this->optional($value) || $count >= $param;
     return $count >= $param;
 });
