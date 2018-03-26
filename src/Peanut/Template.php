@@ -236,6 +236,11 @@ class Template
         echo "<div style='padding:10px;word-break:break-all;'>\n".$msg."</div>\n";
     }
 
+    public function defined($fid)
+    {
+        return isset($this->tpl_[$fid]);
+    }
+
     /**
      * @param $fid
      * @param $path
