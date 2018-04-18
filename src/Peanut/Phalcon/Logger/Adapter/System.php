@@ -40,7 +40,8 @@ class System
             }
             $smessage = implode(' ', $smessage);
 
-            $format = sprintf('%s - - [%s] "%s %s %s" "%s" "%s"',
+            $format = sprintf(
+                '%s - - [%s] "%s %s %s" "%s" "%s"',
                 $this->getClientIp(),
                 date('Y-m-d\TH:i:sP'),
                 $_SERVER['REQUEST_METHOD'] ?? '',
@@ -90,7 +91,7 @@ class System
     }
     public function getProtocal()
     {
-        if (true === isset($_SERVER['HTTPS']) && $_SEREVER['HTTPS'] != 'off') {
+        if (true === isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
             return 'HTTPS';
         }
 
