@@ -38,7 +38,9 @@ EOT;
         foreach ($value as $i => $data) {
             $j ++;
             $isLast                      = false;
-            if ($j + 1 == $count) {
+            if($j == 0 && 1 == $count) { // create empty
+                $isLast = 0;
+            } elseif ($j + 1 == $count) {
                 $isLast = true;
             }
             $dynamic = '';

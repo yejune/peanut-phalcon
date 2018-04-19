@@ -228,6 +228,7 @@ function readable_size($bytes, $decimals = 2) : string
  * formatting ISO8601MICROSENDS date
  *
  * @param  float  $float  microtime
+ *
  * @return string
  */
 function iso8601micro(float $float) : string
@@ -236,4 +237,43 @@ function iso8601micro(float $float) : string
     $date->setTimezone(new \DateTimeZone('Asia/Seoul'));
 
     return $date->format('Y-m-d\TH:i:s.uP');
+}
+
+/**
+ * Generate a unique ID
+ *
+ * @param int $length
+ *
+ * @return string
+ */
+function uniqid(int $length = 13) : string
+{
+    if (function_exists('random_bytes')) {
+        $bytes = random_bytes(ceil($length / 2));
+    } elseif (function_exists('openssl_random_pseudo_bytes')) {
+        $bytes = openssl_random_pseudo_bytes(ceil($length / 2));
+    } else {
+        $bytes = md5(mt_rand());
+    }
+
+    return substr(bin2hex($bytes), 0, $length);
+}
+
+/**
+ * env to array
+ */
+function env_to_array(string $envPath) : array
+{
+    $variables = [];
+    $lines     = explode("\n", trim(file_get_contents($envPath)));
+    if ($lines) {
+        foreach ($lines as $line) {
+            if ($line) {
+                list($key, $value) = explode('=', $line, 2);
+                $variables[$key]   = trim($value, '"\'');
+            }
+        }
+    }
+
+    return $variables;
 }

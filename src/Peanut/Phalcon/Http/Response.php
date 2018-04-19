@@ -6,7 +6,6 @@ use Peanut\Phalcon\Mvc\Micro;
 class Response extends \Phalcon\Http\Response
 {
     public $payload     = [];
-    public $responseUuid;
     public $error       = '';
     public $statusCodes = [
         // INFORMATIONAL CODES
@@ -131,14 +130,6 @@ class Response extends \Phalcon\Http\Response
         parent::setStatusCode($code, $message);
 
         return $this;
-    }
-    public function getResponseUuid()
-    {
-        if (!$this->responseUuid) {
-            $this->responseUuid = uuid_create(UUID_TYPE_TIME);
-        }
-
-        return $this->responseUuid;
     }
     public function getResponseCodeTitle($code, $message = null)
     {
