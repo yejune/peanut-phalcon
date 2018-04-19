@@ -4,10 +4,10 @@ namespace Peanut\Bootstrap;
 class Basic extends \Peanut\Bootstrap
 {
     /**
-     * @param  \Phalcon\Mvc\Nano   $app
-     * @return \Phalcon\Mvc\Nano
+     * @param  $app
+     * @return $app
      */
-    public function __invoke(\Peanut\Phalcon\Mvc\Nano $app)
+    public function __invoke($app)
     {
         return $this->run($app);
     }
@@ -21,17 +21,17 @@ class Basic extends \Peanut\Bootstrap
     }
 
     /**
-     * @param \Peanut\Phalcon\Mvc\Nano $app
+     * @param $app
      */
-    protected function initialize(\Peanut\Phalcon\Mvc\Nano $app)
+    protected function initialize($app)
     {
     }
 
     /**
-     * @param  \Peanut\Phalcon\Mvc\Nano   $app
-     * @return \Peanut\Phalcon\Mvc\Nano   $app
+     * @param    $app
+     * @return   $app
      */
-    private function run(\Peanut\Phalcon\Mvc\Nano $app)
+    private function run($app)
     {
         $app->setDi($this->di);
         $this->initialize($app, $this->di);

@@ -799,11 +799,11 @@ class Model
                 $fileName = $filepathMatches[2];
 
                 if (!is_dir($dir)) {
-                    $dir_p = explode('/', $dir);
-                    for ($a = 1; $a <= count($dir_p); $a++) {
-                        $dddd = implode('/', array_slice($dir_p, 0, $a));
-                        if ($dddd) {
-                            @mkdir($dddd);
+                    $dirParts = explode('/', $dir);
+                    for ($i = 1, $j = count($sliceDir); $i <= $j; $i++) {
+                        $target = implode('/', array_slice($sliceDir, 0, $i));
+                        if ($target && !file_exists($target)) {
+                            @mkdir($target);
                         }
                     }
                 }

@@ -1,10 +1,13 @@
 {
-    "name" : "yejune/peanut",
-    "description" : "",
+    "name": "yejune/peanut",
+    "description": "",
     "autoload": {
         "psr-4": {
             "Peanut\\": "src/Peanut/"
-        }
+        },
+        "files": [
+            "src/Peanut/Function.php"
+        ]
     },
     "require": {
         "ext-phalcon": "*",

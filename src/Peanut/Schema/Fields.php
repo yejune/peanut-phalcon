@@ -137,7 +137,6 @@ EOT;
         $path = $this->path;
         $var  = array_shift($path);
         if ($path) {
-//            $var .= '['.implode('][', $path).']';
             $var .= '_'.implode('_', $path);
         }
 
@@ -264,6 +263,10 @@ EOT;
     public function getRequired()
     {
         return $this->schema->rules->required ?? '';
+    }
+    public function getAccept()
+    {
+        return $this->schema->accept ?? '';
     }
     public function getPlaceholder()
     {

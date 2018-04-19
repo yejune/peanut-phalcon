@@ -23,7 +23,7 @@ class Compiler
     public function __construct()
     {
         $functions           = get_defined_functions();
-        $this->all_functions = array_merge(
+        $this->allFunctions  = array_merge(
             $functions['internal'],
             $functions['user'],
             ['isset', 'empty', 'eval', 'list', 'array', 'include', 'require', 'include_once', 'require_once']
@@ -45,14 +45,12 @@ class Compiler
 
         if (!@is_file($cplPath)) {
             $dirs = explode('/', $cplPath);
-
-            $path         = '';
-            $once_checked = false;
+            $path = '';
 
             for ($i = 0, $s = count($dirs) - 1; $i < $s; $i++) {
                 $path .= $dirs[$i].'/';
 
-                if ($once_checked or !is_dir($path) and $once_checked = true) {
+                if (!is_dir($path)) {
                     if (false === mkdir($path)) {
                         throw new Compiler\Exception('cannot create compile directory <b>'.$path.'</b>');
                     }
@@ -71,31 +69,31 @@ class Compiler
             fclose($fpTpl);
         }
 
-        $gt_than_or_eq_to_5_4 = defined('PHP_MAJOR_VERSION') and 5.4 <= (float) (PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION);
-        $php_tag              = '<\?php|(?<!`)\?>';
+        $verLow54 = defined('PHP_MAJOR_VERSION') and 5.4 <= (float) (PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION);
+        $phpTag   = '<\?php|(?<!`)\?>';
 
         if (ini_get('short_open_tag')) {
-            $php_tag .= '|<\?(?!`)';
-        } elseif ($gt_than_or_eq_to_5_4) {
-            $php_tag .= '|<\?=';
+            $phpTag .= '|<\?(?!`)';
+        } elseif ($verLow54) {
+            $phpTag .= '|<\?=';
         }
 
         if (ini_get('asp_tags')) {
-            $php_tag .= '|<%(?!`)|(?<!`)%>';
+            $phpTag .= '|<%(?!`)|(?<!`)%>';
         }
 
-        $php_tag .= '|';
+        $phpTag .= '|';
 
         /*
             // {{를 쓰는 다른 템플릿과 구분을 위해서, 대신 {test}와 같은 표현을 하기 위해
             // {{=test}}와 같은 구문을 사용할수 없다. 일단 제외
-            //$tokens     = preg_split('/('.$php_tag.'<!--{?{(?!`)|(?<!`)}?}-->|{?{(?!`)|(?<!`)}?})/i', $source, -1, PREG_SPLIT_DELIM_CAPTURE);
+            //$tokens     = preg_split('/('.$phpTag.'<!--{?{(?!`)|(?<!`)}?}-->|{?{(?!`)|(?<!`)}?})/i', $source, -1, PREG_SPLIT_DELIM_CAPTURE);
         */
-        $tokens = preg_split('/('.$php_tag.'<!--{(?!`)|(?<!`)}-->|{(?!`)|(?<!`)})/i', $source, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $tokens = preg_split('/('.$phpTag.'<!--{(?!`)|(?<!`)}-->|{(?!`)|(?<!`)})/i', $source, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-        $line       = 0;
-        $is_open    = 0;
-        $newTokens  = [];
+        $line      = 0;
+        $isOpen    = 0;
+        $newTokens = [];
 
         for ($_index = 0, $s = count($tokens); $_index < $s; $_index++) {
             $line = substr_count(implode('', $newTokens), chr(10)) + 1;
@@ -125,11 +123,11 @@ class Compiler
                     break;
                 case '<!--{':
                 case '{':
-                    $is_open = $_index;
+                    $isOpen = $_index;
                     break;
                 case '}-->':
                 case '}':
-                    if ($is_open !== $_index - 2) {
+                    if ($isOpen !== $_index - 2) {
                         break; // switch exit
                     }
 
@@ -138,18 +136,18 @@ class Compiler
                     if (1 == $result[0] || false === $result[1]) {
                         $newTokens[$_index - 1] = $tokens[$_index - 1];
                     } elseif (2 == $result[0]) {
-                        $newTokens[$is_open]    = '<?php ';
+                        $newTokens[$isOpen]     = '<?php ';
                         $newTokens[$_index - 1] = $result[1];
                         $newTokens[$_index]     = '?>';
                     }
 
-                    $is_open = 0;
+                    $isOpen = 0;
                     break;
                 default:
             }
         }
 
-        if (count($this->brace)) {
+        if (0 < count($this->brace)) {
             array_pop($this->brace);
             $c = end($this->brace);
             throw new Compiler\Exception('error line '.$c[1]);
@@ -287,13 +285,11 @@ class Compiler
         $loopIndexName  = '$_i'.$loopKey;
         $loopSizeName   = '$_s'.$loopKey;
         $loopKeyName    = '$_k'.$loopKey;
-        $loop_ValueName = '$_j'.$loopKey;
 
         return $loopArrayName.'='.$array.';'
             .$loopIndexName.'=-1;'
             .'if((true===is_array('.$loopArrayName.') || true===is_object('.$loopArrayName.'))&&0<('.$loopSizeName.'=count('.$loopArrayName.'))'.'){'
             .'foreach('.$loopArrayName.' as '.$loopKeyName.'=>'.$loopValueName.'){'
-            //.$loop_ValueName.'='.$loopValueName.';'
             .$loopIndexName.'++;'
             .$loopValueName.'_index_='.$loopIndexName.';'
             .$loopValueName.'_size_='.$loopSizeName.';'
@@ -744,7 +740,7 @@ class Compiler
             }
         }
 
-        if (count($stat)) {
+        if (0 < count($stat)) {
             $last_stat = array_pop($stat);
             if ('left_parenthesis' == $last_stat['name']) {
                 throw new Compiler\Exception(__LINE__.' parse error : line '.$line.' '.$current['org']);

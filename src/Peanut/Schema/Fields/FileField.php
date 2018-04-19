@@ -11,6 +11,10 @@ class FileField extends \Peanut\Schema\Fields
         $id          = $this->getId();
         $required    = $this->getRequired();
         $placeholder = $this->getPlaceholder();
+        $accept      = $this->getAccept();
+
+        $span = '<span class="input %s">%s</span';
+
         /*
                 $input = '';
                 if (isset($this->schema->size)) {
@@ -21,7 +25,7 @@ class FileField extends \Peanut\Schema\Fields
         */
         $select = <<<EOT
 <span class="input %s">
-<input type="%s"  class="form-control file" name="%s" id="%s" value="%s" %s %s />
+<input type="%s"  class="form-control file" name="%s" id="%s" value="%s" %s %s %s />
 %s
 %s
 </span>
@@ -62,12 +66,19 @@ EOT;
                 $cname = $name;
             }
             $src = '';
-            if(0 === strpos($data['type'], 'image/')) {
-                $src = '<img class="preview" src="'.$data['url'].'" width="100">';
+            if (true === isset($data['type'])) {
+                if (0 === strpos($data['type'], 'image/')) {
+                    $src = '<a class="preview" href="'.$data['url'].'" target="_blank"><img src="'.$data['url'].'" width="100"></a>';
+                } else {
+                    $src = '<a class="preview" href="'.$data['url'].'" target="_blank">'.$data['url'].'</a>';
+                }
             }
-            $value = $data['url'];
-            //pr($select, $class, 'type', $name, rtrim($id, '[]').'_'.$i, $required ? 'required' : '', $dynamic);
-            $input .= sprintf($select, $class, $type, $cname, rtrim($id, '[]').'_'.$i, $value, $required ? 'required' : '', $placeholder ? 'placeholder="'.$placeholder.'"' : '', $src, $dynamic);
+            $value = $data['name'];
+
+            $placeholderCode = $placeholder ? 'placeholder="'.$placeholder.'"' : '';
+            $acceptCode = $accept ? 'accept="'.$accept.'"' : '';
+
+            $input .= sprintf($select, $class, $type, $cname, rtrim($id, '[]').'_'.$i, $value, $required ? 'required' : '', $placeholderCode, $acceptCode, $src, $dynamic);
         }
 
         return sprintf($this->getStringHtml($label), $label, $input);

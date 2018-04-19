@@ -42,4 +42,8 @@ class Exception extends \Exception
     {
         $this->previous = $previous;
     }
+    public function throw()
+    {
+        $this->__toString();
+    }
 }

@@ -6,7 +6,6 @@ use Peanut\Phalcon\Mvc\Micro;
 class Response extends \Phalcon\Http\Response
 {
     public $payload     = [];
-    public $responseUuid;
     public $error       = '';
     public $statusCodes = [
         // INFORMATIONAL CODES
@@ -132,14 +131,6 @@ class Response extends \Phalcon\Http\Response
 
         return $this;
     }
-    public function getResponseUuid()
-    {
-        if (!$this->responseUuid) {
-            $this->responseUuid = uuid_create(UUID_TYPE_TIME);
-        }
-
-        return $this->responseUuid;
-    }
     public function getResponseCodeTitle($code, $message = null)
     {
         if (in_array($code, array_keys($this->statusCodes))) {
@@ -174,7 +165,7 @@ class Response extends \Phalcon\Http\Response
         switch ($contentType) {
             case 'text/html':
                 parent::setContentType('text/html', 'UTF-8');
-                parent::setContent(html_encode($response));
+                parent::setContent(\Peanut\html_encode($response));
                 break;
             case 'application/xml':
                 parent::setStatusCode(415);
@@ -184,9 +175,9 @@ class Response extends \Phalcon\Http\Response
 <message>accept xml not support</message>
 </error>');
                 break;
-                case 'application/json':
-                case 'text/javascript':
-                default:
+            case 'application/json':
+            case 'text/javascript':
+            default:
                 parent::setContentType('application/json', 'UTF-8');
                 parent::setJsonContent($response);
                 break;
@@ -194,22 +185,4 @@ class Response extends \Phalcon\Http\Response
 
         return $this;
     }
-}
-
-function html_encode(array $in = [])
-{
-    if (true === is_array($in)) {
-        $t = '<table border=1 cellspacing="0" cellpadding="0">';
-        foreach ($in as $key => $value) {
-            if (is_array($value)) {
-                $t .= '<tr><td>'.$key.'</td><td>'.html_encode($value).'</td></tr>';
-            } else {
-                $t .= '<tr><td>'.$key.'</td><td>'.$value.'</td></tr>';
-            }
-        }
-
-        return $t.'</table>';
-    }
-
-    return $in;
 }
