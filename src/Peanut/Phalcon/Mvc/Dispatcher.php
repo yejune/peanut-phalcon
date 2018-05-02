@@ -102,12 +102,32 @@ class Dispatcher extends \Phalcon\Mvc\Dispatcher
     }
     public function getPaths()
     {
-        // pr(get_class_methods($this));
-
         return $this->getDi()->getShared('router')->getMatchedRoute()->getPaths();
     }
     public function getPrevious()
     {
         return new \Peanut\Phalcon\Mvc\Dispatcher\Previous($this);
+    }
+    public function getForwardPaths($pattern, $path, $forward = [])
+    {
+        if (1 === preg_match($pattern, $path, $m)) {
+            //pr($m);
+
+            foreach ($m as $key => $value) {
+                if (false === is_numeric($key)) {
+                    if ($key == 'action') {
+                        $forward[$key] = strtolower($_SERVER['REQUEST_METHOD'] ?? 'get').ucfirst($value);
+                    } elseif ($key == 'controller') {
+                        $forward[$key] = ucfirst($value);
+                    } elseif ($key == 'params') {
+                        $forward[$key] = explode('/', $value);
+                    } else {
+                        $forward[$key] = $value;
+                    }
+                }
+            }
+        }
+
+        return $forward;
     }
 }
