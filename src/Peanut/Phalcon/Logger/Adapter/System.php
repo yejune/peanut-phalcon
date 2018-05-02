@@ -14,31 +14,30 @@ class System
     }
     public function printOutput($message, $type = 'log')
     {
-        if (false === is_array($message)) {
-            $messages = [
-                'message' => $message,
-            ];
-        } else {
-            $messages = $message;
-        }
-        $array = [
-            'type'        => 'php',
-            'mode'        => $type,
-            'fields'      => $messages,
-            'time'        => date('Y-m-d\TH:i:sP'),
-            'remote_addr' => $this->getClientIp(),
-            'user_agent'  => $_SERVER['HTTP_USER_AGENT'] ?? '',
-            'request_uri' => $_SERVER['PATH_INFO'] ?? '',
-            'host'        => $_SERVER['HTTP_HOST'] ?? '',
-        ];
         if ('json' == $this->outputFormat) {
-            $format = json_encode($array, JSON_UNESCAPED_UNICODE);
-        } else {
-            $smessage = [];
-            foreach ($messages as $key => $value) {
-                $smessage[] = $value;
+            if (false === is_array($message)) {
+                $messages = [
+                    'type'        => 'php',
+                    'mode'        => $type,
+                    'fields'      => [
+                        'type'    => 'php-'.$type,
+                        'status'  => '999',
+                        'message' => $message,
+                    ],
+                    'time'        => date('Y-m-d\TH:i:sP'),
+                    'remote_addr' => $this->getClientIp(),
+                    'user_agent'  => $_SERVER['HTTP_USER_AGENT'] ?? '',
+                    'request_uri' => $_SERVER['PATH_INFO'] ?? '',
+                    'host'        => $_SERVER['HTTP_HOST'] ?? '',
+                ];
+            } else {
+                $messages = $message;
             }
-            $smessage = implode(' ', $smessage);
+            $format = json_encode($messages, JSON_UNESCAPED_UNICODE);
+        } else {
+            if (true === is_array($message)) {
+                $message = implode(' ', array_values($messages));
+            }
 
             $format = sprintf(
                 '%s - - [%s] "%s %s %s" "%s" "%s"',
@@ -48,7 +47,7 @@ class System
                 $this->getPath(),
                 $this->getProtocal(),
                 $_SERVER['HTTP_USER_AGENT'] ?? '',
-                $smessage
+                $message
             );
         }
         if ($this->fifo) {
