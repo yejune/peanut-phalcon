@@ -86,12 +86,7 @@ class Compiler
 
         $phpTag .= '|';
 
-        /*
-            // {{를 쓰는 다른 템플릿과 구분을 위해서, 대신 {test}와 같은 표현을 하기 위해
-            // {{=test}}와 같은 구문을 사용할수 없다. 일단 제외
-            //$tokens     = preg_split('/('.$phpTag.'<!--{?{(?!`)|(?<!`)}?}-->|{?{(?!`)|(?<!`)}?})/i', $source, -1, PREG_SPLIT_DELIM_CAPTURE);
-        */
-        $tokens = preg_split('/('.$phpTag.'<!--{(?!`)|(?<!`)}-->|{(?!`)|(?<!`)})/i', $source, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $tokens = preg_split('/('.$phpTag.'<!--{(?!`)|\/\*{(?!`)|(?<!`)}-->|(?<!`)}\*\/|{(?!`)|(?<!`)})/i', $source, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         $line      = 0;
         $isOpen    = 0;
@@ -124,10 +119,12 @@ class Compiler
 
                     break;
                 case '<!--{':
+                case '/*{':
                 case '{':
                     $isOpen = $_index;
                     break;
                 case '}-->':
+                case '}*/':
                 case '}':
                     if ($isOpen !== $_index - 2) {
                         break; // switch exit
