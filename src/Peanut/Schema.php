@@ -21,14 +21,14 @@ class Schema
         $this->data   = $data;
         $this->lang   = $lang;
     }
-    public function getInfo()
+    public function toArray()
     {
         return [
-            'action'   => $this->schema->action,
-            'method'   => $this->schema->method,
-            'name'     => $this->schema->name,
-            'fields'   => $this->getHtml(),
-            'spec'     => $this->getSpec(),
+            'action' => $this->schema->action,
+            'method' => $this->schema->method,
+            'name'   => $this->schema->name,
+            'html'   => $this->getHtml(),
+            'spec'   => $this->getSpec(),
         ];
     }
     public function getHtml()

@@ -1,6 +1,5 @@
 <?php
-
-namespace \Peanut;
+namespace Peanut;
 
 use Peanut\Parser\Spec;
 
@@ -19,12 +18,12 @@ class Validator
     }
     public function validate($validData = [])
     {
-        $validate = new \Peanut\Validate($schema->getSpec(), $validData);
+        $validate = new \Peanut\Validate($this->schema->getSpec(), $validData);
 
         return $validate->valid();
     }
     public function getSchema()
     {
-        return $this->schema->getInfo();
+        return $this->schema->toArray();
     }
 }
