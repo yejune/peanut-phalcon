@@ -8,7 +8,16 @@ class Request extends \Phalcon\Http\Request
     public $segmentParameters = [];
     public $parameters        = [];
     public $requestId;
+    public $basepath = null;
 
+    public function setBasePath($path)
+    {
+        $this->basepath = $path;
+    }
+    public function getBasePath()
+    {
+        return $this->basepath;
+    }
     /**
      * Gets param
      *
@@ -223,7 +232,7 @@ class Request extends \Phalcon\Http\Request
             $host = $_SERVER['HTTP_HOST'] ?? null;
         }
         $domain    = $this->extractDomain($host);
-        $subDomain = str_replace('.'.$domain, '', $host);
+        $subDomain = preg_replace('#(\.)?'.$domain.'#', '', $host);
 
         return $subDomain ?: 'www';
     }
