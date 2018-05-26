@@ -137,8 +137,8 @@ class Crypt extends \Phalcon\Crypt
             $result = $decrypted;
         }
 
-        if (hash_hmac($hashAlgo, $result, $decryptKey, true) !== $hash) {
-            throw new Exception('Hash not match');
+        if (false === hash_equals(hash_hmac($hashAlgo, $result, $decryptKey, true), $hash)) {
+            throw new Exception('Hash does not match');
         }
 
         return $result;
