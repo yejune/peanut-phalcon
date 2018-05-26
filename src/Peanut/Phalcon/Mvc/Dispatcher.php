@@ -5,10 +5,8 @@ use Phalcon\DI\FactoryDefault;
 
 class Dispatcher extends \Phalcon\Mvc\Dispatcher
 {
-    public $_previousNamespaceName = null;
-    public $_previousHandlerName   = null;
-    public $_previousActionName    = null;
-    public $_previousParams        = null;
+    public $_previousPaths         = null;
+    public $_paths                 = [];
     /**
      * Forwards the execution flow to another controller/action.
      *
@@ -50,6 +48,7 @@ class Dispatcher extends \Phalcon\Mvc\Dispatcher
         $this->_previousHandlerName   = $this->_handlerName;
         $this->_previousActionName    = $this->_actionName;
         $this->_previousParams        = $this->_params;
+        $this->_previousPaths         = $this->_paths;
 
         // Check if we need to forward to another namespace
         if (true === isset($forward['namespace'])) {
@@ -70,39 +69,36 @@ class Dispatcher extends \Phalcon\Mvc\Dispatcher
 
         // Check if we need to forward changing the current parameters
         if (true === isset($forward['params'])) {
-            $this->_params = $forward['params'];
+            if (true === is_array($forward['params'])) {
+                $this->_params = $forward['params'];
+            } else {
+                $this->_params = explode('/', $forward['params']);
+            }
         }
-
+        $this->_paths     = $forward;/* add */
         $this->_finished  = false;
         $this->_forwarded = true;
     }
-    public function getPreviousNamespaceName()
-    {
-        return $this->_previousNamespaceName;
-    }
-    public function getPreviousControllerName()
-    {
-        return $this->_previousHandlerName;
-    }
-    public function getPreviousTaskName()
-    {
-        return $this->_previousHandlerName;
-    }
-    public function getPreviousActionName()
-    {
-        return $this->_previousActionName;
-    }
+
     public function getPreviousParams()
     {
         return $this->_previousParams;
     }
-    public function getPath($name)
+    public function getPreviousPaths()
     {
-        return $this->getPaths()[$name] ?? '';
+        return $this->_previousPaths;
+    }
+    public function setPaths($paths)
+    {
+        $this->_paths = $paths;
     }
     public function getPaths()
     {
-        return $this->getDi()->getShared('router')->getMatchedRoute()->getPaths();
+        return $this->_paths;
+    }
+    public function getPath($name)
+    {
+        return $this->getPaths()[$name] ?? '';
     }
     public function getPrevious()
     {
@@ -111,16 +107,16 @@ class Dispatcher extends \Phalcon\Mvc\Dispatcher
     public function getForwardPaths($pattern, $path, $forward = [])
     {
         if (1 === preg_match($pattern, $path, $m)) {
-            //pr($m);
-
             foreach ($m as $key => $value) {
                 if (false === is_numeric($key)) {
-                    if ($key == 'action') {
-                        $forward[$key] = strtolower($_SERVER['REQUEST_METHOD'] ?? 'get').ucfirst($value);
+                    if ($key == 'namespace') {
+                        $forward[$key] = $value;
                     } elseif ($key == 'controller') {
                         $forward[$key] = ucfirst($value);
+                    } elseif ($key == 'action') {
+                        $forward[$key] = strtolower($_SERVER['REQUEST_METHOD'] ?? 'get').ucfirst($value);
                     } elseif ($key == 'params') {
-                        $forward[$key] = explode('/', $value);
+                        $forward[$key] = $value;
                     } else {
                         $forward[$key] = $value;
                     }

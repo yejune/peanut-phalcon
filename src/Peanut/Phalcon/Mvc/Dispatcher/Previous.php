@@ -7,12 +7,14 @@ class Previous
     public $handlerName   = null;
     public $actionName    = null;
     public $params        = [];
+    public $paths         = [];
     public function __construct($previous)
     {
         $this->namespaceName = $previous->getPreviousNamespaceName();
         $this->handlerName   = $previous->getPreviousControllerName();
         $this->actionName    = $previous->getPreviousActionName();
         $this->params        = $previous->getPreviousParams();
+        $this->paths         = $previous->getPreviousPaths();
     }
     public function getNamespaceName()
     {
@@ -33,5 +35,17 @@ class Previous
     public function getParams()
     {
         return $this->params;
+    }
+    public function getParam($name)
+    {
+        return $this->params[$name] ?? null;
+    }
+    public function getPaths()
+    {
+        return $this->paths;
+    }
+    public function getPath($name)
+    {
+        return $this->paths[$name] ?? null;
     }
 }
