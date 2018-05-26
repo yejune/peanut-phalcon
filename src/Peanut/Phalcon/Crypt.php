@@ -10,7 +10,7 @@ use Phalcon\Crypt\Exception;
  * Provides encryption facilities to phalcon applications
  *
  *<code>
- * $crypt = new \Phalcon\Crypt();
+ * $crypt = new \Peanut\Phalcon\Crypt();
  *
  * $key  = "le password";
  * $text = "This is a secret text";
@@ -32,13 +32,13 @@ class Crypt extends \Phalcon\Crypt
 
         return $this;
     }
-    public function getAlgo()
+    public function getHashAlgo()
     {
         return $this->_hashAlgo;
     }
     public function getAvailableHashAlgos()
     {
-        return hash_algos();
+        return hash_hmac_algos();
     }
     public function encrypt($plaintext, $key = null)
     {
@@ -57,23 +57,34 @@ class Crypt extends \Phalcon\Crypt
         }
 
         $cipher = $this->getCipher();
-
+        $mode   = strtolower(substr($cipher, strrpos($cipher, '-') - strlen($cipher)));
         if (!in_array($cipher, $this->getAvailableCiphers())) {
             throw new Exception('Cipher algorithm is unknown');
         }
 
-        $hashAlgo   = $this->getAlgo();
+        $ivSize = openssl_cipher_iv_length($cipher);
+        if ($ivSize > 0) {
+            $blockSize = $ivSize;
+        } else {
+            $blockSize = openssl_cipher_iv_length(str_ireplace('-'.$mode, '', $cipher));
+        }
+
+        $iv          = openssl_random_pseudo_bytes($ivSize);
+        $paddingType = $this->_padding;
+
+        if ($paddingType != 0 && ($mode == 'cbc' || $mode == 'ecb')) {
+            $padded = $this->_cryptPadText($plaintext, $mode, $blockSize, $paddingType);
+        } else {
+            $padded = $plaintext;
+        }
+
+        $hashAlgo   = $this->getHashAlgo();
 
         if (!in_array($hashAlgo, $this->getAvailableHashAlgos())) {
             throw new Exception('Hash algorithm is unknown');
         }
 
-        $key        = hash($hashAlgo, $encryptKey, true);
-        $iv         = openssl_random_pseudo_bytes(16);
-        $ciphertext = openssl_encrypt($plaintext, $cipher, $key, \OPENSSL_RAW_DATA, $iv);
-        $hash       = hash_hmac($hashAlgo, $ciphertext, $key, true);
-
-        return $iv.$hash.$ciphertext;
+        return $iv.hash_hmac($hashAlgo, $padded, $encryptKey, true).openssl_encrypt($padded, $cipher, $encryptKey, \OPENSSL_RAW_DATA, $iv);
     }
 
     public function decrypt($ivHashCiphertext, $key = null)
@@ -93,26 +104,43 @@ class Crypt extends \Phalcon\Crypt
         }
 
         $cipher = $this->getCipher();
+        $mode   = strtolower(substr($cipher, strrpos($cipher, '-') - strlen($cipher)));
 
         if (!in_array($cipher, $this->getAvailableCiphers())) {
             throw new Exception('Cipher algorithm is unknown');
         }
 
-        $hashAlgo   = $this->getAlgo();
+        $ivSize = openssl_cipher_iv_length($cipher);
+        if ($ivSize > 0) {
+            $blockSize = $ivSize;
+        } else {
+            $blockSize = openssl_cipher_iv_length(str_ireplace('-'.$mode, '', $cipher));
+        }
+
+        $hashAlgo   = $this->getHashAlgo();
+        $hashLength = strlen(hash($hashAlgo, '', true));
+        $iv         = substr($ivHashCiphertext, 0, $blockSize);
+        $hash       = substr($ivHashCiphertext, $blockSize, $hashLength);
+        $ciphertext = substr($ivHashCiphertext, $blockSize + $hashLength);
 
         if (!in_array($hashAlgo, $this->getAvailableHashAlgos())) {
             throw new Exception('Hash algorithm is unknown');
         }
 
-        $key        = hash($hashAlgo, $decryptKey, true);
-        $iv         = substr($ivHashCiphertext, 0, 16);
-        $hash       = substr($ivHashCiphertext, 16, 32);
-        $ciphertext = substr($ivHashCiphertext, 48);
+        $decrypted = openssl_decrypt($ciphertext, $cipher, $decryptKey, \OPENSSL_RAW_DATA, $iv);
 
-        if (hash_hmac($hashAlgo, $ciphertext, $key, true) !== $hash) {
-            return null;
+        $paddingType = $this->_padding;
+
+        if ($mode == 'cbc' || $mode == 'ecb') {
+            $result = $this->_cryptUnpadText($decrypted, $mode, $blockSize, $paddingType);
+        } else {
+            $result = $decrypted;
         }
 
-        return openssl_decrypt($ciphertext, $cipher, $key, \OPENSSL_RAW_DATA, $iv);
+        if (hash_hmac($hashAlgo, $result, $decryptKey, true) !== $hash) {
+            throw new Exception('Hash not match');
+        }
+
+        return $result;
     }
 }
