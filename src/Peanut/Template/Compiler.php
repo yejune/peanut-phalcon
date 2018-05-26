@@ -481,7 +481,7 @@ class Compiler
                         return false;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        // 클로저를 허용하지 않음. 그래서 string_concat 비교 보다 우선순위가 높음
+                    // 클로저를 허용하지 않음. 그래서 string_concat 비교 보다 우선순위가 높음
                     if (true === in_array($next['name'], ['left_parenthesis', 'static_object_sign', 'namespace_sigh'])) {
                         if ('string_concat' == $prev['name']) {
                             return false;
@@ -518,9 +518,9 @@ class Compiler
                     break;
                 case 'dollar':
                     return false;
-                if (false === in_array($prev['name'], [ 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma'])) {
-                    return false; // 원본 출력(javascript)
-                }
+                    if (false === in_array($prev['name'], [ 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma'])) {
+                        return false; // 원본 출력(javascript)
+                    }
                     throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     break;
                 case 'not_support':
@@ -545,7 +545,7 @@ class Compiler
                     if (false === in_array($prev['name'], ['number', 'string', 'quote', 'right_parenthesis', 'right_bracket'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'quote':
@@ -557,7 +557,7 @@ class Compiler
                         pr($prev);
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'number':
@@ -591,7 +591,7 @@ class Compiler
                         //'string',
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= '['.$current['value'].']';
+                    $xpr .= '['.$current['value'].']';
 
                     break;
                 case 'number_concat':
@@ -604,28 +604,28 @@ class Compiler
                     if (false === in_array($prev['name'], ['string', 'number', 'string_number', 'assign'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'object_sign':
                     if (false === in_array($prev['name'], ['right_bracket', 'string', 'right_parenthesis'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'namespace_sigh':
                     if (false === in_array($prev['name'], ['string', 'assign', 'comma', 'operator', ''])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'static_object_sign':
                     if (false === in_array($prev['name'], ['string', ''])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'operator':
@@ -662,7 +662,7 @@ class Compiler
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
 
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'left_bracket':
@@ -670,7 +670,7 @@ class Compiler
                     if (false === in_array($prev['name'], ['', 'assign', 'left_bracket', 'right_bracket', 'comma', 'left_parenthesis', 'string', 'string_number'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'right_bracket':
@@ -682,14 +682,14 @@ class Compiler
                     if (false === in_array($prev['name'], ['quote', 'left_bracket', 'right_parenthesis', 'string', 'number', 'string_number', 'right_bracket'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'array_keyword': // number next             |(?P<array_keyword>array)
                     if (false === in_array($prev['name'], ['', 'compare', 'operator', 'left_parenthesis', 'left_bracket', 'comma', 'assign'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'left_parenthesis':
@@ -698,7 +698,7 @@ class Compiler
                         //, 'string_number' ->d.3.a() -> ->d[3]['a']() 제외
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'right_parenthesis':
@@ -711,7 +711,7 @@ class Compiler
                     if (false === in_array($prev['name'], ['left_parenthesis', 'right_bracket', 'right_parenthesis', 'string', 'number', 'string_number', 'quote'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
                 case 'comma':
@@ -733,7 +733,7 @@ class Compiler
                     if (false === in_array($prev['name'], ['quote', 'string', 'number', 'string_number', 'right_parenthesis', 'right_bracket'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                        $xpr .= $current['value'];
+                    $xpr .= $current['value'];
 
                     break;
             }
@@ -776,12 +776,4 @@ namespace Peanut\Template\Compiler;
 
 class Exception extends \Exception
 {
-    /**
-     * @param $error
-     * @param mixed $e
-     */
-    public function __construct($e)
-    {
-        parent::__construct($e);
-    }
 }
