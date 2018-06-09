@@ -25,12 +25,12 @@ class Validate
         'step'        => 'Please enter a multiple of {0}.',
         'unique'      => 'unique',
     ];
-    public $messages  = [];
-    public $rules     = [];
-    public $errors    = [];
-    public $data      = [];
-    public $debug     = false;
-    public $exception = true;
+    public $messages       = [];
+    public $rules          = [];
+    public $errors         = [];
+    public $data           = [];
+    public $debug          = false;
+    public $throwException = false;
 
     public function __construct($spec = [], $data = [], $files = [])
     {
@@ -103,7 +103,6 @@ class Validate
             $cleanFieldName = rtrim($fieldName, '[]');// javascript에서의 배열 네임과 php에서의 배열네임간의 차이 제거
 
             $value = $this->getValue($cleanFieldName);
-
             if (false !== $value && true === is_array($value)) {
                 if (false === \Peanut\is_assoc($value)) {
                     $data = $value;
@@ -153,7 +152,7 @@ class Validate
             }
         }
         if ($this->errors) {
-            if ($this->exception) {
+            if ($this->throwException) {
                 $e = new ValidateException('Invalid Parameter', 400);
                 $e->setErrors($this->errors);
                 throw $e;
@@ -183,6 +182,10 @@ class Validate
         $callback = $this->getMethod('required');
         // 값이 있으면 false로 보내서 다음 check를 하게 한다.
         return !$callback($value, '', '');
+    }
+    public function setExceptionOnFailedValid($throwException = true)
+    {
+        $this->throwException = $throwException;
     }
 }
 
@@ -258,14 +261,19 @@ Validate::addMethod('mincount', function ($value, $name, $param) {
 Validate::addMethod('unique', function ($value, $name, $param) {
     $unique = [];
     $check = false;
-    foreach ($this->getValue($name) as $v) {
-        if (true === isset($unique[$v])) {
-            $check = true;
+    $data = $this->getValue($name);
+    if (true === is_array($data)) {
+        foreach ($data as $v) {
+            if (true === isset($unique[$v])) {
+                $check = true;
+            }
+            $unique[$v] = 1;
         }
-        $unique[$v] = 1;
+
+        return $this->optional($value) || !$check;//$length == $unique;
     }
 
-    return $this->optional($value) || !$check;//$length == $unique;
+    return false;
 });
 
 Validate::addMethod('email', function ($value, $name, $param) {

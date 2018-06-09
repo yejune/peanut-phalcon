@@ -1,30 +1,38 @@
 <?php
-
-namespace \Peanut;
+namespace Peanut;
 
 use Peanut\Parser\Spec;
 
 /**
- * $validator = new Validator($specFile, $defaultData);
+ * $validator = new Validator($specFile, $appendSpecData);
  * $validator->getSchema();
- * $validator->validate($validData);
+ * try {
+ *     $validator->validate($validData);
+ * } catch {\Exception $e} {
+ *     print_r($validator->getErrors());
+ * }
  */
 class Validator
 {
     public $schema;
-    public function __construct($specFile, $defaultData = [])
+    public $validate;
+    public function __construct($specFile, $appendSpecData = [])
     {
         $config       = Spec::parse($specFile);
-        $this->schema = new \Peanut\Schema($config, $defaultData);
+        $this->schema = new \Peanut\Schema($config, $appendSpecData);
     }
     public function validate($validData = [])
     {
-        $validate = new \Peanut\Validate($schema->getSpec(), $validData);
+        $this->validate = new \Peanut\Validator\Validate($this->schema->getSpec(), $validData);
 
-        return $validate->valid();
+        return $this->validate->valid();
     }
     public function getSchema()
     {
-        return $this->schema->getInfo();
+        return $this->schema->toArray();
+    }
+    public function getErrors()
+    {
+        return $this->validate->getErrors();
     }
 }

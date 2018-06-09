@@ -6,7 +6,10 @@ class Spec
     public static $baseUrl = '';
     public static function parse($path, $mix = [], $mix2 = [])
     {
-        if(!static::$baseUrl) {
+        if (false === file_exists($path)) {
+            throw new \Peanut\Exception($path.' file not found');
+        }
+        if (!static::$baseUrl) {
             static::$baseUrl = dirname($path).'/';
         }
         $arr = yaml_parse(file_get_contents($path));
