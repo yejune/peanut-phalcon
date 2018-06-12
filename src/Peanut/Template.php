@@ -243,7 +243,7 @@ class Template
                 break;
         }
 
-        $exception = new \Peanut\Exception($msg);
+        $exception = new \Peanut\Exception($msg, 500);
         $exception->setFile($file);
         $exception->setLine($line);
         throw $exception;
