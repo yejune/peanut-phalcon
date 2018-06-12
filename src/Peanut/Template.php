@@ -224,16 +224,29 @@ class Template
 
     public function templateNoticeHandler($type, $msg, $file, $line)
     {
-        $msg .= " in <b>$file</b> on line <b>$line</b>";
         switch ($type) {
-            case E_NOTICE:$msg = '<span style="font:12px tahoma,arial;color:green;background:white">template Notice #1: '.$msg.'</span>';break;
+            case E_NOTICE:
+                $msg = 'Template Notice #1: '.$msg;
+                break;
             case E_WARNING:
-            case E_USER_WARNING:$msg = '<b>Warning</b>: '.$msg; break;
-            case E_USER_NOTICE:$msg  = '<b>Notice</b>: '.$msg; break;
-            case E_USER_ERROR:$msg   = '<b>Fatal</b>: '.$msg; break;
-            default:$msg             = '<b>Unknown</b>: '.$msg; break;
+            case E_USER_WARNING:
+                $msg = 'Warning: '.$msg;
+                break;
+            case E_USER_NOTICE:
+                $msg = 'Notice: '.$msg;
+                break;
+            case E_USER_ERROR:
+                $msg = 'Fatal: '.$msg;
+                break;
+            default:
+                $msg = 'Unknown: '.$msg;
+                break;
         }
-        echo "<div style='padding:10px;word-break:break-all;'>\n".$msg."</div>\n";
+
+        $exception = new \Peanut\Exception($msg);
+        $exception->setFile($file);
+        $exception->setLine($line);
+        throw $exception;
     }
 
     public function defined($fid)
