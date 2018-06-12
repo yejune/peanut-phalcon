@@ -250,7 +250,7 @@ class Compiler
      */
     public function compileDefine($statement, $line)
     {
-        return "echo self::show('".trim(substr($statement, 1))."')";
+        return "self::render('".trim(substr($statement, 1))."')";
     }
 
     /**
