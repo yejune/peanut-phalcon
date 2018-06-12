@@ -122,7 +122,12 @@ class Template
     public function fetch($fid)
     {
         ob_start();
-        $this->render($fid);
+        try {
+            $this->render($fid);
+        } catch (\Exception $e) {
+            ob_end_clean();
+            throw $e;
+        }
         $fetched = ob_get_contents();
         ob_end_clean();
 
