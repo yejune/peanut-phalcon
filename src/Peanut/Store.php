@@ -43,7 +43,7 @@ class Store
      * set variables
      * @param mixed $arg
      */
-    public static function set($arg)
+    public static function append($arg)
     {
         if (true === is_array($arg)) {
             static::instance()->_variables = $arg + static::instance()->_variables;
