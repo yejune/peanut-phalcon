@@ -10,10 +10,11 @@ class SelectField extends \Peanut\Schema\Fields
         $value    = $this->getValue();
         $id       = $this->getId();
         $required = $this->getRequired();
+        $readonly = $this->getReadonly();
 
         $select = <<<EOT
 <span class="input %s">
-<select class="form-control" name="%s" id="%s">
+<select class="form-control" name="%s" id="%s" %s>
 %s
 </select>
 %s
@@ -36,7 +37,7 @@ OPT;
         foreach ($value as $i => $data) {
             $j ++;
             $isLast                      = false;
-            if($j == 0 && 1 == $count) { // create empty
+            if ($j == 0 && 1 == $count) { // create empty
                 $isLast = 0;
             } elseif ($j + 1 == $count) {
                 $isLast = true;
@@ -44,12 +45,25 @@ OPT;
             $opt = '';
             //pr($this);
             foreach ($this->schema->items as $enumValue => $enumLabel) {
-                if ($enumValue == $data) {
-                    $selected = 'selected';
+                if (is_object($enumLabel)) {
+                    $opt .= '<optgroup label="'.$enumValue.'">';
+                    foreach ($enumLabel as $key2 => $data2) {
+                        if ($key2 == $data) {
+                            $selected = 'selected';
+                        } else {
+                            $selected = '';
+                        }
+                        $opt .= sprintf($option, $key2, $selected, $enumValue.' '.$data2);
+                    }
+                    $opt .= '</optgroup>';
                 } else {
-                    $selected = '';
+                    if ($enumValue == $data) {
+                        $selected = 'selected';
+                    } else {
+                        $selected = '';
+                    }
+                    $opt .= sprintf($option, $enumValue, $selected, $enumLabel);
                 }
-                $opt .= sprintf($option, $enumValue, $selected, $enumLabel);
             }
 
             $dynamic = '';
@@ -59,7 +73,7 @@ OPT;
                 $class   ='entry input-group';
             }
 
-            $input .= sprintf($select, $class, $name, rtrim($id, '[]').'_'.$i, $opt, $dynamic);
+            $input .= sprintf($select, $class, $name, rtrim($id, '[]').'_'.$i, $readonly ? "readonly onFocus='this.initialSelect = this.selectedIndex;' onChange='this.selectedIndex = this.initialSelect;'" : '', $opt, $dynamic);
         }
 
         return sprintf($this->getStringHtml($label), $label, $input);

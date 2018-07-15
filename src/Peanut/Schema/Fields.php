@@ -29,7 +29,7 @@ abstract class Fields
                 </button>
             </span>
 EOT;
-        } elseif(0 === $isLast) {
+        } elseif (0 === $isLast) {
             return <<<EOT
             <span class="input-group-btn">
                 <button class="btn btn-success btn-add" type="button">
@@ -183,6 +183,12 @@ EOT;
         }
 
         return $label;
+    }
+    public function getReadonly()
+    {
+        $readonly = $this->schema->readonly ?? null;
+
+        return $readonly;
     }
     public function getDescription()
     {
