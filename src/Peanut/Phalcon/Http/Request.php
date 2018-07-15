@@ -237,7 +237,7 @@ class Request extends \Phalcon\Http\Request
         return $subDomain ?: 'www';
     }
 
-    public function getUrl()
+    public function getSchemeHost()
     {
         return parent::getScheme().'://'.parent::getHttpHost();
     }
@@ -250,7 +250,9 @@ class Request extends \Phalcon\Http\Request
     public function getSliceUri($depth)
     {
         $segments = $this->getSegments();
-        if (2 < count($segments)) {
+        if (count($segments) < 2) {
+            $url = $this->getRewriteUri();
+        } else {
             $url = '';
             $i   = 1;
             foreach ($segments as $segment) {
@@ -260,8 +262,6 @@ class Request extends \Phalcon\Http\Request
                 }
                 $i++;
             }
-        } else {
-            $url = $this->getRewriteUri();
         }
 
         return trim($url, '/');
