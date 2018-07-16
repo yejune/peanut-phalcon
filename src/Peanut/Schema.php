@@ -34,7 +34,7 @@ class Schema
     public function getHtml()
     {
         $typeField = '\\Peanut\\Schema\\Fields\\'.ucfirst($this->schema->type).'Field';
-        $field     = new $typeField($this->schema, [], $this->data, $this->lang);
+        $field     = new $typeField($this->schema, [], $this->data, $this->lang, $this->data);
 
         return $field->fetch();
     }
