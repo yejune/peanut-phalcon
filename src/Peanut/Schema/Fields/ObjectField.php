@@ -10,7 +10,7 @@ class ObjectField extends \Peanut\Schema\Fields
             foreach ($this->schema->properties as $propKey => $propValues) {
                 $type  = $this->getType($propValues->type);
                 $path  = array_merge($this->path, [$propKey]);
-                $field = new $type($propValues, $path, $this->data[$propKey] ?? null, $this->lang);
+                $field = new $type($propValues, $path, $this->data[$propKey] ?? null, $this->lang, $this->data);
                 $s .= $field->fetch();
             }
 

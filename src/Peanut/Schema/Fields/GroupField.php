@@ -18,7 +18,7 @@ class GroupField extends \Peanut\Schema\Fields
                             $type  = $this->getType($propValues2->type, true);
                             $path  = array_merge($this->path, [$propKey2]);
 
-                            $field = new $type($propValues2, $path, $this->data[$propKey2] ?? null, $this->lang);
+                            $field = new $type($propValues2, $path, $this->value[$propKey2] ?? null, $this->lang);
                             $s .= $field->fetch();
                         }
                     }
@@ -26,7 +26,7 @@ class GroupField extends \Peanut\Schema\Fields
                     $type  = $this->getType($propValues->type, true);
                     $path  = array_merge($this->path, [$propKey]);
 
-                    $field = new $type($propValues, $path, $this->data[$propKey] ?? null, $this->lang);
+                    $field = new $type($propValues, $path, $this->value[$propKey] ?? null, $this->lang);
                     $s .= $field->fetch();
                 }
             }

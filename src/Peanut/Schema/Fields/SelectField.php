@@ -11,7 +11,41 @@ class SelectField extends \Peanut\Schema\Fields
         $id       = $this->getId();
         $required = $this->getRequired();
         $readonly = $this->getReadonly();
-
+        $relation = $this->getRelation();
+        $data     = $this->getData();
+        if ($relation) {
+            $this->schema->items  = [
+                '' => 'select',
+            ];
+            $condition = $bind = [];
+            foreach ($relation->keys as $key) {
+                $condition[] = $key.' = :'.$key.':';
+                $bind[$key]  = $data[$key];
+            }
+            $modelName     = $relation->model;
+            $conditions    = [
+                'conditions' => implode(' AND ', $condition),
+                'bind'       => $bind,
+            ];
+            $relationModels       = $modelName::find($conditions);
+            $items                = [
+                '' => 'select',
+            ];
+            foreach ($relationModels as $model) {
+                $tmp = '';
+                foreach ($relation->fields as $key => $field) {
+                    $arr = ($model->toArray());
+                    if ($arr[$field]) {
+                        if ($tmp) {
+                            $tmp .= ' ';
+                        }
+                        $tmp .= str_replace($field, $arr[$field], $relation->templates[$key]);
+                    }
+                }
+                $items[$model->getSeq()] = $tmp;
+            }
+            $this->schema->items = $items;
+        }
         $select = <<<EOT
 <span class="input %s">
 <select class="form-control" name="%s" id="%s" %s>

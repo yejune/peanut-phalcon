@@ -14,12 +14,12 @@ class ArrayField extends \Peanut\Schema\Fields
                 $html  = '';
                 for ($i=0;$i < $size;$i++) {
                     $path  = array_merge($this->path, [$i]);
-                    $field = new $type($this->schema->items, $path, $this->data[$i] ?? null, $this->lang);
+                    $field = new $type($this->schema->items, $path, $this->value[$i] ?? null, $this->lang);
                     $html .= $field->fetch();
                 }
             } else {
                 $path  = $this->path;
-                $field = new $type($this->schema->items, $path, $this->data, $this->lang);
+                $field = new $type($this->schema->items, $path, $this->value, $this->lang);
                 $html  = $field->fetch();
             }
 

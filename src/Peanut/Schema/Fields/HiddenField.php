@@ -19,6 +19,6 @@ class HiddenField extends \Peanut\Schema\Fields
         }
 
         return $input;
-        return sprintf($this->getStringHtml($label), $label, $input);
+        //return sprintf($this->getStringHtml($label), $label, $input);
     }
 }

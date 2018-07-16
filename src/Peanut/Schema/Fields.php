@@ -4,17 +4,19 @@ namespace Peanut\Schema;
 abstract class Fields
 {
     public $schema;
-    public $path   = [];
-    public $data   = [];
-    public $lang   = '';
-    public function __construct(\stdClass $schema, array $path = [], $data, $lang)
+    public $path  = [];
+    public $value = [];
+    public $lang  = '';
+    public $data  = [];
+    public function __construct(\stdClass $schema, array $path = [], $value, $lang, &$data = [])
     {
         $this->schema = $schema;
         if ($path) {
             $this->path = $path;
         }
-        $this->data = $data;
-        $this->lang = $lang;
+        $this->data  = $data;
+        $this->value = $value;
+        $this->lang  = $lang;
     }
     public function getDynamic($isLast=false)
     {
@@ -156,19 +158,19 @@ EOT;
     }
     public function getValue()
     {
-        $path = $this->path;
-        $data = $this->data;
+        $path  = $this->path;
+        $value = $this->value;
 
         while (1) {
             $p = array_shift($path);
-            if (strlen($p) && true === isset($data[$p])) {
-                $data = $data[$p];
+            if (strlen($p) && true === isset($value[$p])) {
+                $value = $value[$p];
                 continue;
             }
             break;
         }
 
-        return $data;
+        return $value;
     }
     public function getLabel()
     {
@@ -190,6 +192,18 @@ EOT;
 
         return $readonly;
     }
+    public function getRelation()
+    {
+        $relation = $this->schema->relation ?? null;
+
+        return $relation;
+    }
+
+    public function getData()
+    {
+        return $this->data ?? [];
+    }
+
     public function getDescription()
     {
         $description = $this->schema->description ?? null;
