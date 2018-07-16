@@ -11,7 +11,7 @@ class SelectField extends \Peanut\Schema\Fields
         $id       = $this->getId();
         $required = $this->getRequired();
         $readonly = $this->getReadonly();
-
+        pr($this);
         // true일때는 무조건 readonly
         // exist일때는 값이 있을 경우에만
         if ($readonly == 'exist' && !$value) {
@@ -33,9 +33,10 @@ class SelectField extends \Peanut\Schema\Fields
                 'conditions' => implode(' AND ', $condition),
                 'bind'       => $bind,
             ];
+            $lang                 = $this->lang;
             $relationModels       = $modelName::find($conditions);
             $items                = [
-                '' => 'select',
+                '' => $relation->message->$lang ?? 'select',
             ];
             foreach ($relationModels as $model) {
                 $tmp = '';
