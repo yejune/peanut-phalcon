@@ -34,7 +34,8 @@ class SelectField extends \Peanut\Schema\Fields
                 'bind'       => $bind,
             ];
             $lang                 = $this->lang;
-            $relationModels       = $modelName::find($conditions);
+            $method               = $relation->method ?? 'find';
+            $relationModels       = $modelName::$method($conditions);
             $items                = [
                 '' => $relation->message->$lang ?? 'select',
             ];
