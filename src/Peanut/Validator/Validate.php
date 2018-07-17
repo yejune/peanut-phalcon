@@ -31,6 +31,7 @@ class Validate
     public $data           = [];
     public $debug          = false;
     public $throwException = false;
+    public $payload        = [];
 
     public function __construct($spec = [], $data = [], $files = [])
     {
@@ -99,10 +100,14 @@ class Validate
     public function valid()
     {
         $this->errors = [];
+
         foreach ($this->rules as $fieldName => $rules) {
             $cleanFieldName = rtrim($fieldName, '[]');// javascript에서의 배열 네임과 php에서의 배열네임간의 차이 제거
 
             $value = $this->getValue($cleanFieldName);
+
+            $this->payload[$cleanFieldName] = $value;
+
             if (false !== $value && true === is_array($value)) {
                 if (false === \Peanut\is_assoc($value)) {
                     $data = $value;
@@ -121,6 +126,41 @@ class Validate
 
             $fieldSize = count($data);
             foreach ($data as $dataValue) {
+
+                // file upload error
+                if (is_array($dataValue) && isset($dataValue['error']) && $dataValue['error']) {
+                    switch ($dataValue['error']) {
+                        case \UPLOAD_ERR_INI_SIZE:
+                            $message = 'The uploaded file exceeds the upload_max_filesize directive in php.ini';
+                            break;
+                        case \UPLOAD_ERR_FORM_SIZE:
+                            $message = 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form';
+                            break;
+                        case \UPLOAD_ERR_PARTIAL:
+                            $message = 'The uploaded file was only partially uploaded';
+                            break;
+                        case \UPLOAD_ERR_NO_FILE:
+                            $message = 'No file was uploaded';
+                            break;
+                        case \UPLOAD_ERR_NO_TMP_DIR:
+                            $message = 'Missing a temporary folder';
+                            break;
+                        case \UPLOAD_ERR_CANT_WRITE:
+                            $message = 'Failed to write file to disk';
+                            break;
+                        case \UPLOAD_ERR_EXTENSION:
+                            $message = 'File upload stopped by extension';
+                            break;
+                        default:
+                            $message = 'Unknown upload error';
+                            break;
+                    }
+                    $this->errors[$cleanFieldName]['upload'] = [
+                        'param'   => $ruleParam,
+                        'value'   => $dataValue,
+                        'message' => $message,
+                    ];
+                }
                 foreach ($rules as $ruleName => $ruleParam) {
                     if ($callback = $this->getMethod($ruleName)) {
                         if (!$callback($dataValue, $cleanFieldName, $ruleParam)) {
@@ -137,6 +177,7 @@ class Validate
                             } else {
                                 $this->errors[$cleanFieldName][$ruleName] = $error;
                             }
+                            unset($this->payload[$cleanFieldName]);
                         }
                     } else {
                         if ($this->debug) {
@@ -176,6 +217,10 @@ class Validate
         }
 
         return $length;
+    }
+    public function getPayload()
+    {
+        return $this->payload;
     }
     public function optional($value)
     {
@@ -255,6 +300,7 @@ Validate::addMethod('mincount', function ($value, $name, $param) {
     }
 
     return $this->optional($value) || $count >= $param;
+
     return $count >= $param;
 });
 

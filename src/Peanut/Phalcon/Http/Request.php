@@ -116,17 +116,17 @@ class Request extends \Phalcon\Http\Request
     public function getUploadedFileKeys()
     {
         $data = [];
+
         if (true === is_array($_FILES)) {
             foreach ($_FILES as $key => $files) {
-                foreach ($files as $attrName => $file) {
-                    if (true === is_array($file)) {
+                if (true === is_array($files['name'])) { // array
+                    foreach ($files as $attrName => $file) {
                         foreach ($file as $i => $f) {
-                            $data[$key][$i] = '#UploadedFile '.$i;
+                            $data[$key][$i][$attrName] = $f;//'#UploadedFile '.$i;
                         }
-                        break;
                     }
-                    $data[$key] = '#UploadedFile';
-                    break;
+                } else {
+                    $data[$key] = $files;//'#UploadedFile';
                 }
             }
 
@@ -151,7 +151,7 @@ class Request extends \Phalcon\Http\Request
                 return $this->bodyParameters = $return;
                 break;
             case 'multipart/form-data':
-                $data = $_POST;
+                $data = $_POST + $this->getUploadedFileKeys();
                 $new  = [];
 
                 return $this->bodyParameters = $data;

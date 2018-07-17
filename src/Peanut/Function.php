@@ -88,11 +88,15 @@ function html_encode(array $in) : string
  *
  * @return boolean
  */
-function is_assoc(array $array = [])
+function is_assoc($array)
 {
-    $keys = array_keys($array);
+    if (true === is_array($array)) {
+        $keys = array_keys($array);
 
-    return $keys !== array_keys($keys);
+        return $keys !== array_keys($keys);
+    }
+
+    return false;
 }
 
 /**

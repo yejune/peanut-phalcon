@@ -21,11 +21,15 @@ class Validator
         $config       = Spec::parse($specFile, $appendSpecData);
         $this->schema = new \Peanut\Schema($config, $defaultData);
     }
-    public function validate($validData = [])
+    public function validate($validData = [], $fileData = [])
     {
-        $this->validate = new \Peanut\Validator\Validate($this->schema->getSpec(), $validData);
+        $this->validate = new \Peanut\Validator\Validate($this->schema->getSpec(), $validData, $fileData);
 
-        return $this->validate->valid();
+        if ($this->validate->valid()) {
+            return $this->validate->getPayload();
+        }
+
+        return false;
     }
     public function getSchema()
     {
