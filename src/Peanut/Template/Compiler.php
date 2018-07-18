@@ -21,11 +21,12 @@ class Compiler
     private $phpengine = false;
 
     private $filename;
+    private $funtions = [];
 
     public function __construct()
     {
         $functions           = get_defined_functions();
-        $this->allFunctions  = array_merge(
+        $this->functions     = array_merge(
             $functions['internal'],
             $functions['user'],
             ['isset', 'empty', 'eval', 'list', 'array', 'include', 'require', 'include_once', 'require_once']
@@ -42,9 +43,23 @@ class Compiler
      */
     public function execute($tpl, $fid, $tplPath, $cplPath, $cplHead)
     {
-        $this->permission = $tpl->permission;
-        $this->phpengine  = $tpl->phpengine;
-        $this->filename   = $tplPath;
+        $this->permission  = $tpl->permission;
+        $this->phpengine   = $tpl->phpengine;
+        $this->filename    = $tplPath;
+        $this->tpl_path    = $tplPath;
+        $this->prefilter   = $tpl->prefilter;
+        $this->postfilter  = $tpl->postfilter;
+        $this->prefilters  = array();
+        $this->postfilters = array();
+        $this->plugin_dir  = $tpl->plugin_dir;
+        $this->plugins     = array();
+        $this->func_plugins= array();
+        $this->obj_plugins = array();
+        $this->func_list   = array(''=>array());
+        $this->obj_list    = array(''=>array());
+        $this->method_list = array();
+        $this->on_ms       = substr(__FILE__,0,1)!=='/';
+
         if (!@is_file($cplPath)) {
             $dirs = explode('/', $cplPath);
             $path = '';
@@ -62,6 +77,45 @@ class Compiler
             }
         }
 
+
+    // get plugin file info
+        $plugins = array();
+        $match = array();
+        if ($this->plugin_dir) {
+            $d = dir($this->plugin_dir);
+            if (false === $d) {
+                throw new Compiler\Exception('cannot access plugin directory '.$this->plugin_dir.'');
+            }
+
+            while ($plugin_file = $d->read()) {
+                $plugin_path = $this->plugin_dir.'/'.$plugin_file;
+                if (!is_file($plugin_path) || !preg_match('/^(object|function|prefilter|postfilter)\.([^.]+)\.php$/i', $plugin_file, $match)) {
+                    continue;
+                }
+                $plugin =strtolower($match[2]);
+                if ($match[1] === 'object') {
+                    if (in_array($plugin, $this->obj_plugins)) {
+                        throw new Compiler\Exception('plugin file object.'.$match[2].'.php is overlapped');
+                    }
+                    $this->obj_plugins[$match[2]] = $plugin;
+                } else {
+                    switch ($match[1]) {
+                    case 'function': $this->func_plugins[$match[2]]  =$plugin; break;
+                    case 'prefilter': $this->prefilters[$match[2]]   =$plugin; break;
+                    case 'postfilter': $this->postfilters[$match[2]] =$plugin; break;
+                    }
+                    if (in_array($plugin, $plugins)) {
+                        throw new Compiler\Exception('plugin function '.$plugin.' is overlapped');
+                    }
+                    $plugins[]=$plugin;
+                }
+            }
+        }
+        $this->obj_plugins_flip = array_flip($this->obj_plugins);
+        $this->func_plugins_flip= array_flip($this->func_plugins);
+        $this->prefilters_flip  = array_flip($this->prefilters);
+        $this->postfilters_flip = array_flip($this->postfilters);
+
         // get template
         $source = '';
 
@@ -70,6 +124,8 @@ class Compiler
             $source = fread($fpTpl, $sourceSize);
             fclose($fpTpl);
         }
+
+        if (trim($this->prefilter)) $source=$this->filter($source, 'pre');
 
         $verLow54 = defined('PHP_MAJOR_VERSION') and 5.4 <= (float) (PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION);
         $phpTag   = '<\?php|(?<!`)\?>';
@@ -377,7 +433,7 @@ class Compiler
      * @param  $line
      * @return mixed
      */
-    public function tokenizer($source, $line)
+    public function tokenizer($source, $line=1)
     {
         $expression = $source;
         $token      = [];
@@ -759,6 +815,9 @@ class Compiler
      */
     private function saveResult($cplPath, $source, $cplHead, $initCode)
     {
+        if (trim($this->postfilter)) {
+            $source=$this->filter($source, 'post');
+        }
         // +9 cpl직접수정방지
         $sourceSize = strlen($cplHead) + 9 + strlen($initCode) + strlen($source);
 
@@ -770,6 +829,37 @@ class Compiler
             @unlink($cplPath);
             throw new Compiler\Exception(filesize($cplPath).' | '.strlen($source).' Problem by concurrent access. Just retry after some seconds. "<b>'.$cplPath.'</b>"');
         }
+    }
+    private function filter($source, $type)
+    {
+        $func_split=preg_split('/\s*(?<!\\\\)\|\s*/', trim($this->{$type.'filter'}));
+        $func_sequence=array();
+        for ($i=0,$s=count($func_split); $i<$s; $i++) if ($func_split[$i]) $func_sequence[]=str_replace('\\|', '|', $func_split[$i]);
+
+        if (!empty($func_sequence)) {
+            for ($i=0,$s=count($func_sequence); $i<$s; $i++) {
+                $func_args=preg_split('/\s*(?<!\\\\)\&\s*/', $func_sequence[$i]);
+                for ($j=1,$k=count($func_args); $j<$k; $j++) {
+                    $func_args[$j]=str_replace('\\&', '&', trim($func_args[$j]));
+                }
+                $func = strtolower(array_shift($func_args));
+                $func_name   = $this->{$type.'filters_flip'}[$func];
+                array_unshift($func_args, $source, $this);
+                $func_file = $this->plugin_dir.'/'.$type.'filter.'.$func_name.'.php';
+                if (!in_array($func, $this->{$type.'filters'})) {
+                    throw new Compiler\Exception('cannot find '.$type.'filter file '.$func_file.'');
+                }
+                if (!function_exists($func_name)) {
+                    if (false===include_once $func_file) {
+                        throw new Compiler\Exception('error in '.$type.'filter '.$func_file.'');
+                    } elseif (!function_exists($func_name)) {
+                        throw new Compiler\Exception('filter function '.$func_name.'() is not found in '.$func_file.'');
+                    }
+                }
+                $source=call_user_func_array($func_name, $func_args);
+            }
+        }
+        return $source;
     }
 }
 namespace Peanut\Template\Compiler;

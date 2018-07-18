@@ -52,10 +52,18 @@ class Template
 
     public $noticeReporting = 0;
 
+    public $prefilter;
+    public $postfilter;
+    public $plugin_dir;
+
     public function __construct()
     {
     }
 
+    public function assignAndDefine($arr) {
+        $this->assign($arr[0]);
+        $this->define($arr[1]);
+    }
     /**
      * @param $key
      * @param $value
