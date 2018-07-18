@@ -23,20 +23,23 @@ class SelectField extends \Peanut\Schema\Fields
             $this->schema->items  = [
                 '' => 'select',
             ];
+            $conditions = [];
             $condition = $bind = [];
-            foreach ($relation->keys as $key) {
-                $condition[] = $key.' = :'.$key.':';
-                $bind[$key]  = $data[$key];
+            if(true === isset($relation->keys) && true === is_array($relation->keys)) {
+                foreach ($relation->keys as $key) {
+                    $condition[] = $key.' = :'.$key.':';
+                    $bind[$key]  = $data[$key];
+                }
+                $conditions    = [
+                    'conditions' => implode(' AND ', $condition),
+                    'bind'       => $bind,
+                ];
             }
-            $modelName     = $relation->model;
-            $conditions    = [
-                'conditions' => implode(' AND ', $condition),
-                'bind'       => $bind,
-            ];
-            $lang                 = $this->lang;
-            $method               = $relation->method ?? 'find';
-            $relationModels       = $modelName::$method($conditions);
-            $items                = [
+            $modelName      = $relation->model;
+            $lang           = $this->lang;
+            $method         = $relation->method ?? 'find';
+            $relationModels = $modelName::$method($conditions);
+            $items          = [
                 '' => $relation->message->$lang ?? 'select',
             ];
             foreach ($relationModels as $model) {
