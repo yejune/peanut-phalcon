@@ -62,7 +62,6 @@ class Validate
     {
         $name  = str_replace(']', '', $name);
         $names = explode('[', $name);
-
         $data = $this->data;
 
         foreach ($names as $name) {
@@ -102,7 +101,7 @@ class Validate
         $this->errors = [];
 
         foreach ($this->rules as $fieldName => $rules) {
-            $cleanFieldName = rtrim($fieldName, '[]');// javascript에서의 배열 네임과 php에서의 배열네임간의 차이 제거
+            $cleanFieldName = preg_replace('#\[\]$#','',$fieldName);// javascript에서의 배열 네임과 php에서의 배열네임간의 차이 제거
 
             $value = $this->getValue($cleanFieldName);
 
