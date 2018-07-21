@@ -158,7 +158,7 @@ function decode_file(string $filename) : array
  *
  * @return array
  */
-function array_merge_recursive_distinct(array &$array1, array &$array2) : array
+function array_merge_recursive_distinct(array $array1, array $array2) : array
 {
     $merged = $array1;
     foreach ($array2 as $key => &$value) {

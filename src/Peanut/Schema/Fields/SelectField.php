@@ -23,23 +23,20 @@ class SelectField extends \Peanut\Schema\Fields
             $this->schema->items  = [
                 '' => 'select',
             ];
-            $conditions = [];
             $condition = $bind = [];
-            if(true === isset($relation->keys) && true === is_array($relation->keys)) {
-                foreach ($relation->keys as $key) {
-                    $condition[] = $key.' = :'.$key.':';
-                    $bind[$key]  = $data[$key];
-                }
-                $conditions    = [
-                    'conditions' => implode(' AND ', $condition),
-                    'bind'       => $bind,
-                ];
+            foreach ($relation->keys as $key) {
+                $condition[] = $key.' = :'.$key.':';
+                $bind[$key]  = $data[$key];
             }
-            $modelName      = $relation->model;
-            $lang           = $this->lang;
-            $method         = $relation->method ?? 'find';
-            $relationModels = $modelName::$method($conditions);
-            $items          = [
+            $modelName     = $relation->model;
+            $conditions    = [
+                'conditions' => implode(' AND ', $condition),
+                'bind'       => $bind,
+            ];
+            $lang                 = $this->lang;
+            $method               = $relation->method ?? 'find';
+            $relationModels       = $modelName::$method($conditions);
+            $items                = [
                 '' => $relation->message->$lang ?? 'select',
             ];
             foreach ($relationModels as $model) {
@@ -118,7 +115,7 @@ OPT;
                 $class   ='entry input-group';
             }
 
-            $input .= sprintf($select, $class, $name, rtrim($id, '[]').'_'.$i, $readonly ? "readonly onFocus='this.initialSelect = this.selectedIndex;' onChange='this.selectedIndex = this.initialSelect;'" : '', $opt, $dynamic);
+            $input .= sprintf($select, $class, $name, preg_replace('#\[\]$#', '', $id).'_'.$i, $readonly ? "readonly onFocus='this.initialSelect = this.selectedIndex;' onChange='this.selectedIndex = this.initialSelect;'" : '', $opt, $dynamic);
         }
 
         return sprintf($this->getStringHtml($label), $label, $input);

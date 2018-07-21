@@ -23,6 +23,7 @@ class FileField extends \Peanut\Schema\Fields
                     $input = sprintf($this->input('text', $name, $id, $value, $required, false));
                 }
         */
+
         $select = <<<EOT
 <span class="input %s">
 <input type="%s"  class="form-control file" name="%s" id="%s" value="%s" %s %s %s />
@@ -34,7 +35,7 @@ EOT;
         if (false === is_array($value)) {
             $value = [$value];
         }
-        if(0 === count($value)) {
+        if (0 === count($value)) {
             $value = [null];
         }
         $input = '';
@@ -46,7 +47,7 @@ EOT;
             $j ++;
             $isLast                      = false;
             $type = 'text';
-            if($j == 0 && 1 == $count) { // create empty
+            if ($j == 0 && 1 == $count) { // create empty
                 if (!$data) {
                     $type = 'file';
                 }
@@ -60,11 +61,14 @@ EOT;
                 $dynamic = $this->getDynamic($isLast);
                 $class   ='entry input-group';
             }
-            if (false !== strpos($name, '[]')) {
-                $cname=rtrim($name, '[]').'['.$i.']';
-            } else {
-                $cname = $name;
-            }
+            // if (false !== strpos($name, '[]')) {
+            //     $cname = preg_replace('#\[\]$#','['.$i.']',$name);//.'[]';//rtrim($name, '[]').'['.$i.']';
+            // } else {
+            //     $cname = $name;
+            // }
+            $cname = preg_replace('#\[\]$#', '['.$i.']', $name);//.'[]';//rtrim($name, '[]').'['.$i.']';
+            $cid = preg_replace('#\[\]$#', '_', $id).$i;//.'[]';//rtrim($name, '[]').'['.$i.']';
+
             $src = '';
             if (true === isset($data['type'])) {
                 if (0 === strpos($data['type'], 'image/')) {
@@ -78,7 +82,7 @@ EOT;
             $placeholderCode = $placeholder ? 'placeholder="'.$placeholder.'"' : '';
             $acceptCode = $accept ? 'accept="'.$accept.'"' : '';
 
-            $input .= sprintf($select, $class, $type, $cname, rtrim($id, '[]').'_'.$i, $value, $required ? 'required' : '', $placeholderCode, $acceptCode, $src, $dynamic);
+            $input .= sprintf($select, $class, $type, $cname, $cid, $value, $required ? 'required' : '', $placeholderCode, $acceptCode, $src, $dynamic);
         }
 
         return sprintf($this->getStringHtml($label), $label, $input);

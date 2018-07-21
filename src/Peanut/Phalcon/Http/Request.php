@@ -112,28 +112,63 @@ class Request extends \Phalcon\Http\Request
 
         return true === isset($this->bodyParameters[$bodyname]) ? $this->bodyParameters[$bodyname] : null;
     }
-
-    public function getUploadedFileKeys()
+    protected function fixPhpFilesArray($data)
     {
-        $data = [];
-
-        if (true === is_array($_FILES)) {
-            foreach ($_FILES as $key => $files) {
-                if (true === is_array($files['name'])) { // array
-                    foreach ($files as $attrName => $file) {
-                        foreach ($file as $i => $f) {
-                            $data[$key][$i][$attrName] = $f;//'#UploadedFile '.$i;
-                        }
-                    }
-                } else {
-                    $data[$key] = $files;//'#UploadedFile';
-                }
-            }
-
+        if (!is_array($data)) {
             return $data;
         }
+        $keys = array_keys($data);
+        sort($keys);
+        if (self::$fileKeys != $keys || !isset($data['name']) || !is_array($data['name'])) {
+            return $data;
+        }
+        $files = $data;
+        foreach (self::$fileKeys as $k) {
+            unset($files[$k]);
+        }
+        foreach ($data['name'] as $key => $name) {
+            $files[$key] = $this->fixPhpFilesArray(array(
+                'error' => $data['error'][$key],
+                'name' => $name,
+                'type' => $data['type'][$key],
+                'tmp_name' => $data['tmp_name'][$key],
+                'size' => $data['size'][$key],
+            ));
+        }
+        return $files;
+    }
+    static $fileKeys = array('error', 'name', 'size', 'tmp_name', 'type');
+    protected function convertFileInformation($file)
+    {
 
-        return [];
+        $file = $this->fixPhpFilesArray($file);
+        if (is_array($file)) {
+            $keys = array_keys($file);
+            sort($keys);
+            if ($keys == self::$fileKeys) {
+                if (UPLOAD_ERR_NO_FILE == $file['error']) {
+                    $file = null;
+                } else {
+                    $file = [
+                        'name'     => $file['name'],
+                        'type'     =>  $file['type'],
+                        'tmp_name' => $file['tmp_name'],
+                        'error'    => $file['error'],
+                        'size'    => $file['size']
+                    ];
+                }
+            } else {
+                $file = array_map(array($this, 'convertFileInformation'), $file);
+                if (array_keys($keys) === $keys) {
+                    $file = array_filter($file);
+                }
+            }
+        }
+        return $file;
+    }
+    public function getUploadedFileKeys()
+    {
+        return $this->convertFileInformation($_FILES);
     }
 
     public function getBodyAll()
@@ -151,8 +186,8 @@ class Request extends \Phalcon\Http\Request
                 return $this->bodyParameters = $return;
                 break;
             case 'multipart/form-data':
-                $data = $_POST + $this->getUploadedFileKeys();
-                $new  = [];
+                $files = $this->getUploadedFileKeys();
+                $data = array_merge_recursive_distinct($_POST, $files);
 
                 return $this->bodyParameters = $data;
                 break;

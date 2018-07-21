@@ -23,7 +23,7 @@ class Validator
     }
     public function validate($validData = [], $fileData = [])
     {
-        $this->validate = new \Peanut\Validator\Validate($this->schema->getSpec(), $validData, $fileData);
+        $this->validate = new \Peanut\Validator\Validate($this->schema, $validData, $fileData);
 
         if ($this->validate->valid()) {
             return $this->validate->getPayload();

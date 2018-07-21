@@ -13,7 +13,7 @@ class PhoneField extends \Peanut\Schema\Fields
 
         $input = '';
         if (isset($this->schema->size)) {
-            $input .= sprintf($this->phone('text', $name, rtrim($id, '[]'), $value, $required, true));
+            $input .= sprintf($this->phone('text', $name, preg_replace('#\[\]$#', '', $id), $value, $required, true));
         } else {
             $input = sprintf($this->phone('text', $name, $id, $value, $required, false));
         }
