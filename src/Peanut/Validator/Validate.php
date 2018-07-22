@@ -32,9 +32,13 @@ class Validate
     public $debug          = false;
     public $throwException = false;
     public $payload        = [];
+    public $properties     = [];
 
-    public function __construct($spec = [], $data = [], $files = [])
+    public function __construct($schema = [], $data = [], $files = [])
     {
+        $this->properties = json_decode(json_encode($schema->schema->properties), true);
+
+        $spec         = $schema->getSpec();
         if (true === isset($spec['rules'])) {
             $this->rules = $spec['rules'];
         }
@@ -62,8 +66,7 @@ class Validate
     {
         $name  = str_replace(']', '', $name);
         $names = explode('[', $name);
-
-        $data = $this->data;
+        $data  = $this->data;
 
         foreach ($names as $name) {
             if (true === isset($data[$name])) {
@@ -102,11 +105,23 @@ class Validate
         $this->errors = [];
 
         foreach ($this->rules as $fieldName => $rules) {
-            $cleanFieldName = rtrim($fieldName, '[]');// javascript에서의 배열 네임과 php에서의 배열네임간의 차이 제거
+            $cleanFieldName = preg_replace('#\[\]$#', '', $fieldName);// javascript에서의 배열 네임과 php에서의 배열네임간의 차이 제거
 
             $value = $this->getValue($cleanFieldName);
 
-            $this->payload[$cleanFieldName] = $value;
+            $this->payload[$fieldName]          = $this->properties[$fieldName];
+            $this->payload[$fieldName]['value'] = $value;
+            if (isset($this->properties[$fieldName]['items'])) {
+                if (is_array($value)) {
+                    foreach ($value as $row) {
+                        $this->payload[$fieldName]['text'][] = $this->properties[$fieldName]['items'][$row];
+                    }
+                } else {
+                    $this->payload[$fieldName]['text'] = $this->properties[$fieldName]['items'][$value];
+                }
+            } else {
+                $this->payload[$fieldName]['text'] = $value;
+            }
 
             if (false !== $value && true === is_array($value)) {
                 if (false === \Peanut\is_assoc($value)) {

@@ -19,27 +19,26 @@ class SelectField extends \Peanut\Schema\Fields
         }
         $relation = $this->getRelation();
         $data     = $this->getData();
-        if ($relation) {
+        if ($relation && (!isset($this->schema->items) || !count($this->schema->items))) {
             $this->schema->items  = [
                 '' => 'select',
             ];
-            $conditions = [];
             $condition = $bind = [];
-            if(true === isset($relation->keys) && true === is_array($relation->keys)) {
+            if (isset($relation->keys)) {
                 foreach ($relation->keys as $key) {
                     $condition[] = $key.' = :'.$key.':';
                     $bind[$key]  = $data[$key];
                 }
-                $conditions    = [
-                    'conditions' => implode(' AND ', $condition),
-                    'bind'       => $bind,
-                ];
             }
-            $modelName      = $relation->model;
-            $lang           = $this->lang;
-            $method         = $relation->method ?? 'find';
-            $relationModels = $modelName::$method($conditions);
-            $items          = [
+            $modelName     = $relation->model;
+            $conditions    = [
+                'conditions' => implode(' AND ', $condition),
+                'bind'       => $bind,
+            ];
+            $lang                 = $this->lang;
+            $method               = $relation->method ?? 'find';
+            $relationModels       = $modelName::$method($conditions);
+            $items                = [
                 '' => $relation->message->$lang ?? 'select',
             ];
             foreach ($relationModels as $model) {
@@ -89,25 +88,27 @@ OPT;
             }
             $opt = '';
             //pr($this);
-            foreach ($this->schema->items as $enumValue => $enumLabel) {
-                if (is_object($enumLabel)) {
-                    $opt .= '<optgroup label="'.$enumValue.'">';
-                    foreach ($enumLabel as $key2 => $data2) {
-                        if ($key2 == $data) {
+            if (isset($this->schema->items)) {
+                foreach ($this->schema->items as $enumValue => $enumLabel) {
+                    if (is_object($enumLabel)) {
+                        $opt .= '<optgroup label="'.$enumValue.'">';
+                        foreach ($enumLabel as $key2 => $data2) {
+                            if ($key2 == $data) {
+                                $selected = 'selected';
+                            } else {
+                                $selected = '';
+                            }
+                            $opt .= sprintf($option, $key2, $selected, $enumValue.' '.$data2);
+                        }
+                        $opt .= '</optgroup>';
+                    } else {
+                        if ($enumValue == $data) {
                             $selected = 'selected';
                         } else {
                             $selected = '';
                         }
-                        $opt .= sprintf($option, $key2, $selected, $enumValue.' '.$data2);
+                        $opt .= sprintf($option, $enumValue, $selected, $enumLabel);
                     }
-                    $opt .= '</optgroup>';
-                } else {
-                    if ($enumValue == $data) {
-                        $selected = 'selected';
-                    } else {
-                        $selected = '';
-                    }
-                    $opt .= sprintf($option, $enumValue, $selected, $enumLabel);
                 }
             }
 
@@ -118,7 +119,7 @@ OPT;
                 $class   ='entry input-group';
             }
 
-            $input .= sprintf($select, $class, $name, rtrim($id, '[]').'_'.$i, $readonly ? "readonly onFocus='this.initialSelect = this.selectedIndex;' onChange='this.selectedIndex = this.initialSelect;'" : '', $opt, $dynamic);
+            $input .= sprintf($select, $class, $name, preg_replace('#\[\]$#', '', $id).'_'.$i, $readonly ? "readonly onFocus='this.initialSelect = this.selectedIndex;' onChange='this.selectedIndex = this.initialSelect;'" : '', $opt, $dynamic);
         }
 
         return sprintf($this->getStringHtml($label), $label, $input);

@@ -13,7 +13,7 @@ class HiddenField extends \Peanut\Schema\Fields
 
         $input = '';
         if (isset($this->schema->size)) {
-            $input .= sprintf($this->input('hidden', $name, rtrim($id, '[]'), $value, $required, true));
+            $input .= sprintf($this->input('hidden', $name, preg_replace('#\[\]$#', '', $id), $value, $required, true));
         } else {
             $input = sprintf($this->input('hidden', $name, $id, $value, $required, false));
         }

@@ -242,7 +242,7 @@ EOT;
         }
         //pr($type, $name, $id, $value, $required, $size);
 
-        return sprintf($html, $class, $type, $name, $id, $value, $required ? 'required' : '', $dynamic);
+        return sprintf($html, $class, $type, $name, $id, htmlspecialchars($value), $required ? 'required' : '', $dynamic);
     }
     public function phone($type, $name, $id, $value='', $required = false, $size)
     {
@@ -266,11 +266,14 @@ EOT;
     {
         $html = <<<EOT
 <span class="input %s">
-<textarea class="form-control" name="%s" id="%s" %s />%s</textarea>
+<textarea class="form-control" name="%s" id="%s" %s rows="%s" />%s</textarea>
 %s
 </span>
 EOT;
-
+        $count = substr_count($value, PHP_EOL) + 1;
+        if ($count < 3) {
+            $count = 3;
+        }
         $dynamic = '';
         $class   = '';
         if ($size) {
@@ -278,7 +281,7 @@ EOT;
             $class   ='entry input-group';
         }
 
-        return sprintf($html, $class, $name, $id, $required ? 'required' : '', $value, $dynamic);
+        return sprintf($html, $class, $name, $id, $required ? 'required' : '', $count, $value, $dynamic);
     }
     public function getRequired()
     {

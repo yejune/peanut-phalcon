@@ -38,7 +38,7 @@ EOT;
         foreach ($value as $i => $data) {
             $j ++;
             $isLast                      = false;
-            if($j == 0 && 1 == $count) { // create empty
+            if ($j == 0 && 1 == $count) { // create empty
                 $isLast = 0;
             } elseif ($j + 1 == $count) {
                 $isLast = true;
@@ -50,7 +50,7 @@ EOT;
                 $class   ='entry input-group';
             }
             //pr($select, $class, 'type', $name, rtrim($id, '[]').'_'.$i, $required ? 'required' : '', $dynamic);
-            $input .= sprintf($select, $class, 'type', $name, rtrim($id, '[]').'_'.$i, $data, $required ? 'required' : '', $placeholder ? 'placeholder="'.$placeholder.'"' : '', $dynamic);
+            $input .= sprintf($select, $class, 'type', $name, preg_replace('#\[\]$#', '', $id).'_'.$i, htmlspecialchars($data), $required ? 'required' : '', $placeholder ? 'placeholder="'.$placeholder.'"' : '', $dynamic);
         }
 
         return sprintf($this->getStringHtml($label), $label, $input);

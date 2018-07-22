@@ -6,13 +6,15 @@ class Spec
     public static $baseUrl = '';
     public static function parse($path, $mix = [], $mix2 = [])
     {
-        if (false === file_exists($path)) {
-            throw new \Peanut\Exception($path.' file not found');
+        if (true === file_exists($path)) {
+            $yml = file_get_contents($path);
+        } else {
+            $yml = $path;
         }
         if (!static::$baseUrl) {
             static::$baseUrl = dirname($path).'/';
         }
-        $arr = yaml_parse(file_get_contents($path));
+        $arr = yaml_parse($yml);
 
         $arr = static::_parse($arr);
         if ($mix) {
