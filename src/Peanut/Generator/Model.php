@@ -559,6 +559,7 @@ class Model
             case 'biginteger':
                 $dataType = 'Column::TYPE_BIGINTEGER';
                 break;
+            case 'json':
             case 'text':
                 $dataType = 'Column::TYPE_TEXT';
                 break;
@@ -615,6 +616,7 @@ class Model
             case 'biginteger':
                 $dataType = 'Column::BIND_PARAM_INT';
                 break;
+            case 'json':
             case 'text':
                 $dataType = 'Column::BIND_PARAM_STR';
                 break;
