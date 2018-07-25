@@ -499,6 +499,7 @@ class Compiler
         $assign = 0;
         $org    = '';
 
+        $sam2 = 0;
         foreach ($token as $key => &$current) {
             if ('semi_colon' == $current['name']) {
                 return false;
@@ -587,6 +588,10 @@ class Compiler
                     throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     break;
                 case 'not_match':
+                    if (true === in_array($prev['name'], [ 'sam', 'sam2'])) {
+                        return false; // 원본 출력
+                    }
+
                     throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$current['org']);
                     break;
                 case 'assoc_array':
@@ -618,8 +623,15 @@ class Compiler
                     if (false === in_array($prev['name'], ['string', 'number', 'quote'])) {
                         return false;
                     }
+                    if($current['value'] == '?') {
+                        $stat[] = $current;
+                    } elseif($current['value'] == ':') {
+                        $last_stat = array_pop($stat);
+                        if($last_stat['name'] != 'sam2' || !$next['name']) {
+                            return false;
+                        }
+                    }
                     $xpr .= $current['value'];
-
                     break;
                 case 'quote':
                     if (true === in_array($prev['name'], ['string'])) {
@@ -646,8 +658,6 @@ class Compiler
                     $stat[] = $last_stat;
 
                     if (false === in_array($prev['name'], ['', 'left_bracket', 'left_parenthesis', 'comma', 'compare', 'operator', 'assign', 'assoc_array', 'string', 'right_bracket', 'number_concat', 'string_concat', 'quote_number_concat', 'sam', 'sam2'])) {
-                       pr($prev,$current);
-                       exit;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
                     if ('quote_number_concat' == $prev['name']) {
