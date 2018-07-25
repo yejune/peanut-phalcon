@@ -205,7 +205,8 @@ class Compiler
         if (0 < count($this->brace)) {
             array_pop($this->brace);
             $c = end($this->brace);
-            throw new Compiler\Exception('error line '.$c[1]);
+
+            throw new Compiler\Exception($this->filename.' not close brace, error line '.$c[1]);
         }
 
         $source = implode('', $newTokens);
@@ -447,6 +448,8 @@ class Compiler
             |(?P<namespace_sigh>\\\)
             |(?P<static_object_sign>::)
             |(?P<compare>===|!==|<<|>>|<=|>=|==|!=|&&|\|\||<|>)
+            |(?P<sam>\?\?|\?\:)
+            |(?P<sam2>\?|\:)
             |(?P<assign>\=)
             |(?P<string_concat>\.)
             |(?P<left_parenthesis>\()
@@ -533,7 +536,7 @@ class Compiler
 
             switch ($current['name']) {
                 case 'string':
-                    if (false === in_array($prev['name'], ['', 'left_parenthesis', 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma'])) {
+                    if (false === in_array($prev['name'], ['', 'left_parenthesis', 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma', 'sam', 'sam2'])) {
                         return false;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
@@ -604,13 +607,26 @@ class Compiler
                     $xpr .= $current['value'];
 
                     break;
+                case 'sam':
+                    if (false === in_array($prev['name'], ['string', 'number'])) {
+                        return false;
+                    }
+                    $xpr .= $current['value'];
+
+                    break;
+                case 'sam2':
+                    if (false === in_array($prev['name'], ['string', 'number', 'quote'])) {
+                        return false;
+                    }
+                    $xpr .= $current['value'];
+
+                    break;
                 case 'quote':
                     if (true === in_array($prev['name'], ['string'])) {
                         return false;
                     }
 
-                    if (false === in_array($prev['name'], ['', 'left_parenthesis', 'left_bracket', 'comma', 'compare', 'assoc_array', 'operator', 'quote_number_concat', 'assign'])) {
-                        pr($prev);
+                    if (false === in_array($prev['name'], ['', 'left_parenthesis', 'left_bracket', 'comma', 'compare', 'assoc_array', 'operator', 'quote_number_concat', 'assign', 'sam', 'sam2'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
                     $xpr .= $current['value'];
@@ -629,7 +645,9 @@ class Compiler
 
                     $stat[] = $last_stat;
 
-                    if (false === in_array($prev['name'], ['', 'left_bracket', 'left_parenthesis', 'comma', 'compare', 'operator', 'assign', 'assoc_array', 'string', 'right_bracket', 'number_concat', 'string_concat', 'quote_number_concat'])) {
+                    if (false === in_array($prev['name'], ['', 'left_bracket', 'left_parenthesis', 'comma', 'compare', 'operator', 'assign', 'assoc_array', 'string', 'right_bracket', 'number_concat', 'string_concat', 'quote_number_concat', 'sam', 'sam2'])) {
+                       pr($prev,$current);
+                       exit;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
                     if ('quote_number_concat' == $prev['name']) {
@@ -657,7 +675,7 @@ class Compiler
 
                     break;
                 case 'double_operator':
-                    if (false === in_array($prev['name'], ['string', 'number', 'string_number', 'assign'])) {
+                    if (false === in_array($prev['name'], ['string', 'number', 'string_number', 'assign', 'sam', 'sam2'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
                     $xpr .= $current['value'];
@@ -685,7 +703,7 @@ class Compiler
 
                     break;
                 case 'operator':
-                    if (false === in_array($prev['name'], ['', 'right_parenthesis', 'right_bracket', 'number', 'string', 'string_number', 'quote', 'assign', 'comma'])) {
+                    if (false === in_array($prev['name'], ['', 'right_parenthesis', 'right_bracket', 'number', 'string', 'string_number', 'quote', 'assign', 'comma', 'sam', 'sam2'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
                         // + 이지만 앞이나 뒤가 quote라면 + -> .으로 바꾼다. 지금의 name또한 변경한다.
