@@ -24,6 +24,7 @@ class Validate
         'mincount'    => 'Please enter a value greater than or equal to {0}.',
         'step'        => 'Please enter a multiple of {0}.',
         'unique'      => 'unique',
+        'accept'      => 'Please enter a value with a valid mimetype.'
     ];
     public $messages       = [];
     public $rules          = [];
@@ -31,7 +32,6 @@ class Validate
     public $data           = [];
     public $debug          = false;
     public $throwException = false;
-    public $payload        = [];
     public $properties     = [];
 
     public function __construct($schema = [], $data = [], $files = [])
@@ -100,6 +100,7 @@ class Validate
     {
         static::$methods[$name] = $callback;
     }
+
     public function valid()
     {
         $this->errors = [];
@@ -109,22 +110,22 @@ class Validate
 
             $value = $this->getValue($cleanFieldName);
 
-            $this->payload[$fieldName]          = $this->properties[$fieldName];
-            $this->payload[$fieldName]['value'] = $value;
-            if (isset($this->properties[$fieldName]['items'])) {
-                if (is_array($value)) {
-                    foreach ($value as $row) {
-                        $this->payload[$fieldName]['text'][] = $this->properties[$fieldName]['items'][$row];
-                    }
-                } else {
-                    $this->payload[$fieldName]['text'] = $this->properties[$fieldName]['items'][$value];
-                }
-            } else {
-                $this->payload[$fieldName]['text'] = $value;
-            }
+            // $this->payload[$fieldName]          = $this->properties[$fieldName];
+            // $this->payload[$fieldName]['value'] = $value;
+            // if (isset($this->properties[$fieldName]['items']) && isset($this->properties[$fieldName]['items'][$value])) {
+            //     if (is_array($value)) {
+            //         foreach ($value as $row) {
+            //             $this->payload[$fieldName]['text'][] = $this->properties[$fieldName]['items'][$row];
+            //         }
+            //     } else {
+            //         $this->payload[$fieldName]['text'] = $this->properties[$fieldName]['items'][$value];
+            //     }
+            // } else {
+            //     $this->payload[$fieldName]['text'] = $value;
+            // }
 
             if (false !== $value && true === is_array($value)) {
-                if (false === \Peanut\is_assoc($value)) {
+                if (false === isset($value['type'])) {
                     $data = $value;
                 } else {
                     if (current($value)) {
@@ -140,8 +141,7 @@ class Validate
             }
 
             $fieldSize = count($data);
-            foreach ($data as $dataValue) {
-
+            foreach ($data as $dataKey => $dataValue) {
                 // file upload error
                 if (is_array($dataValue) && isset($dataValue['error']) && $dataValue['error']) {
                     switch ($dataValue['error']) {
@@ -170,15 +170,34 @@ class Validate
                             $message = 'Unknown upload error';
                             break;
                     }
-                    $this->errors[$cleanFieldName]['upload'] = [
-                        'param'   => $ruleParam,
-                        'value'   => $dataValue,
-                        'message' => $message,
-                    ];
+                    if (1 < $fieldSize) {
+                        $this->errors[$cleanFieldName][$dataKey]['upload'] = [
+                            'param'   => $ruleParam,
+                            'value'   => $dataValue,
+                            'message' => $message,
+                        ];
+                        // 파일이 없으므로 생기는 accept 검사 문제등이 불필요한 오해를 불러 일으킬수 있으므로 파일 에러시에 다른 검사는 하지 않는다.
+                        continue;
+                    } else {
+                        $this->errors[$cleanFieldName]['upload'] = [
+                            'param'   => $ruleParam,
+                            'value'   => $dataValue,
+                            'message' => $message,
+                        ];
+                        // 파일이 없으므로 생기는 accept 검사 문제등이 불필요한 오해를 불러 일으킬수 있으므로 파일 에러시에 다른 검사는 하지 않는다.
+                        continue;
+                    }
                 }
                 foreach ($rules as $ruleName => $ruleParam) {
                     if ($callback = $this->getMethod($ruleName)) {
-                        if (!$callback($dataValue, $cleanFieldName, $ruleParam)) {
+                        //([$dataValue, $cleanFieldName, $ruleParam]);
+                        if ($callback($dataValue, $cleanFieldName, $ruleParam)) {
+                        } else {
+                            // print_r([
+                            //     $callback($dataValue, $cleanFieldName, $ruleParam),
+                            //     $cleanFieldName,
+                            //     $ruleName, $ruleParam
+                            // ]);
                             $message = $this->messages[$cleanFieldName][$ruleName]
                                        ?? ($this->defaultMessages[$ruleName] ?? 'error');
 
@@ -188,7 +207,7 @@ class Validate
                                 'message' => $this->sprintf($message, $ruleParam),
                             ];
                             if (1 < $fieldSize) {
-                                $this->errors[$cleanFieldName][][$ruleName] = $error;
+                                $this->errors[$cleanFieldName][$dataKey][$ruleName] = $error;
                             } else {
                                 $this->errors[$cleanFieldName][$ruleName] = $error;
                             }
@@ -233,10 +252,10 @@ class Validate
 
         return $length;
     }
-    public function getPayload()
-    {
-        return $this->payload;
-    }
+    // public function getPayload()
+    // {
+    //     return $this->payload;
+    // }
     public function optional($value)
     {
         $callback = $this->getMethod('required');
@@ -336,7 +355,19 @@ Validate::addMethod('unique', function ($value, $name, $param) {
 
     return false;
 });
+Validate::addMethod('accept', function ($value, $name, $pattern) {
+    if ($optionValue = $this->optional($value)) {
+        return $optionValue;
+    }
+    if (isset($value['type'])) {
 
+        $pattern = str_replace(',','|', $pattern);
+        $pattern = str_replace('/*','/.*', $pattern);
+
+        return preg_match('#\.?('.$pattern.')$#', $value['type']);
+    }
+    return true;
+});
 Validate::addMethod('email', function ($value, $name, $param) {
     return $this->optional($value) || filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
 });

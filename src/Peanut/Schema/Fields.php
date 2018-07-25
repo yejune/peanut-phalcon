@@ -289,7 +289,7 @@ EOT;
     }
     public function getAccept()
     {
-        return $this->schema->accept ?? '';
+        return $this->schema->rules->accept ?? '';
     }
     public function getPlaceholder()
     {

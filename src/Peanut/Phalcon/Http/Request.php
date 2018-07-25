@@ -9,6 +9,7 @@ class Request extends \Phalcon\Http\Request
     public $parameters        = [];
     public $requestId;
     public $basepath = null;
+    public $fileKeys = ['error', 'name', 'size', 'tmp_name', 'type'];
 
     public function setBasePath($path)
     {
@@ -112,70 +113,73 @@ class Request extends \Phalcon\Http\Request
 
         return true === isset($this->bodyParameters[$bodyname]) ? $this->bodyParameters[$bodyname] : null;
     }
-    protected function fixPhpFilesArray($data)
+    public function fixPhpFilesArray($data)
     {
         if (!is_array($data)) {
             return $data;
         }
         $keys = array_keys($data);
         sort($keys);
-        if (self::$fileKeys != $keys || !isset($data['name']) || !is_array($data['name'])) {
+        if ($this->fileKeys != $keys || !isset($data['name']) || !is_array($data['name'])) {
             return $data;
         }
         $files = $data;
-        foreach (self::$fileKeys as $k) {
+        foreach ($this->fileKeys as $k) {
             unset($files[$k]);
         }
         foreach ($data['name'] as $key => $name) {
-            $files[$key] = $this->fixPhpFilesArray(array(
-                'error' => $data['error'][$key],
-                'name' => $name,
-                'type' => $data['type'][$key],
+            $files[$key] = $this->fixPhpFilesArray([
+                'error'    => $data['error'][$key],
+                'name'     => $name,
+                'type'     => $data['type'][$key],
                 'tmp_name' => $data['tmp_name'][$key],
-                'size' => $data['size'][$key],
-            ));
+                'size'     => $data['size'][$key],
+            ]);
         }
+
         return $files;
     }
-    static $fileKeys = array('error', 'name', 'size', 'tmp_name', 'type');
-    protected function convertFileInformation($file)
+    public function convertFileInformation($file)
     {
-
         $file = $this->fixPhpFilesArray($file);
         if (is_array($file)) {
             $keys = array_keys($file);
             sort($keys);
-            if ($keys == self::$fileKeys) {
+            if ($keys == $this->fileKeys) {
                 if (UPLOAD_ERR_NO_FILE == $file['error']) {
                     $file = null;
                 } else {
                     $file = [
                         'name'     => $file['name'],
-                        'type'     =>  $file['type'],
+                        'type'     => $file['type'],
                         'tmp_name' => $file['tmp_name'],
                         'error'    => $file['error'],
-                        'size'    => $file['size']
+                        'size'     => $file['size'],
                     ];
                 }
             } else {
-                $file = array_map(array($this, 'convertFileInformation'), $file);
+                $file = array_map([$this, 'convertFileInformation'], $file);
                 if (array_keys($keys) === $keys) {
                     $file = array_filter($file);
                 }
             }
         }
+
         return $file;
     }
-    public function getUploadedFileKeys()
+    public function getFileAll()
     {
-        return $this->convertFileInformation($_FILES);
+        if (true === isset($_FILES) && $_FILES) {
+            return $this->convertFileInformation($_FILES);
+        }
+        return [];
     }
-
     public function getBodyAll()
     {
         if ($this->bodyParameters) {
             return $this->bodyParameters;
         }
+
         $body        = parent::getRawBody();
         $contentType = explode(';', parent::getContentType())[0];
 
@@ -186,10 +190,10 @@ class Request extends \Phalcon\Http\Request
                 return $this->bodyParameters = $return;
                 break;
             case 'multipart/form-data':
-                $files = $this->getUploadedFileKeys();
-                $data = array_merge_recursive_distinct($_POST, $files);
-
-                return $this->bodyParameters = $data;
+                if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && $_SERVER['CONTENT_LENGTH'] > 0) {
+                    throw new \App\Exceptions\Exception(sprintf('The server was unable to handle that much POST data (%s bytes) due to its current configuration', $_SERVER['CONTENT_LENGTH']));
+                }
+                return $this->bodyParameters = $_POST;
                 break;
             case 'application/xml':
                 throw new \App\Exceptions\Exception('xml content type not support', 415);

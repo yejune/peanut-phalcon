@@ -25,11 +25,7 @@ class Validator
     {
         $this->validate = new \Peanut\Validator\Validate($this->schema, $validData, $fileData);
 
-        if ($this->validate->valid()) {
-            return $this->validate->getPayload();
-        }
-
-        return false;
+        return $this->validate->valid();
     }
     public function getSchema()
     {

@@ -25,15 +25,27 @@ class FileField extends \Peanut\Schema\Fields
         */
 
         $select = <<<EOT
-<span class="input %s">
-<input type="%s"  class="form-control file" name="%s" id="%s" value="%s" %s %s %s />
+<span class="input entry %s" style="display: table;">
+<input type="%s" style="display: table-cell;" class="form-control file" name="%s" id="%s" value="%s" %s %s %s />
 %s
 %s
 </span>
 EOT;
 
-        if (false === is_array($value)) {
-            $value = [$value];
+
+
+        if (is_array($value) === true) {
+            if (true === isset($value['name'])) {
+                $value = [$value];
+            } else {
+                $org   = $value;
+                $value = [];
+                foreach ($org as $key => $val) {
+                    $value[$key] = $val;
+                }
+            }
+        } else {
+            $value = [null];
         }
         if (0 === count($value)) {
             $value = [null];
@@ -46,7 +58,7 @@ EOT;
         foreach ($value as $i => $data) {
             $j ++;
             $isLast                      = false;
-            $type = 'text';
+            $type                        = 'text';
             if ($j == 0 && 1 == $count) { // create empty
                 if (!$data) {
                     $type = 'file';
@@ -59,30 +71,44 @@ EOT;
             $class                       = '';
             if (isset($this->schema->size)) {
                 $dynamic = $this->getDynamic($isLast);
-                $class   ='entry input-group';
+                $class   =' input-group';
             }
             // if (false !== strpos($name, '[]')) {
             //     $cname = preg_replace('#\[\]$#','['.$i.']',$name);//.'[]';//rtrim($name, '[]').'['.$i.']';
             // } else {
             //     $cname = $name;
             // }
-            $cname = preg_replace('#\[\]$#', '['.$i.']', $name);//.'[]';//rtrim($name, '[]').'['.$i.']';
-            $cid = preg_replace('#\[\]$#', '_', $id).$i;//.'[]';//rtrim($name, '[]').'['.$i.']';
+
+            $index = $i;
+            if(!$data) {
+                $index = '';
+            }
+            $cname = preg_replace('#\[\]$#', '['.$index.']', $name);//.'[]';//rtrim($name, '[]').'['.$i.']';
+            $cid   = preg_replace('#\[\]$#', '_', $id).$index;//.'[]';//rtrim($name, '[]').'['.$i.']';
 
             $src = '';
-            if (true === isset($data['type'])) {
+            if (true === isset($data['type']) && isset($data['url'])) {
                 if (0 === strpos($data['type'], 'image/')) {
                     $src = '<a class="preview" href="'.$data['url'].'" target="_blank"><img src="'.$data['url'].'" width="100"></a>';
                 } else {
                     $src = '<a class="preview" href="'.$data['url'].'" target="_blank">'.$data['url'].'</a>';
                 }
             }
-            $value = $data['name'];
+
+            $value = $data['name']??'';
 
             $placeholderCode = $placeholder ? 'placeholder="'.$placeholder.'"' : '';
-            $acceptCode = $accept ? 'accept="'.$accept.'"' : '';
+            $acceptCode      = $accept ? 'accept="'.$accept.'"' : '';
 
-            $input .= sprintf($select, $class, $type, $cname, $cid, $value, $required ? 'required' : '', $placeholderCode, $acceptCode, $src, $dynamic);
+            if ($type == 'text') {
+                $input .= sprintf($select, $class, $type, $cname, $cid, $value, ($required ? 'required' : '').' readonly', $placeholderCode, $acceptCode, $src, $dynamic);
+            } else {
+                $input .= sprintf($select, $class, $type, $cname, $cid, $value, $required ? 'required' : '', $placeholderCode, $acceptCode, $src, $dynamic);
+            }
+
+            // if ($j == 0 && 1 == $count) { // create empty
+            //     $input .= sprintf($select, $class, 'file', $cname, $cid, $value, '', $placeholderCode, $acceptCode, $src, $dynamic);
+            // }
         }
 
         return sprintf($this->getStringHtml($label), $label, $input);
