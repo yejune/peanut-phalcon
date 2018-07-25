@@ -3,6 +3,7 @@ namespace Peanut\Template;
 
 class Compiler
 {
+    private $debug = false;
     /**
      * @var array
      */
@@ -499,9 +500,11 @@ class Compiler
         $assign = 0;
         $org    = '';
 
-        $sam2 = 0;
         foreach ($token as $key => &$current) {
             if ('semi_colon' == $current['name']) {
+                if($this->debug == true) {
+                    pr($current, __LINE__);
+                }
                 return false;
             }
             $current['value'] = strtr($current['value'], [
@@ -531,6 +534,9 @@ class Compiler
             // 마지막이 종결되지 않음
             if (!$next['name'] && false === in_array($current['name'], ['string', 'number', 'string_number', 'right_bracket', 'right_parenthesis', 'double_operator', 'quote'])) {
                 //pr($current);
+                if($this->debug == true) {
+                    pr($current, __LINE__);
+                }
                 return false;
                 throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$current['org']);
             }
@@ -538,12 +544,18 @@ class Compiler
             switch ($current['name']) {
                 case 'string':
                     if (false === in_array($prev['name'], ['', 'left_parenthesis', 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma', 'sam', 'sam2'])) {
+                        if($this->debug == true) {
+                            pr($current, __LINE__);
+                        }
                         return false;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
                     // 클로저를 허용하지 않음. 그래서 string_concat 비교 보다 우선순위가 높음
                     if (true === in_array($next['name'], ['left_parenthesis', 'static_object_sign', 'namespace_sigh'])) {
                         if ('string_concat' == $prev['name']) {
+                            if($this->debug == true) {
+                                pr($current, __LINE__);
+                            }
                             return false;
                             throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org'].$next['org']);
                         }
@@ -577,18 +589,30 @@ class Compiler
 
                     break;
                 case 'dollar':
+                    if($this->debug == true) {
+                        pr($current, __LINE__);
+                    }
                     return false;
                     if (false === in_array($prev['name'], [ 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma'])) {
+                        if($this->debug == true) {
+                            pr($current, __LINE__);
+                        }
                         return false; // 원본 출력(javascript)
                     }
                     throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     break;
                 case 'not_support':
+                    if($this->debug == true) {
+                        pr($current, __LINE__);
+                    }
                     return false; // 원본 출력(javascript)
                     throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     break;
                 case 'not_match':
                     if (true === in_array($prev['name'], [ 'sam', 'sam2'])) {
+                        if($this->debug == true) {
+                            pr($current, __LINE__);
+                        }
                         return false; // 원본 출력
                     }
 
@@ -614,13 +638,19 @@ class Compiler
                     break;
                 case 'sam':
                     if (false === in_array($prev['name'], ['string', 'number'])) {
+                        if($this->debug == true) {
+                            pr($current, __LINE__);
+                        }
                         return false;
                     }
                     $xpr .= $current['value'];
 
                     break;
                 case 'sam2':
-                    if (false === in_array($prev['name'], ['string', 'number', 'quote'])) {
+                    if (false === in_array($prev['name'], ['string', 'number', 'quote', 'right_parenthesis'])) {
+                        if($this->debug == true) {
+                            pr($current, __LINE__);
+                        }
                         return false;
                     }
                     if($current['value'] == '?') {
@@ -628,6 +658,9 @@ class Compiler
                     } elseif($current['value'] == ':') {
                         $last_stat = array_pop($stat);
                         if($last_stat['name'] != 'sam2' || !$next['name']) {
+                            if($this->debug == true) {
+                                pr($current, __LINE__);
+                            }
                             return false;
                         }
                     }
@@ -635,6 +668,9 @@ class Compiler
                     break;
                 case 'quote':
                     if (true === in_array($prev['name'], ['string'])) {
+                        if($this->debug == true) {
+                            pr($current, __LINE__);
+                        }
                         return false;
                     }
 
