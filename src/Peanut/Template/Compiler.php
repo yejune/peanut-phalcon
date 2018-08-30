@@ -503,7 +503,7 @@ class Compiler
         foreach ($token as $key => &$current) {
             if ('semi_colon' == $current['name']) {
                 if($this->debug == true) {
-                    pr($current, __LINE__);
+                    pr($xpr, $current, __LINE__);
                 }
                 return false;
             }
@@ -533,9 +533,13 @@ class Compiler
             }
             // 마지막이 종결되지 않음
             if (!$next['name'] && false === in_array($current['name'], ['string', 'number', 'string_number', 'right_bracket', 'right_parenthesis', 'double_operator', 'quote'])) {
+                if($current['name'] == 'sam') {
+                    $xpr .= $current['value'].'""';
+                    continue;
+                }
                 //pr($current);
                 if($this->debug == true) {
-                    pr($current, __LINE__);
+                    pr($xpr, $current, __LINE__);
                 }
                 return false;
                 throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$current['org']);
@@ -545,7 +549,7 @@ class Compiler
                 case 'string':
                     if (false === in_array($prev['name'], ['', 'left_parenthesis', 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma', 'sam', 'sam2'])) {
                         if($this->debug == true) {
-                            pr($current, __LINE__);
+                            pr($xpr, $current, __LINE__);
                         }
                         return false;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
@@ -554,7 +558,7 @@ class Compiler
                     if (true === in_array($next['name'], ['left_parenthesis', 'static_object_sign', 'namespace_sigh'])) {
                         if ('string_concat' == $prev['name']) {
                             if($this->debug == true) {
-                                pr($current, __LINE__);
+                                pr($xpr, $current, __LINE__);
                             }
                             return false;
                             throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org'].$next['org']);
@@ -590,12 +594,12 @@ class Compiler
                     break;
                 case 'dollar':
                     if($this->debug == true) {
-                        pr($current, __LINE__);
+                        pr($xpr, $current, __LINE__);
                     }
                     return false;
                     if (false === in_array($prev['name'], [ 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma'])) {
                         if($this->debug == true) {
-                            pr($current, __LINE__);
+                            pr($xpr, $current, __LINE__);
                         }
                         return false; // 원본 출력(javascript)
                     }
@@ -603,7 +607,7 @@ class Compiler
                     break;
                 case 'not_support':
                     if($this->debug == true) {
-                        pr($current, __LINE__);
+                        pr($xpr, $current, __LINE__);
                     }
                     return false; // 원본 출력(javascript)
                     throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
@@ -611,7 +615,7 @@ class Compiler
                 case 'not_match':
                     if (true === in_array($prev['name'], [ 'sam', 'sam2'])) {
                         if($this->debug == true) {
-                            pr($current, __LINE__);
+                            pr($xpr, $current, __LINE__);
                         }
                         return false; // 원본 출력
                     }
@@ -639,7 +643,7 @@ class Compiler
                 case 'sam':
                     if (false === in_array($prev['name'], ['string', 'number'])) {
                         if($this->debug == true) {
-                            pr($current, __LINE__);
+                            pr($xpr, $current, __LINE__);
                         }
                         return false;
                     }
@@ -649,7 +653,7 @@ class Compiler
                 case 'sam2':
                     if (false === in_array($prev['name'], ['string', 'number', 'quote', 'right_parenthesis'])) {
                         if($this->debug == true) {
-                            pr($current, __LINE__);
+                            pr($xpr, $current, __LINE__);
                         }
                         return false;
                     }
@@ -659,7 +663,7 @@ class Compiler
                         $last_stat = array_pop($stat);
                         if($last_stat['name'] != 'sam2' || !$next['name']) {
                             if($this->debug == true) {
-                                pr($current, __LINE__);
+                                pr($xpr, $current, __LINE__);
                             }
                             return false;
                         }
@@ -669,7 +673,7 @@ class Compiler
                 case 'quote':
                     if (true === in_array($prev['name'], ['string'])) {
                         if($this->debug == true) {
-                            pr($current, __LINE__);
+                            pr($xpr, $current, __LINE__);
                         }
                         return false;
                     }
@@ -762,7 +766,7 @@ class Compiler
 
                     break;
                 case 'compare':
-                    if (false === in_array($prev['name'], ['number', 'string', 'string_number', 'assign', 'left_parenthesis', 'left_bracket', 'quote', 'right_parenthesis', 'right_bracket'])) {
+                    if (false === in_array($prev['name'], ['number', 'string', 'string_number', 'assign', 'left_parenthesis', 'left_bracket', 'quote', 'right_parenthesis', 'right_bracket', 'double_operator'])) {
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
                     $xpr .= $current['value'];
