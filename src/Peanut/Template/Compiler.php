@@ -547,6 +547,7 @@ class Compiler
 
             switch ($current['name']) {
                 case 'string':
+
                     if (false === in_array($prev['name'], ['', 'left_parenthesis', 'left_bracket', 'assign', 'object_sign', 'static_object_sign', 'namespace_sigh', 'double_operator', 'operator', 'assoc_array', 'compare', 'quote_number_concat', 'assign', 'string_concat', 'comma', 'sam', 'sam2'])) {
                         if($this->debug == true) {
                             pr($xpr, $current, __LINE__);
@@ -554,8 +555,10 @@ class Compiler
                         return false;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
+                    if($current['value'] == 'new' && $next['name'] == 'namespace_sigh') {
+                        $xpr .= 'new ';
                     // 클로저를 허용하지 않음. 그래서 string_concat 비교 보다 우선순위가 높음
-                    if (true === in_array($next['name'], ['left_parenthesis', 'static_object_sign', 'namespace_sigh'])) {
+                    } elseif (true === in_array($next['name'], ['left_parenthesis', 'static_object_sign', 'namespace_sigh'])) {
                         if ('string_concat' == $prev['name']) {
                             if($this->debug == true) {
                                 pr($xpr, $current, __LINE__);
@@ -739,11 +742,16 @@ class Compiler
 
                     break;
                 case 'namespace_sigh':
-                    if (false === in_array($prev['name'], ['string', 'assign', 'comma', 'operator', ''])) {
+                    if (false === in_array($prev['name'], ['static_object_sign', 'left_parenthesis', 'string', 'assign', 'comma', 'operator', ''])) {
+
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
-                    $xpr .= $current['value'];
 
+                    if($prev['name'] == 'static_object_sign') {
+                        $xpr .= substr($current['value'], 1);
+                    } else {
+                        $xpr .= $current['value'];
+                    }
                     break;
                 case 'static_object_sign':
                     if (false === in_array($prev['name'], ['string', ''])) {
@@ -775,7 +783,7 @@ class Compiler
                 case 'assign':
                     $assign++;
 
-                    if ($assign > 1) {
+                    if ($assign > 2) {
                         // $test = $ret = ... 와 같이 여러 변수를 사용하지 못하는 제약 조건
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     } elseif (false === in_array($prev['name'], ['right_bracket', 'string', 'operator'])) {
