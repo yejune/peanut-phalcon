@@ -49,7 +49,7 @@ class Request extends \Phalcon\Http\Request
     /**
      * @return string
      */
-    public function getRewriteUri()
+    public function getRequestPath()
     {
         return rtrim($this->getDI()->get('router')->getRewriteUri(), '/');
     }
@@ -73,7 +73,7 @@ class Request extends \Phalcon\Http\Request
     public function getSegments()
     {
         if (!$this->segmentParameters) {
-            $uri      = trim($this->getDI()->get('router')->getRewriteUri(), '/');
+            $uri      = $this->getRequestPath();
             $segments = [];
 
             if (false === empty($uri)) {
@@ -172,6 +172,7 @@ class Request extends \Phalcon\Http\Request
         if (true === isset($_FILES) && $_FILES) {
             return $this->convertFileInformation($_FILES);
         }
+
         return [];
     }
     public function getBodyAll()
@@ -193,6 +194,7 @@ class Request extends \Phalcon\Http\Request
                 if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && $_SERVER['CONTENT_LENGTH'] > 0) {
                     throw new \App\Exceptions\Exception(sprintf('The server was unable to handle that much POST data (%s bytes) due to its current configuration', $_SERVER['CONTENT_LENGTH']));
                 }
+
                 return $this->bodyParameters = $_POST;
                 break;
             case 'application/xml':
@@ -321,12 +323,13 @@ class Request extends \Phalcon\Http\Request
 
     public function isAjax()
     {
-        if(
-            true === isset($_SERVER['HTTP_X_REQUESTED_WITH']) 
+        if (
+            true === isset($_SERVER['HTTP_X_REQUESTED_WITH'])
             && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
         ) {
             return true;
         }
+
         return false;
     }
 }
