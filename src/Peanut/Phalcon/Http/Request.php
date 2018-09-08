@@ -73,11 +73,11 @@ class Request extends \Phalcon\Http\Request
     public function getSegments()
     {
         if (!$this->segmentParameters) {
-            $uri      = $this->getRequestPath();
+            $path     = $this->getRequestPath();
             $segments = [];
 
-            if (false === empty($uri)) {
-                $segments = explode('/', $uri);
+            if (false === empty($path)) {
+                $segments = explode('/', trim($path, '/'));
             }
             $this->segmentParameters = $segments;
         }
