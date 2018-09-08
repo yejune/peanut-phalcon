@@ -321,15 +321,4 @@ class Request extends \Phalcon\Http\Request
         return $this->requestId;
     }
 
-    public function isAjax()
-    {
-        if (
-            true === isset($_SERVER['HTTP_X_REQUESTED_WITH'])
-            && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest'
-        ) {
-            return true;
-        }
-
-        return false;
-    }
 }
