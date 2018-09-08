@@ -292,7 +292,7 @@ class Request extends \Phalcon\Http\Request
     {
         $segments = $this->getSegments();
         if (count($segments) < 2) {
-            $url = $this->getRewriteUri();
+            $url = $this->getRequestPath();
         } else {
             $url = '';
             $i   = 1;
