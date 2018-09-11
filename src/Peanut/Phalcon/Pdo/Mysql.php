@@ -32,7 +32,7 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
     public function gets($statement, $bindParameters = [], $mode = \Phalcon\Db::FETCH_ASSOC)
     {
         try {
-            return parent::fetchAll($statement, $mode, $bindParameters);
+            return parent::fetchAll($statement, $mode, $bindParameters) ?: null;
         } catch (\PDOException $e) {
             throw $e;
         }
@@ -48,7 +48,7 @@ class Mysql extends \Phalcon\Db\Adapter\Pdo\Mysql
     public function get($statement, $bindParameters = [], $mode = \Phalcon\Db::FETCH_ASSOC)
     {
         try {
-            return parent::fetchOne($statement, $mode, $bindParameters);
+            return parent::fetchOne($statement, $mode, $bindParameters) ?: null;
         } catch (\PDOException $e) {
             throw $e;
         }
