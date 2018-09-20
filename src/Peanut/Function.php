@@ -281,3 +281,40 @@ function env_to_array(string $envPath) : array
 
     return $variables;
 }
+
+/**
+ * file 인지
+ *
+ * @param array $array
+ * @param mixed $isMulti
+ *
+ * @return bool
+ */
+function is_file_array($array = [], $isMulti = true) : bool
+{
+    if (
+        true === isset($array['name'])
+        && true === isset($array['type'])
+        && true === isset($array['tmp_name'])
+        && true === isset($array['error'])
+        && true === isset($array['size'])
+    ) {
+        return true;
+    }
+
+    if (true === $isMulti) {
+        foreach ($array as $file) {
+            if (
+            true === isset($file['name'])
+            && true === isset($file['type'])
+            && true === isset($file['tmp_name'])
+            && true === isset($file['error'])
+            && true === isset($file['size'])
+        ) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
