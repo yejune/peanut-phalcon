@@ -113,7 +113,7 @@ class Router extends \Phalcon\Mvc\Router
                 /**
                  * Check if the current hostname is the same as the route
                  */
-                if (!$currentHostName) {
+                if (null === $currentHostName) {
                     $currentHostName = $request->getHttpHost();
                 }
 
@@ -147,7 +147,7 @@ class Router extends \Phalcon\Mvc\Router
                 }
             }
 
-            if (is_object($eventsManager)) {
+            if (true === is_object($eventsManager)) {
                 $eventsManager->fire('router:beforeCheckRoute', $this, $route);
             }
 
@@ -357,6 +357,7 @@ class Router extends \Phalcon\Mvc\Router
 
                 unset($parts['params']);
             }
+
             if (count($params)) {
                 $this->_params = array_merge($params, $parts);
             } else {
@@ -364,7 +365,7 @@ class Router extends \Phalcon\Mvc\Router
             }
         }
 
-        if (is_object($eventsManager == 'object')) {
+        if (true === is_object($eventsManager)) {
             $eventsManager->fire('router:afterCheckRoutes', $this);
         }
     }

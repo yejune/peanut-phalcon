@@ -1,14 +1,15 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Peanut\Schema\Fields;
 
 class CaptchaField extends \Peanut\Schema\Fields
 {
     public function fetch()
     {
-        $name     = $this->getName();
-        $id       = $this->getId();
-        $sitekey  = $this->schema->sitekey;
-        $str      = <<<EOD
+        $name    = $this->getName();
+        $id      = $this->getId();
+        $sitekey = $this->schema->sitekey;
+        $str     = <<<EOD
 <script src='https://www.google.com/recaptcha/api.js'></script>
 <script>
 function recaptchaCallback() {

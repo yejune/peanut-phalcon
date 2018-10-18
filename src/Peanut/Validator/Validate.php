@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Peanut\Validator;
 
 class Validate
 {
-    public static $methods  = [];
+    public static $methods = [];
 
     public $defaultMessages = [
         'required'    => 'This field is required.',
@@ -24,21 +25,29 @@ class Validate
         'mincount'    => 'Please enter a value greater than or equal to {0}.',
         'step'        => 'Please enter a multiple of {0}.',
         'unique'      => 'unique',
-        'accept'      => 'Please enter a value with a valid mimetype.'
+        'accept'      => 'Please enter a value with a valid mimetype.',
     ];
-    public $messages       = [];
-    public $rules          = [];
-    public $errors         = [];
-    public $data           = [];
-    public $debug          = false;
+
+    public $messages = [];
+
+    public $rules = [];
+
+    public $errors = [];
+
+    public $data = [];
+
+    public $debug = false;
+
     public $throwException = false;
-    public $properties     = [];
+
+    public $properties = [];
 
     public function __construct($schema = [], $data = [], $files = [])
     {
-        $this->properties = json_decode(json_encode($schema->schema->properties), true);
+        $this->properties = \json_decode(\json_encode($schema->schema->properties), true);
 
-        $spec         = $schema->getSpec();
+        $spec = $schema->getSpec();
+
         if (true === isset($spec['rules'])) {
             $this->rules = $spec['rules'];
         }
@@ -48,12 +57,13 @@ class Validate
         }
         $this->data = $this->merge($data, $files);
     }
+
     public function merge(array &$array1, array &$array2)
     {
         $merged = $array1;
 
         foreach ($array2 as $key => &$value) {
-            if (is_array($value) && isset($merged [$key]) && is_array($merged [$key])) {
+            if (true === \is_array($value) && true === isset($merged [$key]) && true === \is_array($merged [$key])) {
                 $merged [$key] = $this->merge($merged [$key], $value);
             } else {
                 $merged [$key] = $value;
@@ -62,10 +72,11 @@ class Validate
 
         return $merged;
     }
+
     public function getValue($name)
     {
-        $name  = str_replace(']', '', $name);
-        $names = explode('[', $name);
+        $name  = \str_replace(']', '', $name);
+        $names = \explode('[', $name);
         $data  = $this->data;
 
         foreach ($names as $name) {
@@ -78,24 +89,28 @@ class Validate
 
         return $data;
     }
+
     public function getMethod($name)
     {
         $callback = static::$methods[$name] ?? null;
-        if (true === is_callable($callback)) {
+
+        if (true === \is_callable($callback)) {
             return $callback->bindTo($this);
         }
 
         return false;
     }
+
     public function sprintf($format, $param)
     {
-        if (false === is_array($param)) {
+        if (false === \is_array($param)) {
             $param = [$param];
         }
-        $format = preg_replace("/\{([0-9]+)\}/", '%s', $format);
+        $format = \preg_replace("/\{([0-9]+)\}/", '%s', $format);
 
-        return call_user_func_array('sprintf', array_merge([$format], $param));
+        return \call_user_func_array('sprintf', \array_merge([$format], $param));
     }
+
     public static function addMethod($name, $callback)
     {
         static::$methods[$name] = $callback;
@@ -106,7 +121,7 @@ class Validate
         $this->errors = [];
 
         foreach ($this->rules as $fieldName => $rules) {
-            $cleanFieldName = preg_replace('#\[\]$#', '', $fieldName);// javascript에서의 배열 네임과 php에서의 배열네임간의 차이 제거
+            $cleanFieldName = \preg_replace('#\[\]$#', '', $fieldName); // javascript에서의 배열 네임과 php에서의 배열네임간의 차이 제거
 
             $value = $this->getValue($cleanFieldName);
 
@@ -124,11 +139,11 @@ class Validate
             //     $this->payload[$fieldName]['text'] = $value;
             // }
 
-            if (false !== $value && true === is_array($value)) {
+            if (false !== $value && true === \is_array($value)) {
                 if (false === isset($value['type'])) {
                     $data = $value;
                 } else {
-                    if (current($value)) {
+                    if (\current($value)) {
                         $data = [0 => $value];
                     } else {
                         $data = [0 => null];
@@ -140,36 +155,46 @@ class Validate
                 $data = [0 => null];
             }
 
-            $fieldSize = count($data);
+            $fieldSize = \count($data);
+
             foreach ($data as $dataKey => $dataValue) {
                 // file upload error
-                if (is_array($dataValue) && isset($dataValue['error']) && $dataValue['error']) {
+                if (true === \is_array($dataValue) && true === isset($dataValue['error']) && $dataValue['error']) {
                     switch ($dataValue['error']) {
                         case \UPLOAD_ERR_INI_SIZE:
                             $message = 'The uploaded file exceeds the upload_max_filesize directive in php.ini';
+
                             break;
                         case \UPLOAD_ERR_FORM_SIZE:
                             $message = 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form';
+
                             break;
                         case \UPLOAD_ERR_PARTIAL:
                             $message = 'The uploaded file was only partially uploaded';
+
                             break;
                         case \UPLOAD_ERR_NO_FILE:
                             $message = 'No file was uploaded';
+
                             break;
                         case \UPLOAD_ERR_NO_TMP_DIR:
                             $message = 'Missing a temporary folder';
+
                             break;
                         case \UPLOAD_ERR_CANT_WRITE:
                             $message = 'Failed to write file to disk';
+
                             break;
                         case \UPLOAD_ERR_EXTENSION:
                             $message = 'File upload stopped by extension';
+
                             break;
                         default:
                             $message = 'Unknown upload error';
+
                             break;
                     }
+
                     if (1 < $fieldSize) {
                         $this->errors[$cleanFieldName][$dataKey]['upload'] = [
                             'param'   => $ruleParam,
@@ -178,16 +203,16 @@ class Validate
                         ];
                         // 파일이 없으므로 생기는 accept 검사 문제등이 불필요한 오해를 불러 일으킬수 있으므로 파일 에러시에 다른 검사는 하지 않는다.
                         continue;
-                    } else {
-                        $this->errors[$cleanFieldName]['upload'] = [
-                            'param'   => $ruleParam,
-                            'value'   => $dataValue,
-                            'message' => $message,
-                        ];
-                        // 파일이 없으므로 생기는 accept 검사 문제등이 불필요한 오해를 불러 일으킬수 있으므로 파일 에러시에 다른 검사는 하지 않는다.
-                        continue;
                     }
+                    $this->errors[$cleanFieldName]['upload'] = [
+                        'param'   => $ruleParam,
+                        'value'   => $dataValue,
+                        'message' => $message,
+                    ];
+                    // 파일이 없으므로 생기는 accept 검사 문제등이 불필요한 오해를 불러 일으킬수 있으므로 파일 에러시에 다른 검사는 하지 않는다.
+                    continue;
                 }
+
                 foreach ($rules as $ruleName => $ruleParam) {
                     if ($callback = $this->getMethod($ruleName)) {
                         //([$dataValue, $cleanFieldName, $ruleParam]);
@@ -206,6 +231,7 @@ class Validate
                                 'value'   => $dataValue,
                                 'message' => $this->sprintf($message, $ruleParam),
                             ];
+
                             if (1 < $fieldSize) {
                                 $this->errors[$cleanFieldName][$dataKey][$ruleName] = $error;
                             } else {
@@ -226,10 +252,12 @@ class Validate
                 }
             }
         }
+
         if ($this->errors) {
             if ($this->throwException) {
                 $e = new ValidateException('Invalid Parameter', 400);
                 $e->setErrors($this->errors);
+
                 throw $e;
             }
 
@@ -238,20 +266,23 @@ class Validate
 
         return true;
     }
+
     public function getErrors()
     {
         return $this->errors;
     }
+
     public function getLength($value)
     {
-        if (true === is_array($value)) {
-            $length = count($value);
+        if (true === \is_array($value)) {
+            $length = \count($value);
         } else {
-            $length = count(preg_split('//u', $value, -1, PREG_SPLIT_NO_EMPTY));
+            $length = \count(\preg_split('//u', $value, -1, \PREG_SPLIT_NO_EMPTY));
         }
 
         return $length;
     }
+
     // public function getPayload()
     // {
     //     return $this->payload;
@@ -262,70 +293,73 @@ class Validate
         // 값이 있으면 false로 보내서 다음 check를 하게 한다.
         return !$callback($value, '', '');
     }
+
     public function setExceptionOnFailedValid($throwException = true)
     {
         $this->throwException = $throwException;
     }
 }
 
-Validate::addMethod('required', function ($value, $name, $param) {
+Validate::addMethod('required', function($value, $name, $param) {
     if (false === $param) {
         return true;
     }
-    if (true === is_array($value) && count($value)) {
+
+    if (true === \is_array($value) && \count($value)) {
         return true;
     }
-    if (0 < strlen($value) && 0 !== $value) {
+
+    if (0 < \strlen($value) && 0 !== $value) {
         return true;
     }
 
     return false;
 });
 
-Validate::addMethod('recaptcha', function ($value, $name, $param) {
+Validate::addMethod('recaptcha', function($value, $name, $param) {
     return $this->optional($value) || $value;
 });
 
-Validate::addMethod('minlength', function ($value, $name, $param) {
+Validate::addMethod('minlength', function($value, $name, $param) {
     $length = $this->getLength($value);
 
     return $this->optional($value) || $length >= $param;
 });
 
-Validate::addMethod('match', function ($value, $name, $param) {
-    return $this->optional($value) || preg_match('/^'.$param.'$/', $value);
+Validate::addMethod('match', function($value, $name, $param) {
+    return $this->optional($value) || \preg_match('/^' . $param . '$/', $value);
 });
 
-Validate::addMethod('maxlength', function ($value, $name, $param) {
+Validate::addMethod('maxlength', function($value, $name, $param) {
     $length = $this->getLength($value);
 
     return $this->optional($value) || $length <= $param;
 });
 
-Validate::addMethod('rangelength', function ($value, $name, $param) {
+Validate::addMethod('rangelength', function($value, $name, $param) {
     $length = $this->getLength($value);
 
     return $this->optional($value) || $length >= $param[0] && $length <= $param[1];
 });
 
-Validate::addMethod('min', function ($value, $name, $param) {
+Validate::addMethod('min', function($value, $name, $param) {
     return $this->optional($value) || $value >= $param;
 });
 
-Validate::addMethod('max', function ($value, $name, $param) {
+Validate::addMethod('max', function($value, $name, $param) {
     return $this->optional($value) || $value <= $param;
 });
 
-Validate::addMethod('range', function ($value, $name, $param) {
+Validate::addMethod('range', function($value, $name, $param) {
     return $this->optional($value) || $value >= $param[0] && $value <= $param[1];
 });
 
 // required일때 동작
-Validate::addMethod('mincount', function ($value, $name, $param) {
+Validate::addMethod('mincount', function($value, $name, $param) {
     $elements = $this->getValue($name);
     $count = 0;
 
-    if (true === is_array($elements)) {
+    if (true === \is_array($elements)) {
         foreach ($elements as $val) {
             if ($val) {
                 $count++;
@@ -338,11 +372,12 @@ Validate::addMethod('mincount', function ($value, $name, $param) {
     return $count >= $param;
 });
 
-Validate::addMethod('unique', function ($value, $name, $param) {
+Validate::addMethod('unique', function($value, $name, $param) {
     $unique = [];
     $check = false;
     $data = $this->getValue($name);
-    if (true === is_array($data)) {
+
+    if (true === \is_array($data)) {
         foreach ($data as $v) {
             if (true === isset($unique[$v])) {
                 $check = true;
@@ -350,75 +385,80 @@ Validate::addMethod('unique', function ($value, $name, $param) {
             $unique[$v] = 1;
         }
 
-        return $this->optional($value) || !$check;//$length == $unique;
+        return $this->optional($value) || !$check; //$length == $unique;
     }
 
     return false;
 });
-Validate::addMethod('accept', function ($value, $name, $pattern) {
+Validate::addMethod('accept', function($value, $name, $pattern) {
     if ($optionValue = $this->optional($value)) {
         return $optionValue;
     }
+
     if (isset($value['type'])) {
+        $pattern = \str_replace(',', '|', $pattern);
+        $pattern = \str_replace('/*', '/.*', $pattern);
 
-        $pattern = str_replace(',','|', $pattern);
-        $pattern = str_replace('/*','/.*', $pattern);
-
-        return preg_match('#\.?('.$pattern.')$#', $value['type']);
+        return \preg_match('#\.?(' . $pattern . ')$#', $value['type']);
     }
+
     return true;
 });
-Validate::addMethod('email', function ($value, $name, $param) {
-    return $this->optional($value) || filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
+Validate::addMethod('email', function($value, $name, $param) {
+    return $this->optional($value) || false !== \filter_var($value, \FILTER_VALIDATE_EMAIL);
 });
 
-Validate::addMethod('url', function ($value, $name, $param) {
-    return $this->optional($value) || filter_var($value, FILTER_VALIDATE_URL) !== false;
+Validate::addMethod('url', function($value, $name, $param) {
+    return $this->optional($value) || false !== \filter_var($value, \FILTER_VALIDATE_URL);
 });
 
-Validate::addMethod('date', function ($value, $name, $param) {
-    return $this->optional($value) || strtotime($value) !== false;
+Validate::addMethod('date', function($value, $name, $param) {
+    return $this->optional($value) || false !== \strtotime($value);
 });
 
-Validate::addMethod('dateISO', function ($value, $name, $param) {
-    return $this->optional($value) || preg_match('/^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/', $value);
+Validate::addMethod('dateISO', function($value, $name, $param) {
+    return $this->optional($value) || \preg_match('/^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/', $value);
 });
 
-Validate::addMethod('number', function ($value, $name, $param) {
-    return $this->optional($value) || is_numeric($value);
+Validate::addMethod('number', function($value, $name, $param) {
+    return $this->optional($value) || \is_numeric($value);
 });
 
-Validate::addMethod('digits', function ($value, $name, $param) {
-    return $this->optional($value) || preg_match('/^\d+$/', $value);
+Validate::addMethod('digits', function($value, $name, $param) {
+    return $this->optional($value) || \preg_match('/^\d+$/', $value);
 });
 
-Validate::addMethod('equalTo', function ($value, $name, $param) {
+Validate::addMethod('equalTo', function($value, $name, $param) {
     if ($this->optional($value)) {
         return true;
     }
 
-    $target = ltrim($param, '#.');
+    $target = \ltrim($param, '#.');
 
-    return $value === $this->getValue($target);
+    return $this->getValue($target) === $value;
 });
 
 class ValidateException extends \Peanut\Exception
 {
     public $errors = [];
+
     public function __construct($e, $statusCode = 400)
     {
         parent::__construct($e, $statusCode);
 
         $tmp = $this->getTrace()[0] ?? [];
+
         if (true === isset($tmp['file']) && $tmp['file']) {
             $this->setFile($tmp['file']);
             $this->setLine($tmp['line']);
         }
     }
+
     public function setErrors($errors)
     {
-        $this->errors=$errors;
+        $this->errors = $errors;
     }
+
     public function getErrors()
     {
         return $this->errors;

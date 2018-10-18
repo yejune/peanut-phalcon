@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Peanut\Schema\Fields;
 
 class PhoneField extends \Peanut\Schema\Fields
@@ -12,12 +13,13 @@ class PhoneField extends \Peanut\Schema\Fields
         $required = $this->getRequired();
 
         $input = '';
-        if (isset($this->schema->size)) {
-            $input .= sprintf($this->phone('text', $name, preg_replace('#\[\]$#', '', $id), $value, $required, true));
+
+        if (true === isset($this->schema->size)) {
+            $input .= \sprintf($this->phone('text', $name, \preg_replace('#\[\]$#', '', $id), $value, $required, true));
         } else {
-            $input = sprintf($this->phone('text', $name, $id, $value, $required, false));
+            $input = \sprintf($this->phone('text', $name, $id, $value, $required, false));
         }
 
-        return sprintf($this->getStringHtml($label), $label, $input);
+        return \sprintf($this->getStringHtml($label), $label, $input);
     }
 }

@@ -729,6 +729,7 @@ class Compiler
                     break;
                 case 'double_operator':
                     if (false === in_array($prev['name'], ['string', 'number', 'string_number', 'assign', 'sam', 'sam2'])) {
+                        return false;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
                     $xpr .= $current['value'];
@@ -743,7 +744,7 @@ class Compiler
                     break;
                 case 'namespace_sigh':
                     if (false === in_array($prev['name'], ['static_object_sign', 'left_parenthesis', 'string', 'assign', 'comma', 'operator', ''])) {
-
+                        return false;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
 
@@ -762,6 +763,7 @@ class Compiler
                     break;
                 case 'operator':
                     if (false === in_array($prev['name'], ['', 'right_parenthesis', 'right_bracket', 'number', 'string', 'string_number', 'quote', 'assign', 'comma', 'sam', 'sam2'])) {
+                        return false;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
                         // + 이지만 앞이나 뒤가 quote라면 + -> .으로 바꾼다. 지금의 name또한 변경한다.
@@ -858,6 +860,7 @@ class Compiler
 
                     // 배열이나 인자 속이 아니면 오류
                     if (false === in_array($last_stat['name'], ['left_parenthesis', 'left_bracket'])) {
+                        return false;
                         throw new Compiler\Exception(__LINE__.' parse error : file '.$this->filename.' line '.$line.' '.$prev['org'].$current['org']);
                     }
 

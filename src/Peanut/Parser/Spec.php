@@ -20,7 +20,8 @@ class Spec
             if (!static::$baseUrl) {
                 static::$baseUrl = \dirname($path) . '/';
             }
-            $arr = \yaml_parse($yml);
+
+            $arr = \yaml_parse($yml."\n");
 
             $arr = static::_parse($arr);
 

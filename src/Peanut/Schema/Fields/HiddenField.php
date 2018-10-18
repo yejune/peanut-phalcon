@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Peanut\Schema\Fields;
 
 class HiddenField extends \Peanut\Schema\Fields
@@ -12,10 +13,11 @@ class HiddenField extends \Peanut\Schema\Fields
         $required = $this->getRequired();
 
         $input = '';
+
         if (isset($this->schema->size)) {
-            $input .= sprintf($this->input('hidden', $name, preg_replace('#\[\]$#', '', $id), $value, $required, true));
+            $input .= \sprintf($this->input('hidden', $name, \preg_replace('#\[\]$#', '', $id), $value, $required, true));
         } else {
-            $input = sprintf($this->input('hidden', $name, $id, $value, $required, false));
+            $input = \sprintf($this->input('hidden', $name, $id, $value, $required, false));
         }
 
         return $input;

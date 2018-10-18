@@ -27,9 +27,7 @@ class Request extends \Phalcon\Http\Request
      */
     public function getParam($key)
     {
-        $params = $this->getParams();
-
-        return true === isset($params[$key]) ? $params[$key] : '';
+        return $this->getDi()->get('dispatcher')->getParam($key);
     }
 
     /**
@@ -37,13 +35,7 @@ class Request extends \Phalcon\Http\Request
      */
     public function getParams()
     {
-        if (!$this->parameters) {
-            foreach ($this->getDI()->get('router')->getParams() as $key => $value) {
-                $this->parameters[$key] = rawurldecode($value);
-            }
-        }
-
-        return $this->parameters;
+        return $this->getDi()->get('dispatcher')->getParams();
     }
 
     /**

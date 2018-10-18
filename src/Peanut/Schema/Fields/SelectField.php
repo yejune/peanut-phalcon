@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Peanut\Schema\Fields;
 
 class SelectField extends \Peanut\Schema\Fields
@@ -14,48 +15,12 @@ class SelectField extends \Peanut\Schema\Fields
 
         // true일때는 무조건 readonly
         // exist일때는 값이 있을 경우에만
-        if ($readonly == 'exist' && !$value) {
+        if ('exist' === $readonly && !$value) {
             $readonly = false;
         }
         $relation = $this->getRelation();
         $data     = $this->getData();
-        if ($relation && (!isset($this->schema->items) || !count($this->schema->items))) {
-            $this->schema->items  = [
-                '' => 'select',
-            ];
-            $condition = $bind = [];
-            if (isset($relation->keys)) {
-                foreach ($relation->keys as $key) {
-                    $condition[] = $key.' = :'.$key.':';
-                    $bind[$key]  = $data[$key];
-                }
-            }
-            $modelName     = $relation->model;
-            $conditions    = [
-                'conditions' => implode(' AND ', $condition),
-                'bind'       => $bind,
-            ];
-            $lang                 = $this->lang;
-            $method               = $relation->method ?? 'find';
-            $relationModels       = $modelName::$method($conditions);
-            $items                = [
-                '' => $relation->message->$lang ?? 'select',
-            ];
-            foreach ($relationModels as $model) {
-                $tmp = '';
-                foreach ($relation->fields as $key => $field) {
-                    $arr = ($model->toArray());
-                    if ($arr[$field]) {
-                        if ($tmp) {
-                            $tmp .= ' ';
-                        }
-                        $tmp .= str_replace($field, $arr[$field], $relation->templates[$key]);
-                    }
-                }
-                $items[$model->getSeq()] = $tmp;
-            }
-            $this->schema->items = $items;
-        }
+
         $select = <<<EOT
 <span class="input %s">
 <select class="form-control" name="%s" id="%s" %s>
@@ -69,59 +34,62 @@ EOT;
 <option value="%s" %s>%s</option>
 OPT;
 
-        if (false === is_array($value)) {
+        if (false === \is_array($value)) {
             $value = [$value];
         }
 
         $input = '';
 
         $j     = -1;
-        $count = count($value);
+        $count = \count($value);
 
         foreach ($value as $i => $data) {
-            $j ++;
-            $isLast                      = false;
-            if ($j == 0 && 1 == $count) { // create empty
+            $j++;
+            $isLast = false;
+
+            if (0 === $j && 1 === $count) { // create empty
                 $isLast = 0;
-            } elseif ($j + 1 == $count) {
+            } elseif ($j + 1 === $count) {
                 $isLast = true;
             }
             $opt = '';
             //pr($this);
-            if (isset($this->schema->items)) {
+            if (true === isset($this->schema->items)) {
                 foreach ($this->schema->items as $enumValue => $enumLabel) {
-                    if (is_object($enumLabel)) {
-                        $opt .= '<optgroup label="'.$enumValue.'">';
+                    if (\is_object($enumLabel)) {
+                        $opt .= '<optgroup label="' . $enumValue . '">';
+
                         foreach ($enumLabel as $key2 => $data2) {
-                            if ($key2 == $data) {
+                            if ((string)$key2 === (string)$data) {
                                 $selected = 'selected';
                             } else {
                                 $selected = '';
                             }
-                            $opt .= sprintf($option, $key2, $selected, $enumValue.' '.$data2);
+                            $opt .= \sprintf($option, $key2, $selected, $enumValue . ' ' . $data2);
                         }
                         $opt .= '</optgroup>';
                     } else {
-                        if ($enumValue == $data) {
+                        if ((string)$enumValue === (string)$data) {
                             $selected = 'selected';
                         } else {
                             $selected = '';
                         }
-                        $opt .= sprintf($option, $enumValue, $selected, $enumLabel);
+                        $opt .= \sprintf($option, $enumValue, $selected, $enumLabel);
                     }
                 }
             }
 
             $dynamic = '';
             $class   = '';
-            if (isset($this->schema->size)) {
+
+            if (true === isset($this->schema->size)) {
                 $dynamic = $this->getDynamic($isLast);
-                $class   ='entry input-group';
+                $class   = 'entry input-group';
             }
 
-            $input .= sprintf($select, $class, $name, preg_replace('#\[\]$#', '', $id).'_'.$i, $readonly ? "readonly onFocus='this.initialSelect = this.selectedIndex;' onChange='this.selectedIndex = this.initialSelect;'" : '', $opt, $dynamic);
+            $input .= \sprintf($select, $class, $name, \preg_replace('#\[\]$#', '', $id) . '_' . $i, $readonly ? "readonly onFocus='this.initialSelect = this.selectedIndex;' onChange='this.selectedIndex = this.initialSelect;'" : '', $opt, $dynamic);
         }
 
-        return sprintf($this->getStringHtml($label), $label, $input);
+        return \sprintf($this->getStringHtml($label), $label, $input);
     }
 }

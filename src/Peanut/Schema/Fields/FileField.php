@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Peanut\Schema\Fields;
 
 class FileField extends \Peanut\Schema\Fields
@@ -32,14 +33,13 @@ class FileField extends \Peanut\Schema\Fields
 </span>
 EOT;
 
-
-
-        if (is_array($value) === true) {
+        if (true === \is_array($value)) {
             if (true === isset($value['name'])) {
                 $value = [$value];
             } else {
                 $org   = $value;
                 $value = [];
+
                 foreach ($org as $key => $val) {
                     $value[$key] = $val;
                 }
@@ -47,31 +47,34 @@ EOT;
         } else {
             $value = [null];
         }
-        if (0 === count($value)) {
+
+        if (0 === \count($value)) {
             $value = [null];
         }
         $input = '';
 
         $j     = -1;
-        $count = count($value);
+        $count = \count($value);
 
         foreach ($value as $i => $data) {
-            $j ++;
-            $isLast                      = false;
-            $type                        = 'text';
-            if ($j == 0 && 1 == $count) { // create empty
+            $j++;
+            $isLast = false;
+            $type   = 'text';
+
+            if (0 === $j && 1 === $count) { // create empty
                 if (!$data) {
                     $type = 'file';
                 }
                 $isLast = 0;
-            } elseif ($j + 1 == $count) {
+            } elseif ($j + 1 === $count) {
                 $isLast = true;
             }
-            $dynamic                     = '';
-            $class                       = '';
+            $dynamic = '';
+            $class   = '';
+
             if (isset($this->schema->size)) {
                 $dynamic = $this->getDynamic($isLast);
-                $class   =' input-group';
+                $class   = ' input-group';
             }
             // if (false !== strpos($name, '[]')) {
             //     $cname = preg_replace('#\[\]$#','['.$i.']',$name);//.'[]';//rtrim($name, '[]').'['.$i.']';
@@ -80,30 +83,32 @@ EOT;
             // }
 
             $index = $i;
-            if(!$data) {
+
+            if (!$data) {
                 $index = '';
             }
-            $cname = preg_replace('#\[\]$#', '['.$index.']', $name);//.'[]';//rtrim($name, '[]').'['.$i.']';
-            $cid   = preg_replace('#\[\]$#', '_', $id).$index;//.'[]';//rtrim($name, '[]').'['.$i.']';
+            $cname = \preg_replace('#\[\]$#', '[' . $index . ']', $name); //.'[]';//rtrim($name, '[]').'['.$i.']';
+            $cid   = \preg_replace('#\[\]$#', '_', $id) . $index; //.'[]';//rtrim($name, '[]').'['.$i.']';
 
             $src = '';
+
             if (true === isset($data['type']) && isset($data['url'])) {
-                if (0 === strpos($data['type'], 'image/')) {
-                    $src = '<a class="preview" href="'.$data['url'].'" target="_blank"><img src="'.$data['url'].'" width="100"></a>';
+                if (0 === \strpos($data['type'], 'image/')) {
+                    $src = '<a class="preview" href="' . $data['url'] . '" target="_blank"><img src="' . $data['url'] . '" width="100"></a>';
                 } else {
-                    $src = '<a class="preview" href="'.$data['url'].'" target="_blank">'.$data['url'].'</a>';
+                    $src = '<a class="preview" href="' . $data['url'] . '" target="_blank">' . $data['url'] . '</a>';
                 }
             }
 
-            $value = $data['name']??'';
+            $value = $data['name'] ?? '';
 
-            $placeholderCode = $placeholder ? 'placeholder="'.$placeholder.'"' : '';
-            $acceptCode      = $accept ? 'accept="'.$accept.'"' : '';
+            $placeholderCode = $placeholder ? 'placeholder="' . $placeholder . '"' : '';
+            $acceptCode      = $accept ? 'accept="' . $accept . '"' : '';
 
-            if ($type == 'text') {
-                $input .= sprintf($select, $class, $type, $cname, $cid, $value, ($required ? 'required' : '').' readonly', $placeholderCode, $acceptCode, $src, $dynamic);
+            if ('text' === $type) {
+                $input .= \sprintf($select, $class, $type, $cname, $cid, $value, ($required ? 'required' : '') . ' readonly', $placeholderCode, $acceptCode, $src, $dynamic);
             } else {
-                $input .= sprintf($select, $class, $type, $cname, $cid, $value, $required ? 'required' : '', $placeholderCode, $acceptCode, $src, $dynamic);
+                $input .= \sprintf($select, $class, $type, $cname, $cid, $value, $required ? 'required' : '', $placeholderCode, $acceptCode, $src, $dynamic);
             }
 
             // if ($j == 0 && 1 == $count) { // create empty
@@ -111,6 +116,6 @@ EOT;
             // }
         }
 
-        return sprintf($this->getStringHtml($label), $label, $input);
+        return \sprintf($this->getStringHtml($label), $label, $input);
     }
 }

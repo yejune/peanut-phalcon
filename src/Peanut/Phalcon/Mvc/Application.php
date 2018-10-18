@@ -184,8 +184,9 @@ class Application extends \Phalcon\Mvc\Application
         $dispatcher->setControllerName($router->getControllerName());
         $dispatcher->setActionName($router->getActionName());
         $dispatcher->setParams($router->getParams());
-        $dispatcher->setPaths($matchedRoute->getPaths());/* add */
-
+        if($matchedRoute) {
+            $dispatcher->setPaths($matchedRoute->getPaths());/* add */
+        }
         /**
          * Start the $view component (start output buffering)
          */

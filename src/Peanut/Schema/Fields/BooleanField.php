@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Peanut\Schema\Fields;
 
 class BooleanField extends \Peanut\Schema\Fields
@@ -18,13 +19,14 @@ class BooleanField extends \Peanut\Schema\Fields
 %s
 </label>
 EOT;
-        if (strlen($value) && 1 == $value) {
+
+        if (\strlen($value) && 1 === $value) {
             $checked = 'checked';
         } else {
             $checked = '';
         }
-        $input = sprintf($select, $name, $id, $checked, $required, $description);
+        $input = \sprintf($select, $name, $id, $checked, $required, $description);
 
-        return sprintf($this->getStringHtml($label), $label, $input);
+        return \sprintf($this->getStringHtml($label), $label, $input);
     }
 }

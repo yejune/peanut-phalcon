@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 namespace Peanut\Schema\Fields;
 
 class TextField extends \Peanut\Schema\Fields
@@ -11,6 +12,8 @@ class TextField extends \Peanut\Schema\Fields
         $id          = $this->getId();
         $required    = $this->getRequired();
         $placeholder = $this->getPlaceholder();
+
+
         /*
                 $input = '';
                 if (isset($this->schema->size)) {
@@ -26,33 +29,46 @@ class TextField extends \Peanut\Schema\Fields
 </span>
 EOT;
 
-        if (false === is_array($value)) {
+
+        $value = $this->data[$name] ?? $value;
+        if (false === \is_array($value)) {
             $value = [$value];
         }
 
         $input = '';
 
         $j     = -1;
-        $count = count($value);
+        $count = \count($value);
 
+        //print_r([$name, $value]);
         foreach ($value as $i => $data) {
-            $j ++;
-            $isLast                      = false;
-            if ($j == 0 && 1 == $count) { // create empty
+            $j++;
+            $isLast = false;
+
+            if (0 === $j && 1 === $count) { // create empty
                 $isLast = 0;
-            } elseif ($j + 1 == $count) {
+            } elseif ($j + 1 === $count) {
                 $isLast = true;
             }
             $dynamic = '';
             $class   = '';
+
             if (isset($this->schema->size)) {
                 $dynamic = $this->getDynamic($isLast);
-                $class   ='entry input-group';
+                $class   = 'entry input-group';
             }
             //pr($select, $class, 'type', $name, rtrim($id, '[]').'_'.$i, $required ? 'required' : '', $dynamic);
-            $input .= sprintf($select, $class, 'type', $name, preg_replace('#\[\]$#', '', $id).'_'.$i, htmlspecialchars($data), $required ? 'required' : '', $placeholder ? 'placeholder="'.$placeholder.'"' : '', $dynamic);
+            $input .= \sprintf(
+                $select, 
+                $class, 
+                'type', 
+                $name, 
+                \preg_replace('#\[\]$#', '', $id) . '_' . $i, \htmlspecialchars((string) $data),
+                $required ? 'required' : '', $placeholder ? 'placeholder="' . $placeholder . '"' : '', 
+                $dynamic
+            );
         }
 
-        return sprintf($this->getStringHtml($label), $label, $input);
+        return \sprintf($this->getStringHtml($label), $label, $input);
     }
 }

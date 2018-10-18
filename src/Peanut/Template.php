@@ -71,7 +71,7 @@ class Template
     public function assign($key, $value = false)
     {
         if (true === is_array($key)) {
-            $this->var_ = $this->array_merge_recursive_distinct($this->var_, $key);
+            $this->var_ = array_merge($this->var_, $key);
         } else {
             $this->var_[$key] = $value;
         }
