@@ -63,14 +63,14 @@ class Fields
         if (1 < $index) {
             $html .= '<span class="input-group-btn clone"><button class="btn btn-danger btn-minus" type="button"><span class="glyphicon glyphicon-minus"></span></button></span>';
         }
-        $html = '<span class="input ' . (1 < $index ? 'clone' : '') . '">' . $html . '</span>';
+        $html = '<div class="wrap-element ' . (1 < $index ? 'clone-element' : '') . '">' . $html . '</div>';
 
         return $html;
     }
 
     public static function readElement($html, int $index = 1)
     {
-        $html = '<span class="input ' . (1 < $index ? 'clone' : '') . '">' . $html . '</span>';
+        $html = '<div class="wrap-element ' . (1 < $index ? 'clone-element' : '') . '">' . $html . '</div>';
 
         return $html;
     }

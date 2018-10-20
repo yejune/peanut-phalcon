@@ -11,11 +11,13 @@ class Search extends \Peanut\Form\Generation\Fields
         if (0 === \strlen($value) && true === isset($property['default'])) {
             $value = \htmlspecialchars((string) $property['default']);
         }
-        $class = $property['class'] ?? '';
+
         $html = <<<EOT
-        <input type="text" class="form-control btn-search {$class}" readonly="readonly" value="{$value}" />
-        <input type="hidden" class="form-control" name="{$key}" value="{$value}" />
-        <span class="input-group-btn"><button class="btn btn-primary btn-search {$class}" type="button"><span class="glyphicon glyphicon-search"></span></button></span>
+        <input type="text" class="form-control form-control-search" readonly="readonly" value="{$value}" />
+        <input type="hidden" name="{$key}" value="{$value}" />
+        <span class="input-group-btn">
+            <button class="btn btn-primary btn-search" type="button"><span class="glyphicon glyphicon-search"></span></button>
+        </span>
 EOT;
 
         return $html;

@@ -10,17 +10,17 @@ class File extends \Peanut\Form\Generation\Fields
             $value  = \htmlspecialchars((string) $data['name']);
             $accept = $property['rules']['accept'] ?? '';
             $html   = <<<EOT
-            <input type="text" class="form-control file" name="{$key}" value="{$value}" accept="{$accept}" readonly="readonly" />
+            <input type="text" class="form-control file-control-filetext" name="{$key}" value="{$value}" accept="{$accept}" readonly="readonly" />
 
 EOT;
         } else {
             $value  = '';
             $accept = $property['rules']['accept'] ?? '';
             $html   = <<<EOT
-            <input type="text" class='form-control btn-text' value="선택된 파일 없음" readonly="readonly" />
+            <input type="text" class='form-control form-control-file' value="" readonly="readonly" />
             <input type="file" class='form-control-file' name="{$key}" value="{$value}" accept="{$accept}" />
 
-            <span class="input-group-btn xbtn-default btn-file">
+            <span class="input-group-btn">
                 <button class="btn btn-primary type="button"><span class="glyphicon glyphicon-search"></span></button>
             </span>
 EOT;
