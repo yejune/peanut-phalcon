@@ -18,7 +18,7 @@ EOT;
             $accept = $property['rules']['accept'] ?? '';
             $html   = <<<EOT
             <input type="text" class='form-control btn-text' value="선택된 파일 없음" readonly="readonly" />
-            <input type="file" name="{$key}" value="{$value}" accept="{$accept}" />
+            <input type="file" class='form-control-file' name="{$key}" value="{$value}" accept="{$accept}" />
 
             <span class="input-group-btn xbtn-default btn-file">
                 <button class="btn btn-primary type="button"><span class="glyphicon glyphicon-search"></span></button>
