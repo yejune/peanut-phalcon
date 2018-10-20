@@ -136,8 +136,8 @@ EOT;
                 $addClass = ' hide';
             }
 
-            if (true === isset($propertyValue['inline'])) {
-                $addClass = ' form-inline';
+            if (true === isset($propertyValue['class'])) {
+                $addClass = ' '.$propertyValue['class'];
             }
 
             if ('hidden' === $propertyValue['type']) {
