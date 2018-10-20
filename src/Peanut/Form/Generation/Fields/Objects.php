@@ -33,6 +33,8 @@ class Objects extends \Peanut\Form\Generation\Fields
             }
             $aData = $data[$fixPropertyKey] ?? '';
 
+            $isMultiple = true === isset($propertyValue['multiple']) ? true : false;
+
             if ($aData) {
                 if (false === $isArray) { // 배열일때
                     if (false === isset($parentId)) {
@@ -41,6 +43,9 @@ class Objects extends \Peanut\Form\Generation\Fields
                     $elements .= static::addElement(
                         $method::write($propertyName, $propertyValue, $aData),
                         $index
+                        ,
+                        $isMultiple,
+                        $parentId
                     );
                 } else {
                     foreach ($aData as $aKey => $aValue) {
@@ -52,6 +57,9 @@ class Objects extends \Peanut\Form\Generation\Fields
                         $elements .= static::addElement(
                             $method::write($propertyName . '[' . $aKey . ']', $propertyValue, $aData[$aKey]),
                             $index
+                            ,
+                            $isMultiple,
+                            $parentId
                         );
                     }
                 }
@@ -64,6 +72,9 @@ class Objects extends \Peanut\Form\Generation\Fields
                     $elements .= static::addElement(
                         $method::write($propertyName, $propertyValue, $aData),
                         $index
+                        ,
+                        $isMultiple,
+                        $parentId
                     );
                 } else {
                     $index++;
@@ -71,11 +82,13 @@ class Objects extends \Peanut\Form\Generation\Fields
                     $elements .= static::addElement(
                         $method::write($propertyName . '[' . $parentId . ']', $propertyValue, $aData),
                         $index
+                        ,
+                        $isMultiple,
+                        $parentId
                     );
                 }
             }
 
-            $multipleHtml = true === isset($propertyValue['multiple']) ? static::getMultipleHtml($parentId) : '';
 
             if (true === isset($propertyValue['label'])) {
                 if (true === isset($propertyValue['label'][static::getLanguage()])) {
@@ -101,12 +114,7 @@ class Objects extends \Peanut\Form\Generation\Fields
             if (true === isset($propertyValue['collapse'])) {
                 $collapse = 'hide';
             }
-            $objects = <<<EOT
-            <div class="objects {$collapse}">
-            {$elements}
-            {$multipleHtml}
-            </div>
-EOT;
+
 
             $collapse1 = '';
 
@@ -144,14 +152,14 @@ EOT;
                 $innerhtml .= <<<EOT
                 <div class="form-group row x-hidden">
                     {$titleHtml}
-                    {$objects}
+                    {$elements}
                 </div>
 EOT;
             } else {
                 $innerhtml .= <<<EOT
                 <div class="form-group row {$addClass}">
                     {$titleHtml}
-                    {$objects}
+                    {$elements}
                 </div>
 EOT;
             }
