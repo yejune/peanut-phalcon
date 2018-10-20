@@ -12,8 +12,8 @@ class Objects extends \Peanut\Form\Generation\Fields
         //pr($data);
 
         foreach ($specs['properties'] as $propertyKey => $propertyValue) {
-            if(false === isset($propertyValue['type'])) {
-                pr($propertyValue);
+            if (false === isset($propertyValue['type'])) {
+                \pr($propertyValue);
             }
             $method   = __NAMESPACE__ . '\\' . \ucfirst($propertyValue['type']);
             $elements = '';
@@ -77,27 +77,28 @@ class Objects extends \Peanut\Form\Generation\Fields
 
             $multipleHtml = true === isset($propertyValue['multiple']) ? static::getMultipleHtml($parentId) : '';
 
-            if(true === isset($propertyValue['label'])) {
-                if(true === isset($propertyValue['label'][static::getLanguage()])) {
+            if (true === isset($propertyValue['label'])) {
+                if (true === isset($propertyValue['label'][static::getLanguage()])) {
                     $title = $propertyValue['label'][static::getLanguage()];
-                } else  {
+                } else {
                     $title = $propertyValue['label'];
                 }
             } else {
                 $title = '';
             }
 
-            if(true === isset($propertyValue['description'])) {
-                if(true === isset($propertyValue['description'][static::getLanguage()])) {
+            if (true === isset($propertyValue['description'])) {
+                if (true === isset($propertyValue['description'][static::getLanguage()])) {
                     $description = $propertyValue['description'][static::getLanguage()];
-                } else  {
+                } else {
                     $description = $propertyValue['description'];
                 }
             } else {
                 $description = '';
             }
             $collapse = '';
-            if(true === isset($propertyValue['collapse'])) {
+
+            if (true === isset($propertyValue['collapse'])) {
                 $collapse = 'hide';
             }
             $objects = <<<EOT
@@ -108,29 +109,37 @@ class Objects extends \Peanut\Form\Generation\Fields
 EOT;
 
             $collapse1 = '';
-            if(true === isset($propertyValue['collapse'])) {
+
+            if (true === isset($propertyValue['collapse'])) {
                 $collapse1 = ' <i class="button-collapse glyphicon glyphicon-triangle-right"></i>';
             }
 
-            $titleHtml    = '';
+            $titleHtml = '';
 
             $collapse2 = '';
-            if(true === isset($propertyValue['collapse'])) {
+
+            if (true === isset($propertyValue['collapse'])) {
                 $collapse2 = 'label-collapse';
             }
 
             if ($title) {
-                $titleHtml .= '<label class="'.$collapse2.'">' . $title .$collapse1. '</label>';
+                $titleHtml .= '<label class="' . $collapse2 . '">' . $title . $collapse1 . '</label>';
             }
 
             if ($description) {
-                $titleHtml .= '<p>' . $description . '</p>';
+                $titleHtml .= '<p class="description">' . $description . '</p>';
             }
 
-            $hide = '';
-            if(true === isset($propertyValue['hide'])) {
-                $hide = ' hide';
+            $addClass = '';
+
+            if (true === isset($propertyValue['hide'])) {
+                $addClass = ' hide';
             }
+
+            if (true === isset($propertyValue['inline'])) {
+                $addClass = ' form-inline';
+            }
+
             if ('hidden' === $propertyValue['type']) {
                 $innerhtml .= <<<EOT
                 <div class="form-group row x-hidden">
@@ -140,7 +149,7 @@ EOT;
 EOT;
             } else {
                 $innerhtml .= <<<EOT
-                <div class="form-group row {$hide}">
+                <div class="form-group row {$addClass}">
                     {$titleHtml}
                     {$objects}
                 </div>
