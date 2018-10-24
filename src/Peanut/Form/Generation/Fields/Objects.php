@@ -6,10 +6,7 @@ class Objects extends \Peanut\Form\Generation\Fields
 {
     public static function write(string $key, array $specs, $data)
     {
-        //pr($key, $data);
-
         $innerhtml = '';
-        //pr($data);
 
         foreach ($specs['properties'] as $propertyKey => $propertyValue) {
             if (false === isset($propertyValue['type'])) {

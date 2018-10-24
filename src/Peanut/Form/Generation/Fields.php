@@ -4,7 +4,7 @@ namespace Peanut\Form\Generation;
 
 class Fields
 {
-    public static function getMultipleHtml($key)
+    public static function xgetMultipleHtml($key)
     {
         return '<span class="input-group-btn wrap-btn-plus" data-uniqid="' . $key . '"><button class="btn btn-success btn-plus" type="button"><span class="glyphicon glyphicon-plus"></span></button></span>';
     }
@@ -66,6 +66,12 @@ class Fields
             $btn = $html[1];
             $html = $html[0];
         }
+
+        $class = '';
+        if( 0 === strpos(trim($html), '<fieldset>')) {
+            $class = ' btn-block';
+        }
+
         if ($isMultiple) {
         }
         if($isMultiple) {
@@ -78,9 +84,9 @@ class Fields
         }
 
         if ($btn) {
-            $html .= '<span class="input-group-btn clone">'.$btn.'</span>';
+            $html .= '<span class="input-group-btn'.$class.'">'.$btn.'</span>';
         }
-        $html = '<div data-uniqid="' . $parentId . '" class="objects wrap-element ' . (1 < $index ? 'clone-element' : '') . '">' . $html . '</div>';
+        $html = '<div data-uniqid="' . $parentId . '" class="wrap-element ' . (1 < $index ? 'clone-element' : '') . '">' . $html . '</div>';
 
         return $html;
     }
